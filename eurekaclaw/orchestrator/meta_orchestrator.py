@@ -217,6 +217,14 @@ class MetaOrchestrator:
             stage_label = task.name if (result and not result.failed) else f"{task.name}_FAILED"
             self.bus.persist_incremental(completed_stage=stage_label)
 
+        # --- Token usage report ---
+        from eurekaclaw.llm.base import get_global_tokens, get_wasted_tokens
+        total = get_global_tokens()
+        wasted = get_wasted_tokens()
+        console.print(f"\n[dim]Token usage — input: {total['input']:,}, output: {total['output']:,}[/dim]")
+        if wasted['input'] > 0 or wasted['output'] > 0:
+            console.print(f"[dim]Tokens wasted on failed retries — input: {wasted['input']:,}, output: {wasted['output']:,}[/dim]")
+
         # --- Phase 4: Post-run continual learning ---
         console.print("\n[blue]Running continual learning loop...[/blue]")
         await self.learning_loop.post_run(pipeline, self.bus)
