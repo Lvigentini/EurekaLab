@@ -32,6 +32,8 @@ class KnowledgeBus:
         self.session_id = session_id
         self._store: dict[str, Any] = {}
         self._subscribers: dict[str, list[Callable]] = defaultdict(list)
+        self._session_dir: Path | None = None
+        self._completed_stages: list[str] = []
 
     # ------------------------------------------------------------------
     # Research Brief
@@ -141,6 +143,36 @@ class KnowledgeBus:
             else:
                 path.write_text(json.dumps(value, indent=2, default=str), encoding="utf-8")
         logger.info("Persisted %d artifacts to %s", len(self._store), session_dir)
+
+    def persist_incremental(self, completed_stage: str | None = None) -> None:
+        """Write current bus state to disk incrementally.
+
+        Called after each pipeline stage to ensure partial work survives crashes.
+        """
+        if self._session_dir is None:
+            from eurekaclaw.config import settings
+            self._session_dir = settings.runs_dir / self.session_id
+
+        self._session_dir.mkdir(parents=True, exist_ok=True)
+
+        for key, value in self._store.items():
+            path = self._session_dir / f"{key}.json"
+            if hasattr(value, "model_dump_json"):
+                path.write_text(value.model_dump_json(indent=2), encoding="utf-8")
+            else:
+                path.write_text(json.dumps(value, indent=2, default=str), encoding="utf-8")
+
+        if completed_stage and completed_stage not in self._completed_stages:
+            self._completed_stages.append(completed_stage)
+
+        marker = self._session_dir / "_stage_progress.json"
+        marker.write_text(json.dumps({
+            "session_id": self.session_id,
+            "completed_stages": self._completed_stages,
+        }, indent=2), encoding="utf-8")
+
+        logger.debug("Incremental persist: %d artifacts, stages=%s",
+                     len(self._store), self._completed_stages)
 
     @classmethod
     def load(cls, session_id: str, session_dir: Path) -> "KnowledgeBus":
