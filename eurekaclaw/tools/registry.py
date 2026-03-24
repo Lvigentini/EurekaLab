@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -38,12 +39,17 @@ class ToolRegistry:
     async def call(self, name: str, inputs: dict[str, Any]) -> str:
         tool = self._tools.get(name)
         if tool is None:
-            return f"Error: unknown tool '{name}'"
+            return json.dumps({"error": True, "type": "unknown_tool", "message": f"Unknown tool '{name}'"})
         try:
             return await tool.call(**inputs)
         except Exception as e:
             logger.exception("Tool %s failed", name)
-            return f"Error running tool '{name}': {e}"
+            return json.dumps({
+                "error": True,
+                "type": type(e).__name__,
+                "message": str(e),
+                "tool": name,
+            })
 
     def __contains__(self, name: str) -> bool:
         return name in self._tools
