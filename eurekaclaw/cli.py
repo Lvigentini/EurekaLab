@@ -157,6 +157,23 @@ def resume(session_id: str) -> None:
         console.print(
             f"[dim]Expected location: {cp.checkpoint_path}[/dim]"
         )
+
+        # Fallback: check for pipeline-level checkpoint from incremental persistence
+        from eurekaclaw.orchestrator.session_checkpoint import SessionCheckpoint
+        scp = SessionCheckpoint(session_id)
+        last_stage, completed = scp.detect_progress()
+
+        if last_stage:
+            next_stage = scp.next_stage_after(last_stage)
+            console.print(f"\n[green]Found pipeline progress: completed stages = {completed}[/green]")
+            if next_stage:
+                console.print(f"[blue]To resume, re-run with the same parameters. The completed stages' results are preserved in:[/blue]")
+                console.print(f"  {settings.runs_dir / session_id}/")
+            else:
+                console.print("[green]Session was fully complete. Results at:[/green]")
+                console.print(f"  {settings.runs_dir / session_id}/")
+            return
+
         sys.exit(1)
 
     state, meta = cp.load()
