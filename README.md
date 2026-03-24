@@ -32,6 +32,8 @@ $ eurekaclaw prove "Find recent papers on sparse attention + prove efficiency bo
 🦞 Eureka! Paper draft saved to ./results/
 ```
 
+> **Fork Notice:** This is a fork of [EurekaClaw/EurekaClaw](https://github.com/EurekaClaw/EurekaClaw) with significant improvements to resilience, multi-model support, and research quality. See [What's New in This Fork](#whats-new-in-this-fork) below.
+
 ---
 
 **EurekaClaw** is a multi-agent AI research assistant that goes from a question to a publishable result — autonomously. It crawls the literature, generates and stress-tests hypotheses, runs experiments, and writes up findings, all from your terminal or browser UI.
@@ -52,6 +54,37 @@ $ eurekaclaw prove "Find recent papers on sparse attention + prove efficiency bo
 | 🧠 | **Continual Learning** | Distills proof strategies into skills after every session, improving over time |
 | 🧪 | **Experiment Runner** *(under development)* | Numerically validates theoretical bounds; flags low-confidence lemmas |
 | 🌐 | **Browser UI** | React + TypeScript interface — live agent track, proof sketch, pause/resume, skills manager |
+
+---
+
+## What's New in This Fork
+
+This fork ([Lvigentini/EurekaClaw](https://github.com/Lvigentini/EurekaClaw)) adds three major contributions over the upstream project:
+
+### 1. N-Model Ensemble Architecture
+Run multiple LLMs (Claude, Gemini, GPT, Kimi, etc.) concurrently across pipeline stages with per-stage merge strategies:
+
+| Stage | Strategy | What It Does |
+|-------|----------|-------------|
+| Survey | Union + dedup | Broader literature coverage from multiple models |
+| Ideation | Adversarial cross-review | Models challenge each other's hypotheses |
+| Theory | Asymmetric (primary + reviewer) | Independent proof verification catches blind spots |
+| Experiment | Consensus | Both models must agree for high confidence |
+
+Configure via environment variables — add `ENSEMBLE_MODELS=claude,gemini` and per-stage strategies. Adding a new model is 3 lines of config.
+
+### 2. Crash Resilience
+- **Incremental checkpointing** — state saved after each pipeline stage, not just at session end
+- **Full-pipeline resume** — `eurekaclaw resume <session_id>` detects progress from any stage
+- **Circuit breaker** — fails fast after 3 consecutive API failures instead of burning tokens
+- **Error classification** — auth errors (401/403) fail immediately, server errors retry with backoff
+- **ccproxy health monitoring** — auto-restarts OAuth proxy if it crashes mid-session
+- **Token waste tracking** — reports tokens spent on failed retries at session end
+
+### 3. Enhanced Search
+- **Gemini parallel search** — Google Gemini with grounding searches alongside arXiv/Semantic Scholar for broader coverage, especially on interdisciplinary topics
+- **Structured error handling** — tool failures return JSON errors that agents can reason about
+- **Dynamic ensemble recommendations** — system suggests widening or narrowing model participation based on observed results
 
 ---
 
