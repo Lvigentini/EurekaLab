@@ -173,7 +173,7 @@ About to run: ideation
   ->
 ```
 
-The `locked` flag tracks whether the user explicitly chose — if True, agent recommendations are shown but not auto-applied.
+The `locked` flag tracks whether the user explicitly chose — if True, agent recommendations are shown but not auto-applied. Options 1-4 set `locked = True`. Option 5 ("let the system decide") sets `locked = False`.
 
 **Auto mode** (when `GATE_MODE=auto`): Recommendations with `confidence > 0.7` auto-apply. Otherwise current config proceeds.
 
@@ -237,19 +237,38 @@ execute_stage(task, agent_factory)
 
 ### Parallel Dispatch
 
+**Bus isolation:** Each parallel agent gets a scoped bus wrapper that namespaces writes by model name (e.g., `bus.put("experiment_result")` becomes `bus.put("experiment_result__claude")`). The merger reads from all namespaces and writes the merged result to the canonical key. This prevents parallel agents from clobbering each other's bus entries.
+
+**Per-model timeout:** Each parallel agent is wrapped in `asyncio.wait_for()` with a configurable timeout (default 300s). Timed-out models are excluded from merging with a warning logged.
+
 ```python
 async def _run_parallel(self, task, agent_factory, config) -> dict[str, AgentResult]:
+    per_model_timeout = 300  # seconds, configurable
+
     async def run_one(model_name):
         client = self.model_pool.get(model_name)
+        # agent_factory creates a FRESH agent instance per model
+        # (new AgentSession, new client binding — no shared mutable state)
         agent = agent_factory(client)
-        return await agent.execute(task)
+        scoped_bus = ScopedBus(self.bus, namespace=model_name)
+        agent.bus = scoped_bus
+        return await asyncio.wait_for(
+            agent.execute(task.model_copy()),  # copy task to avoid mutation
+            timeout=per_model_timeout,
+        )
 
     coros = {name: run_one(name) for name in config.models}
-    results = await asyncio.gather(*coros.values(), return_exceptions=True)
-    return dict(zip(coros.keys(), results))
+    raw = await asyncio.gather(*coros.values(), return_exceptions=True)
+    results = {}
+    for name, result in zip(coros.keys(), raw):
+        if isinstance(result, Exception):
+            logger.warning("Ensemble model %s failed: %s", name, result)
+        else:
+            results[name] = result
+    return results
 ```
 
-`return_exceptions=True` means if one model fails, others still proceed. Mergers handle partial results gracefully.
+`task.model_copy()` (Pydantic v2) creates an independent copy per model so no agent mutates the shared task object.
 
 ### Asymmetric Dispatch (Theory)
 
@@ -269,13 +288,54 @@ async def _run_asymmetric(self, task, agent_factory, config) -> AgentResult:
 
     # If review found high-severity issues, re-run primary with feedback
     if review.get("issues") and any(i["severity"] == "high" for i in review["issues"]):
-        # Inject review feedback and re-execute (same pattern as theory_review_gate)
-        task.description += f"\n\n[Reviewer feedback]: {json.dumps(review['issues'])}"
-        primary_result = await primary_agent.execute(task)
+        # Create a task COPY with feedback injected (never mutate the original)
+        revised_task = task.model_copy()
+        revised_task.description += f"\n\n[Reviewer feedback]: {json.dumps(review['issues'])}"
+        primary_result = await primary_agent.execute(revised_task)
         primary_result.output["ensemble_review"] = review
         primary_result.output["ensemble_revision"] = True
 
     return primary_result
+```
+
+### _run_review Method
+
+The reviewer receives a structured prompt with the primary model's output and returns a JSON review:
+
+```python
+async def _run_review(
+    self,
+    reviewer_client: LLMClient,
+    primary_result: AgentResult,
+    task: Task,
+) -> dict:
+    """Ask a reviewer model to critique the primary model's output."""
+    from eurekaclaw.config import settings
+
+    review_prompt = (
+        "You are an independent reviewer. Examine the following proof/analysis output "
+        "and identify logical gaps, unjustified steps, missing edge cases, or errors.\n\n"
+        f"Original task: {task.description[:500]}\n\n"
+        f"Output to review:\n{json.dumps(primary_result.output, default=str)[:4000]}\n\n"
+        "Respond with a JSON object:\n"
+        '{"review_passed": bool, "issues": [{"lemma_id": "...", "severity": "high|medium|low", '
+        '"description": "..."}], "confidence": 0.0-1.0, "summary": "1-2 sentence overall assessment"}'
+    )
+
+    response = await reviewer_client.messages.create(
+        model=self.model_pool.get_model_name(self.config.get_stage(task.name).reviewer),
+        max_tokens=settings.max_tokens_verifier,
+        system="You are a rigorous mathematical reviewer. Output only valid JSON.",
+        messages=[{"role": "user", "content": review_prompt}],
+    )
+
+    # Parse JSON from response, with fallback
+    text = response.content[0].text
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        logger.warning("Reviewer returned non-JSON response, treating as pass")
+        return {"review_passed": True, "issues": [], "confidence": 0.5}
 ```
 
 ---
@@ -324,15 +384,35 @@ bus.put("ensemble_survey_stats", {
 
 **Phase 1 — Generate:** Each model produces 5 ResearchDirection objects independently. N models = N*5 raw directions.
 
-**Phase 2 — Cross-review:** Each model reviews the OTHER models' directions. Lightweight LLM call per reviewer (~1k tokens) scoring each direction on novelty (0-1), soundness (0-1), feasibility (0-1), plus a 1-sentence critique.
+**Phase 2 — Cross-review:** Each model reviews the OTHER models' directions via a lightweight LLM call using the fast model (~1k tokens per review). For N models this is N*(N-1) review calls.
+
+Cross-review prompt template:
+```
+Score each research direction on three dimensions (0.0-1.0):
+- novelty: How original is this idea?
+- soundness: Is the mathematical reasoning plausible?
+- feasibility: Can this be proved with known techniques?
+
+Directions to review:
+[JSON array of directions from other models]
+
+Return JSON: [{"direction_id": "...", "novelty": 0.8, "soundness": 0.7, "feasibility": 0.6, "critique": "..."}]
+```
+
+If a cross-review call fails or returns malformed JSON, that reviewer's scores are excluded (the direction keeps its self-score only).
 
 **Phase 3 — Rank:** Each direction gets a final score:
 ```
+self_score = direction.compute_composite()  # 0.4*novelty + 0.35*soundness + 0.25*transformative
+avg_cross_score = mean of all cross-reviewer composite scores for this direction
+bonus = originality_bonus OR convergence_bonus (mutually exclusive)
+
 final_score = 0.4 * avg_cross_score + 0.3 * self_score + 0.3 * bonus
 ```
 Where `bonus` is:
-- `originality_bonus` (0.2) if only one model proposed it (high divergence = potentially novel)
-- `convergence_bonus` (0.15) if multiple models independently proposed similar directions (independent discovery = likely sound)
+- `originality_bonus` (0.2) if only one model proposed this direction (unique = potentially novel)
+- `convergence_bonus` (0.15) if 2+ models independently proposed similar directions (detected by title cosine similarity > 0.7 using lowercased word overlap, not embeddings)
+- These are mutually exclusive. A direction is either unique to one model or converged across multiple.
 
 Top 5-7 directions proceed, each tagged with:
 ```python
@@ -386,7 +466,8 @@ MERGER_REGISTRY: dict[str, type[BaseMerger] | None] = {
     "union": UnionMerger,
     "adversarial": AdversarialMerger,
     "consensus": ConsensusMerger,
-    "single": None,  # no merging needed
+    "asymmetric": None,  # handled by orchestrator._run_asymmetric()
+    "single": None,      # no merging needed
 }
 ```
 
@@ -488,7 +569,7 @@ result = await agent.execute(task)
 
 # After:
 if self.ensemble.is_ensemble_stage(task.name):
-    agent_factory = lambda client: self.router.resolve_with_client(task, client)
+    agent_factory = lambda client: self.router.create_agent(task, client)
     result = await self.ensemble.execute_stage(task, agent_factory)
 else:
     agent = self.router.resolve(task)
@@ -497,24 +578,94 @@ else:
 
 ### Changes to TaskRouter
 
-Add one method:
+Add a factory method that creates **fresh agent instances** (not references to shared singletons). This is critical for parallel dispatch — shared agents would have their `client` and `session` state mutated by concurrent coroutines.
+
 ```python
-def resolve_with_client(self, task: Task, client: LLMClient) -> BaseAgent:
-    agent = self.resolve(task)
-    agent.client = client
-    return agent
+def create_agent(self, task: Task, client: LLMClient) -> BaseAgent:
+    """Create a NEW agent instance for this task with the given client.
+
+    Unlike resolve() which returns shared singletons, this creates
+    independent instances safe for parallel ensemble execution.
+    Each gets its own AgentSession, client, and bus reference.
+    """
+    agent_cls = self._agent_class_for_role(task.agent_role)
+    return agent_cls(
+        bus=self.bus,
+        tool_registry=self.tool_registry,
+        skill_injector=self.skill_injector,
+        memory=self.memory,
+        client=client,
+    )
 ```
+
+Note: `_agent_class_for_role()` maps `AgentRole` to the class (SurveyAgent, IdeationAgent, etc.). This is a simple dict lookup extracted from the existing role-to-agent mapping in MetaOrchestrator.
 
 ### Changes to config.py
 
 Add ensemble-related settings. All optional with sensible defaults.
 
+### Changes to factory.py
+
+Add `google` backend alias:
+```python
+_BACKEND_ALIASES = {
+    "openrouter": ("openai_compat", "https://openrouter.ai/api/v1"),
+    "local": ("openai_compat", "http://localhost:8000/v1"),
+    "google": ("openai_compat", "https://generativelanguage.googleapis.com/v1beta/openai/"),
+    ...
+}
+```
+
+### ScopedBus (new utility)
+
+A thin wrapper around KnowledgeBus that namespaces writes during parallel execution:
+
+```python
+# eurekaclaw/ensemble/scoped_bus.py
+
+class ScopedBus:
+    """Wraps KnowledgeBus to namespace writes by model name during parallel dispatch."""
+
+    def __init__(self, bus: KnowledgeBus, namespace: str):
+        self._bus = bus
+        self._ns = namespace
+
+    def put(self, key, value):
+        self._bus.put(f"{key}__{self._ns}", value)
+
+    def get(self, key, default=None):
+        # Try namespaced first, fall back to canonical
+        return self._bus.get(f"{key}__{self._ns}") or self._bus.get(key, default)
+
+    # Delegate read-only methods directly to the underlying bus
+    def get_research_brief(self): return self._bus.get_research_brief()
+    def get_bibliography(self): return self._bus.get_bibliography()
+    def get_theory_state(self): return self._bus.get_theory_state()
+```
+
+Mergers read from all namespaces and write the merged result to the canonical (un-namespaced) key.
+
+### Per-Model Token Tracking
+
+Each ensemble execution tracks tokens per model:
+```python
+# Stored on bus after merge
+bus.put("ensemble_token_usage", {
+    "stage": "ideation",
+    "per_model": {
+        "claude": {"input": 4200, "output": 1800},
+        "gemini": {"input": 3900, "output": 2100},
+    },
+    "merge_overhead": {"input": 800, "output": 400},  # cross-review calls etc.
+    "total": {"input": 8900, "output": 4300},
+})
+```
+
 ### No Changes To
 
-- BaseAgent
+- BaseAgent (interface unchanged — ensemble creates fresh instances with different clients)
 - SurveyAgent, IdeationAgent, TheoryAgent, ExperimentAgent, WriterAgent
-- KnowledgeBus
-- LLM adapters
+- LLM adapters (OpenAICompatAdapter already handles Gemini via OpenAI-compat endpoint)
 - Tool registry
 
 The ensemble layer wraps agents — it doesn't modify them.
@@ -530,6 +681,7 @@ eurekaclaw/ensemble/
     config.py                  # EnsembleConfig: per-stage config with dynamic overrides
     orchestrator.py            # EnsembleOrchestrator: dispatch + merge coordination
     recommender.py             # EnsembleRecommender: heuristic suggestions
+    scoped_bus.py              # ScopedBus: namespaced bus wrapper for parallel isolation
     mergers/
         __init__.py
         base.py                # BaseMerger ABC
