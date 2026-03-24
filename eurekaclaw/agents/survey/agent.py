@@ -173,16 +173,21 @@ papers (5-8), open_problems (3-5), key_mathematical_objects, research_frontier, 
                 start = text.index("```json") + 7
                 end = text.index("```", start)
                 return json.loads(text[start:end].strip())
-            except (json.JSONDecodeError, ValueError):
-                pass
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.warning("Failed to parse ```json block: %s", e)
         if "{" in text and "}" in text:
             try:
                 start = text.index("{")
                 end = text.rindex("}") + 1
                 return json.loads(text[start:end])
-            except (json.JSONDecodeError, ValueError):
-                pass
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.warning("Failed to parse raw JSON from survey output: %s", e)
         # Fallback: return empty structure
+        logger.warning(
+            "Survey output contained no parseable JSON — returning empty structure. "
+            "Output preview: %s",
+            text[:200],
+        )
         return {
             "papers": [],
             "open_problems": [],
