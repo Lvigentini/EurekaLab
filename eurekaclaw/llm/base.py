@@ -4,38 +4,81 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import random
+import time
 from abc import ABC, abstractmethod
 from typing import Any
 
+from eurekaclaw.llm.errors import ErrorClass, classify_error
 from eurekaclaw.llm.types import NormalizedMessage
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Global token counter — accumulated by every client.messages.create() call
-# regardless of which agent or sub-component initiated it.
+# Global token counter
 # ---------------------------------------------------------------------------
 _GLOBAL_TOKENS: dict[str, int] = {"input": 0, "output": 0}
+_WASTED_TOKENS: dict[str, int] = {"input": 0, "output": 0}
 
 
 def get_global_tokens() -> dict[str, int]:
-    """Return a snapshot copy of cumulative token usage across all LLM calls."""
     return dict(_GLOBAL_TOKENS)
 
 
+def get_wasted_tokens() -> dict[str, int]:
+    return dict(_WASTED_TOKENS)
+
+
 def reset_global_tokens() -> None:
-    """Reset the global counter. Call at the start of each top-level session."""
     _GLOBAL_TOKENS["input"] = 0
     _GLOBAL_TOKENS["output"] = 0
+    _WASTED_TOKENS["input"] = 0
+    _WASTED_TOKENS["output"] = 0
 
-# Substrings in the exception message that indicate a transient error worth retrying.
-_RETRYABLE_FRAGMENTS = (
-    "429", "rate limit", "rate_limit",
-    "overloaded", "529",
-    "timeout", "timed out",
-    "empty content",
-    "service unavailable", "502", "503",
-)
+
+# ---------------------------------------------------------------------------
+# Circuit breaker
+# ---------------------------------------------------------------------------
+
+class CircuitBreaker:
+    """Simple circuit breaker — fails fast after consecutive failures."""
+
+    def __init__(self, failure_threshold: int = 3, reset_timeout: float = 60.0) -> None:
+        self._failure_threshold = failure_threshold
+        self._reset_timeout = reset_timeout
+        self._failure_count = 0
+        self._opened_at: float = 0.0
+
+    @property
+    def is_open(self) -> bool:
+        if self._failure_count >= self._failure_threshold:
+            if time.monotonic() - self._opened_at > self._reset_timeout:
+                self._failure_count = 0
+                return False
+            return True
+        return False
+
+    def check(self) -> None:
+        if self.is_open:
+            raise RuntimeError(
+                f"Circuit breaker is open — {self._failure_count} consecutive failures "
+                f"in the last {self._reset_timeout}s. Waiting for reset."
+            )
+
+    def record_failure(self) -> None:
+        self._failure_count += 1
+        if self._failure_count >= self._failure_threshold:
+            self._opened_at = time.monotonic()
+            logger.warning(
+                "Circuit breaker OPEN after %d consecutive failures",
+                self._failure_count,
+            )
+
+    def record_success(self) -> None:
+        self._failure_count = 0
+
+
+_circuit_breaker = CircuitBreaker(failure_threshold=3, reset_timeout=60.0)
 
 
 class _MessagesNamespace:
@@ -62,6 +105,8 @@ class _MessagesNamespace:
 
         last_exc: Exception = RuntimeError("unreachable")
         for attempt in range(attempts):
+            _circuit_breaker.check()
+
             try:
                 response = await self._owner._create(
                     model=model,
@@ -73,35 +118,44 @@ class _MessagesNamespace:
                 )
                 if not response.content:
                     raise ValueError("LLM returned empty content list")
-                # Accumulate into the global counter regardless of caller.
                 _GLOBAL_TOKENS["input"] += response.usage.input_tokens
                 _GLOBAL_TOKENS["output"] += response.usage.output_tokens
+                _circuit_breaker.record_success()
                 return response
             except Exception as exc:
                 last_exc = exc
-                err_str = str(exc).lower()
-                is_retryable = any(frag in err_str for frag in _RETRYABLE_FRAGMENTS)
-                if not is_retryable or attempt == attempts - 1:
+                error_class = classify_error(exc)
+
+                if not error_class.is_retryable:
+                    logger.error(
+                        "LLM call failed (non-retryable %s): %s",
+                        error_class.value, exc,
+                    )
+                    _circuit_breaker.record_failure()
                     raise
-                wait = min(wait_min * (2 ** attempt), wait_max)
+
+                if attempt == attempts - 1:
+                    _circuit_breaker.record_failure()
+                    raise
+
+                base_wait = min(wait_min * (2 ** attempt), wait_max)
+                if error_class == ErrorClass.RATE_LIMIT:
+                    jitter = random.uniform(0, base_wait * 0.3)
+                    wait = base_wait + jitter
+                else:
+                    wait = base_wait
+
                 logger.warning(
-                    "LLM call failed (attempt %d/%d, retrying in %ds): %s",
-                    attempt + 1, attempts, wait, exc,
+                    "LLM call failed (%s, attempt %d/%d, retrying in %.1fs): %s",
+                    error_class.value, attempt + 1, attempts, wait, exc,
                 )
                 await asyncio.sleep(wait)
 
-        raise last_exc  # unreachable but satisfies type checker
+        raise last_exc
 
 
 class LLMClient(ABC):
-    """Unified LLM client.  All backends expose `.messages.create(...)`.
-
-    Usage (identical to the raw Anthropic client):
-        response = await client.messages.create(
-            model="...", max_tokens=4096, system="...", messages=[...], tools=[...]
-        )
-        text = response.content[0].text
-    """
+    """Unified LLM client. All backends expose `.messages.create(...)`."""
 
     def __init__(self) -> None:
         self.messages = _MessagesNamespace(self)
