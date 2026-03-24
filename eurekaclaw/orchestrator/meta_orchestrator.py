@@ -110,6 +110,7 @@ class MetaOrchestrator:
         # We'll do the survey first to get open problems, then plan
         pipeline = self.pipeline_manager.build(brief)
         self.bus.put_pipeline(pipeline)
+        self.bus._session_dir = settings.runs_dir / brief.session_id
 
         # --- Phase 3: Execute tasks ---
         for task in pipeline.tasks:
@@ -188,6 +189,12 @@ class MetaOrchestrator:
                     result = await agent.execute(task)
                     if result.failed:
                         task.mark_failed(result.error)
+                        # Critical stages: stop pipeline if they fail
+                        if task.name in ("survey", "ideation"):
+                            console.print(f"[red]Critical stage '{task.name}' failed — stopping pipeline.[/red]")
+                            console.print(f"[yellow]Partial results saved to {settings.runs_dir / brief.session_id}[/yellow]")
+                            self.bus.persist_incremental(completed_stage=f"{task.name}_FAILED")
+                            break
             else:
                 task_outputs = dict(result.output)
                 if result.text_summary:
@@ -206,6 +213,9 @@ class MetaOrchestrator:
                     await self._handle_empty_survey_fallback(pipeline)
 
             self.bus.put_pipeline(pipeline)
+            # Incremental persist after every stage (success or failure)
+            stage_label = task.name if (result and not result.failed) else f"{task.name}_FAILED"
+            self.bus.persist_incremental(completed_stage=stage_label)
 
         # --- Phase 4: Post-run continual learning ---
         console.print("\n[blue]Running continual learning loop...[/blue]")
