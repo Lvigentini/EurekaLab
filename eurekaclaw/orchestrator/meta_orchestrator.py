@@ -156,6 +156,9 @@ class MetaOrchestrator:
                 if not brief.directions:
                     await self._handle_manual_direction(brief)
 
+            if task.name == "theory":
+                self._inject_ideation_context(task)
+
             # Gate check (human / auto approval)
             if task.gate_required:
                 task.status = TaskStatus.AWAITING_GATE
@@ -226,6 +229,9 @@ class MetaOrchestrator:
 
                 # Always-on summary card — visible regardless of gate_mode
                 self.gate.print_stage_summary(task.name)
+
+                if task.name == "theory":
+                    self._capture_theory_feedback()
 
                 if task.name == "survey":
                     await self._handle_empty_survey_fallback(pipeline)
@@ -662,6 +668,53 @@ class MetaOrchestrator:
             survey_task.mark_completed(task_outputs)
             console.print("[green]✓ Survey revision complete.[/green]")
             self.gate.print_stage_summary("survey")
+
+    def _inject_ideation_context(self, task: "Task") -> None:
+        """Inject unincorporated ideas and insights into the theory task."""
+        from eurekaclaw.orchestrator.ideation_pool import IdeationPool
+        pool = self.bus.get_ideation_pool()
+        if not pool or not pool.has_new_input:
+            return
+
+        context_parts = []
+        for idea in pool.unincorporated_ideas:
+            context_parts.append(f"[Injected idea from {idea.source}]: {idea.text}")
+            idea.incorporated = True
+
+        for insight in pool.emerged_insights:
+            context_parts.append(f"[Emerged insight]: {insight}")
+
+        if context_parts:
+            injection = "\n\n[Additional context from ideation pool]:\n" + "\n".join(context_parts)
+            task.description = (task.description or "") + injection
+            console.print(f"[dim]  ↳ Injected {len(context_parts)} idea(s)/insight(s) from ideation pool[/dim]")
+            self.bus.put_ideation_pool(pool)
+
+    def _capture_theory_feedback(self) -> None:
+        """After theory completes, capture significant failures as ideation insights."""
+        from eurekaclaw.orchestrator.ideation_pool import IdeationPool
+        state = self.bus.get_theory_state()
+        if not state:
+            return
+
+        pool = self.bus.get_ideation_pool() or IdeationPool()
+        added = 0
+
+        # Capture key lemma failures
+        for attempt in state.failed_attempts:
+            if attempt.failure_reason:
+                insight = (
+                    f"Theory feedback: Lemma '{attempt.lemma_id}' failed — "
+                    f"{attempt.failure_reason[:200]}"
+                )
+                # Avoid duplicates
+                if insight not in pool.emerged_insights:
+                    pool.add_insight(insight)
+                    added += 1
+
+        if added:
+            self.bus.put_ideation_pool(pool)
+            console.print(f"[dim]  ↳ Captured {added} theory insight(s) into ideation pool[/dim]")
 
     def _handle_content_gaps(self) -> None:
         """Show content status and optionally match local PDFs."""
