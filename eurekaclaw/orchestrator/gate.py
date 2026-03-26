@@ -158,6 +158,60 @@ class GateController:
         border = "red" if n_papers == 0 else "cyan"
         console.print(Panel("\n".join(lines), title="[cyan]📚 Survey complete[/cyan]", border_style=border))
 
+    def print_content_status(self) -> str | None:
+        """Show content availability report after survey and prompt for missing papers.
+
+        Returns the user's response (path to PDFs, 'skip', or None).
+        """
+        if not self.bus:
+            return None
+        bib = self.bus.get_bibliography()
+        if not bib or not bib.papers:
+            return None
+
+        from eurekaclaw.analyzers.content_gap import ContentGapAnalyzer
+        report = ContentGapAnalyzer.analyze(bib)
+
+        lines = [
+            f"[bold]Full text available:[/bold] {len(report.full_text)} papers",
+            f"[bold]Abstract only:[/bold]      {len(report.abstract_only)} papers",
+            f"[bold]Metadata only:[/bold]      {len(report.metadata_only)} papers",
+        ]
+        if report.missing:
+            lines.append(f"[bold red]Missing:[/bold red]             {len(report.missing)} papers")
+
+        border = "green" if not report.has_gaps else "yellow"
+        console.print(Panel("\n".join(lines),
+                            title="[cyan]Content Status[/cyan]",
+                            border_style=border))
+
+        if not report.has_gaps:
+            return None
+
+        # Show top degraded papers
+        degraded = report.abstract_only + report.metadata_only
+        if degraded:
+            console.print("\n[yellow]Papers with limited content:[/yellow]")
+            for p in degraded[:5]:
+                tier_label = "[dim]abstract[/dim]" if p.content_tier == "abstract" else "[red]metadata only[/red]"
+                arxiv_hint = f" (arXiv: {p.arxiv_id})" if p.arxiv_id else ""
+                console.print(f"  {tier_label} {p.title[:70]}{arxiv_hint}")
+            if len(degraded) > 5:
+                console.print(f"  [dim]… and {len(degraded) - 5} more[/dim]")
+
+        try:
+            action = Prompt.ask(
+                "\n[bold]Content gaps detected.[/bold] Options:\n"
+                "  [cyan]path[/cyan]  — provide a directory of PDFs to match\n"
+                "  [cyan]skip[/cyan]  — proceed with what we have\n"
+                "  [cyan]Enter[/cyan] — skip",
+                default="skip",
+            )
+        except (KeyboardInterrupt, EOFError):
+            return None
+
+        return action.strip() if action.strip().lower() != "skip" else None
+
     def _print_theory_status(self) -> None:
         if not self.bus:
             return

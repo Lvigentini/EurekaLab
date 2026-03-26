@@ -229,6 +229,8 @@ class MetaOrchestrator:
 
                 if task.name == "survey":
                     await self._handle_empty_survey_fallback(pipeline)
+                if task.name == "survey":
+                    self._handle_content_gaps()
 
             self.bus.put_pipeline(pipeline)
             # Incremental persist after every stage (success or failure)
@@ -660,6 +662,37 @@ class MetaOrchestrator:
             survey_task.mark_completed(task_outputs)
             console.print("[green]✓ Survey revision complete.[/green]")
             self.gate.print_stage_summary("survey")
+
+    def _handle_content_gaps(self) -> None:
+        """Show content status and optionally match local PDFs."""
+        response = self.gate.print_content_status()
+        if response and response.lower() != "skip":
+            from pathlib import Path
+            pdf_dir = Path(response).expanduser()
+            if pdf_dir.is_dir():
+                from eurekaclaw.analyzers.bib_loader import BibLoader
+                bib = self.bus.get_bibliography()
+                if bib:
+                    BibLoader.match_pdfs(bib.papers, pdf_dir)
+                    self._extract_matched_pdfs(bib)
+                    self.bus.put_bibliography(bib)
+                    matched = sum(1 for p in bib.papers if p.local_pdf_path)
+                    console.print(f"[green]Matched {matched} papers to local PDFs.[/green]")
+            else:
+                console.print(f"[red]Directory not found: {pdf_dir}[/red]")
+
+    def _extract_matched_pdfs(self, bib) -> None:
+        """Extract text from matched local PDFs using pdfplumber."""
+        for paper in bib.papers:
+            if paper.local_pdf_path and paper.content_tier != "full_text":
+                try:
+                    import pdfplumber
+                    with pdfplumber.open(paper.local_pdf_path) as pdf:
+                        pages = [page.extract_text() or "" for page in pdf.pages]
+                        paper.full_text = "\n\n".join(pages)
+                        paper.content_tier = "full_text"
+                except Exception as e:
+                    logger.warning("PDF extraction failed for '%s': %s", paper.title, e)
 
     def _dependencies_met(self, task: Task, pipeline: TaskPipeline) -> bool:
         for dep_id in task.depends_on:
