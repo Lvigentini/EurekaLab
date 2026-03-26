@@ -7,7 +7,11 @@ from eurekaclaw.versioning.store import VersionStore, ResearchVersion
 
 @pytest.fixture
 def store(tmp_path) -> VersionStore:
-    return VersionStore("test-vs-001", tmp_path / "runs" / "test-vs-001")
+    db_path = tmp_path / "test.db"
+    s = VersionStore("test-vs-001", tmp_path / "runs" / "test-vs-001", db_path=db_path)
+    # Ensure session exists in DB for version operations
+    s._db.create_session("test-vs-001", domain="test", query="test", mode="detailed")
+    return s
 
 
 @pytest.fixture
@@ -68,16 +72,18 @@ def test_log_returns_all_versions(store, bus_v1, bus_v2):
     assert versions[1].version_number == 2
 
 
-def test_commit_writes_to_disk(store, bus_v1):
+def test_commit_persists_to_db(store, bus_v1):
     store.commit(bus_v1, trigger="test")
-    files = list(store._versions_dir.glob("v*.json"))
-    assert len(files) == 1
+    row = store._db.get_version("test-vs-001", 1)
+    assert row is not None
+    assert row["trigger"] == "test"
 
 
 def test_log_survives_reload(store, bus_v1, bus_v2, tmp_path):
     store.commit(bus_v1, trigger="stage:survey:completed")
     store.commit(bus_v2, trigger="stage:ideation:completed")
-    store2 = VersionStore("test-vs-001", tmp_path / "runs" / "test-vs-001")
+    db_path = tmp_path / "test.db"
+    store2 = VersionStore("test-vs-001", tmp_path / "runs" / "test-vs-001", db_path=db_path)
     versions = store2.log()
     assert len(versions) == 2
     assert store2.head.version_number == 2
