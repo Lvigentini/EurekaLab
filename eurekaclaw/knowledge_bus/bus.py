@@ -34,6 +34,7 @@ class KnowledgeBus:
         self._subscribers: dict[str, list[Callable]] = defaultdict(list)
         self._session_dir: Path | None = None
         self._completed_stages: list[str] = []
+        self.version_store = None  # VersionStore, lazy-initialized to avoid circular import
 
     # ------------------------------------------------------------------
     # Research Brief
@@ -171,6 +172,20 @@ class KnowledgeBus:
             "completed_stages": self._completed_stages,
         }, indent=2), encoding="utf-8")
 
+        # Version store: auto-commit on every incremental persist
+        if self._session_dir is not None:
+            from eurekaclaw.versioning.store import VersionStore  # lazy import
+            if self.version_store is None:
+                self.version_store = VersionStore(self.session_id, self._session_dir)
+            trigger = f"stage:{completed_stage}:completed" if completed_stage else "persist"
+            if completed_stage and "_FAILED" in completed_stage:
+                trigger = f"stage:{completed_stage}"
+            self.version_store.commit(
+                self,
+                trigger=trigger,
+                completed_stages=list(self._completed_stages),
+            )
+
         logger.debug("Incremental persist: %d artifacts, stages=%s",
                      len(self._store), self._completed_stages)
 
@@ -189,4 +204,7 @@ class KnowledgeBus:
             path = session_dir / f"{key}.json"
             if path.exists():
                 bus._store[key] = model_cls.model_validate_json(path.read_text())
+        bus._session_dir = session_dir
+        from eurekaclaw.versioning.store import VersionStore  # lazy import
+        bus.version_store = VersionStore(session_id, session_dir)
         return bus
