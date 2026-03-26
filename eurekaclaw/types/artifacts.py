@@ -31,6 +31,7 @@ class Paper(BaseModel):
     full_text: str | None = None
     user_notes: str = ""
     source: str = "search"  # "search", "zotero", "user_provided", "bib_import", "draft"
+    zotero_item_key: str | None = None
 
 
 class Bibliography(BaseModel):
