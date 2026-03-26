@@ -47,3 +47,49 @@ def test_paper_backward_compatible():
     assert p.full_text is None
     assert p.local_pdf_path is None
     assert p.source == "search"
+
+
+from eurekaclaw.types.artifacts import Bibliography
+from eurekaclaw.analyzers.content_gap import ContentGapAnalyzer, ContentGapReport
+
+
+def test_gap_report_categorizes_tiers():
+    papers = [
+        Paper(paper_id="p1", title="Full", authors=[], content_tier="full_text"),
+        Paper(paper_id="p2", title="Abstract", authors=[], content_tier="abstract"),
+        Paper(paper_id="p3", title="Meta", authors=[], content_tier="metadata"),
+        Paper(paper_id="p4", title="Missing", authors=[], content_tier="missing"),
+    ]
+    bib = Bibliography(session_id="test", papers=papers)
+    report = ContentGapAnalyzer.analyze(bib)
+    assert len(report.full_text) == 1
+    assert len(report.abstract_only) == 1
+    assert len(report.metadata_only) == 1
+    assert len(report.missing) == 1
+
+
+def test_gap_report_empty_bibliography():
+    bib = Bibliography(session_id="test", papers=[])
+    report = ContentGapAnalyzer.analyze(bib)
+    assert len(report.full_text) == 0
+    assert len(report.abstract_only) == 0
+
+
+def test_gap_report_all_full_text():
+    papers = [
+        Paper(paper_id="p1", title="A", authors=[], content_tier="full_text"),
+        Paper(paper_id="p2", title="B", authors=[], content_tier="full_text"),
+    ]
+    bib = Bibliography(session_id="test", papers=papers)
+    report = ContentGapAnalyzer.analyze(bib)
+    assert report.has_gaps is False
+
+
+def test_gap_report_has_gaps():
+    papers = [
+        Paper(paper_id="p1", title="A", authors=[], content_tier="full_text"),
+        Paper(paper_id="p2", title="B", authors=[], content_tier="abstract"),
+    ]
+    bib = Bibliography(session_id="test", papers=papers)
+    report = ContentGapAnalyzer.analyze(bib)
+    assert report.has_gaps is True
