@@ -276,6 +276,238 @@ eurekaclaw ui --open-browser
 
 ---
 
+### `from-bib` — Start from a .bib file
+
+```bash
+eurekaclaw from-bib <bib_file> [OPTIONS]
+```
+
+**Arguments:**
+- `bib_file` — Path to a `.bib` file (must exist)
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--pdfs`, `-p` | *(none)* | Directory containing local PDF files to match against .bib entries |
+| `--domain`, `-d` | *(required)* | Research domain |
+| `--query`, `-q` | `""` | Specific research question |
+| `--mode` | `skills_only` | Post-run learning mode: `skills_only`, `rl`, `madmax` |
+| `--gate` | `none` | Gate control: `human`, `auto`, `none` |
+| `--output`, `-o` | `./results` | Output directory |
+
+Loads all papers from a `.bib` file and optionally matches them to local PDFs in the given directory (full text is extracted if a PDF match is found). EurekaClaw then identifies gaps in the existing bibliography — missing related work, recent advances not represented, foundational papers that should be added — rather than re-fetching papers already present.
+
+**Example:**
+```bash
+eurekaclaw from-bib refs.bib --pdfs ./papers/ \
+  --domain "ML theory" --output ./results
+```
+
+---
+
+### `from-draft` — Start from a draft paper
+
+```bash
+eurekaclaw from-draft <draft_file> [instruction] [OPTIONS]
+```
+
+**Arguments:**
+- `draft_file` — Path to the draft paper (`.tex`, `.md`, or `.pdf`; must exist)
+- `instruction` *(optional)* — Free-text instruction describing what to do with the draft (e.g. `"Strengthen the theory section"`)
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--domain`, `-d` | *(auto-inferred)* | Research domain (inferred from draft title if omitted) |
+| `--query`, `-q` | `""` | Specific research question |
+| `--mode` | `skills_only` | Post-run learning mode: `skills_only`, `rl`, `madmax` |
+| `--gate` | `none` | Gate control: `human`, `auto`, `none` |
+| `--output`, `-o` | `./results` | Output directory |
+
+Analyzes the draft using `DraftAnalyzer` to extract its title, abstract, claims, citations, and any identified gaps/TODOs, then runs EurekaClaw in exploration mode. The draft context (instruction, claims, gaps) is injected into the session so the pipeline can survey missing related work and strengthen the paper.
+
+**Example:**
+```bash
+eurekaclaw from-draft paper.tex "This is a WIP, strengthen the theory" \
+  --domain "ML theory" --output ./results
+
+eurekaclaw from-draft paper.tex --domain "bandit algorithms"
+```
+
+---
+
+### `from-zotero` — Start from a Zotero collection
+
+```bash
+eurekaclaw from-zotero <collection_id> [OPTIONS]
+```
+
+**Arguments:**
+- `collection_id` — Zotero collection key (the short alphanumeric ID shown in the Zotero URL, e.g. `ABC123`)
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--domain`, `-d` | *(required)* | Research domain |
+| `--query`, `-q` | `""` | Specific research question |
+| `--mode` | `skills_only` | Post-run learning mode: `skills_only`, `rl`, `madmax` |
+| `--gate` | `none` | Gate control: `human`, `auto`, `none` |
+| `--output`, `-o` | `./results` | Output directory |
+
+Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables. Install the optional Zotero extra first: `pip install 'eurekaclaw[zotero]'`. Imports all items from the collection via the Zotero API and extracts full text from any locally available PDFs, then runs EurekaClaw in reference mode to find gaps and missing work.
+
+**Example:**
+```bash
+eurekaclaw from-zotero ABC123 --domain "ML theory" --output ./results
+```
+
+---
+
+### `history` — Show version history for a session
+
+```bash
+eurekaclaw history <session_id>
+```
+
+**Arguments:**
+- `session_id` — Session ID of a previous run
+
+Prints a Rich table of all saved versions for the session, showing version number, relative age, the event that triggered the snapshot (`trigger`), and the last three completed stages. The current HEAD version is marked with `*`.
+
+**Example:**
+```bash
+eurekaclaw history abc12345
+```
+
+---
+
+### `diff` — Show changes between two versions
+
+```bash
+eurekaclaw diff <session_id> <v1> <v2>
+```
+
+**Arguments:**
+- `session_id` — Session ID
+- `v1` — Source version number (integer)
+- `v2` — Target version number (integer)
+
+Compares the two snapshots and prints a colour-coded list of changes: additions (green), removals (red), and neutral modifications (yellow).
+
+**Example:**
+```bash
+eurekaclaw diff abc12345 1 3
+```
+
+---
+
+### `checkout` — Restore session state to a specific version
+
+```bash
+eurekaclaw checkout <session_id> <version_number>
+```
+
+**Arguments:**
+- `session_id` — Session ID
+- `version_number` — Version number to restore to (integer, from `eurekaclaw history`)
+
+Displays a summary of the target version and asks for confirmation. On confirmation, the current HEAD is snapshotted as a new version (preserving it), and the session state is restored to the selected version. Use `eurekaclaw resume <session_id>` afterwards to continue from that point.
+
+**Example:**
+```bash
+eurekaclaw checkout abc12345 3
+```
+
+---
+
+### `inject paper` — Inject a paper into a paused session
+
+```bash
+eurekaclaw inject paper <session_id> <paper_ref>
+```
+
+**Arguments:**
+- `session_id` — Session ID of a paused session
+- `paper_ref` — arXiv ID (e.g. `2401.12345`) or path to a local `.pdf` file
+
+Adds the paper to the session's bibliography. If `paper_ref` is a local PDF, its full text is extracted. The paper is also registered in the ideation pool as a new input signal. A version snapshot is saved automatically. Resume the session with `eurekaclaw resume <session_id>`.
+
+**Example:**
+```bash
+eurekaclaw inject paper abc12345 2401.12345
+eurekaclaw inject paper abc12345 ./my-paper.pdf
+```
+
+---
+
+### `inject idea` — Inject an idea into a paused session
+
+```bash
+eurekaclaw inject idea <session_id> <text>
+```
+
+**Arguments:**
+- `session_id` — Session ID of a paused session
+- `text` — Free-text idea to inject into the ideation pool
+
+Adds the idea to the session's ideation pool so that it will be considered when the session resumes. A version snapshot is saved automatically.
+
+**Example:**
+```bash
+eurekaclaw inject idea abc12345 "What if we apply spectral methods here?"
+```
+
+---
+
+### `inject draft` — Inject a draft paper into a paused session
+
+```bash
+eurekaclaw inject draft <session_id> <draft_file> [instruction]
+```
+
+**Arguments:**
+- `session_id` — Session ID of a paused session
+- `draft_file` — Path to the draft file (must exist)
+- `instruction` *(optional)* — Instruction describing how to use the draft
+
+Analyzes the draft (extracts title, abstract, claims, and citations) and injects it into the session. Claims are added to the ideation pool and the research brief is updated with draft context. A version snapshot is saved automatically.
+
+**Example:**
+```bash
+eurekaclaw inject draft abc12345 paper.tex "Consider these new results"
+eurekaclaw inject draft abc12345 paper.tex
+```
+
+---
+
+### `push-to-zotero` — Push session results to Zotero
+
+```bash
+eurekaclaw push-to-zotero <session_id> [OPTIONS]
+```
+
+**Arguments:**
+- `session_id` — Session ID of a completed run
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--collection`, `-c` | `EurekaClaw Results` | Zotero collection name to push results into |
+
+Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables and `pip install 'eurekaclaw[zotero]'`. Creates (or reuses) the named collection in your Zotero library, pushes all newly discovered papers (those not already in Zotero), and attaches a session summary note to the primary source paper.
+
+**Example:**
+```bash
+eurekaclaw push-to-zotero abc12345
+eurekaclaw push-to-zotero abc12345 --collection "Bandit Theory Survey"
+```
+
+---
+
 ## Output Artifacts
 
 All three research commands (`prove`, `explore`, `from-papers`) write artifacts to `<output>/<session_id>/`:
