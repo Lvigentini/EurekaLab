@@ -105,6 +105,17 @@ class KnowledgeBus:
         return self._store.get("pipeline")
 
     # ------------------------------------------------------------------
+    # Ideation Pool
+    # ------------------------------------------------------------------
+
+    def put_ideation_pool(self, pool) -> None:
+        self._store["ideation_pool"] = pool
+        self._notify("ideation_pool", pool)
+
+    def get_ideation_pool(self):
+        return self._store.get("ideation_pool")
+
+    # ------------------------------------------------------------------
     # Generic key-value store (for agents to share arbitrary data)
     # ------------------------------------------------------------------
 
@@ -193,12 +204,14 @@ class KnowledgeBus:
     def load(cls, session_id: str, session_dir: Path) -> "KnowledgeBus":
         """Reconstruct a KnowledgeBus from a persisted session directory."""
         bus = cls(session_id)
+        from eurekaclaw.orchestrator.ideation_pool import IdeationPool
         model_map = {
             "research_brief": ResearchBrief,
             "theory_state": TheoryState,
             "experiment_result": ExperimentResult,
             "bibliography": Bibliography,
             "pipeline": TaskPipeline,
+            "ideation_pool": IdeationPool,
         }
         for key, model_cls in model_map.items():
             path = session_dir / f"{key}.json"

@@ -48,7 +48,7 @@ class Bibliography(BaseModel):
 
 
 class ResearchDirection(BaseModel):
-    direction_id: str
+    direction_id: str = ""
     title: str
     hypothesis: str
     approach_sketch: str = ""
@@ -88,6 +88,9 @@ class ResearchBrief(BaseModel):
     key_mathematical_objects: list[str] = Field(default_factory=list)
     directions: list[ResearchDirection] = Field(default_factory=list)
     selected_direction: ResearchDirection | None = None
+    # Continuous ideation (Phase 5)
+    draft_summary: str = ""
+    draft_claims: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

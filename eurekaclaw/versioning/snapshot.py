@@ -21,12 +21,14 @@ def _model_map() -> dict[str, type]:
         TheoryState,
     )
     from eurekaclaw.types.tasks import TaskPipeline
+    from eurekaclaw.orchestrator.ideation_pool import IdeationPool
     return {
         "research_brief": ResearchBrief,
         "theory_state": TheoryState,
         "experiment_result": ExperimentResult,
         "bibliography": Bibliography,
         "pipeline": TaskPipeline,
+        "ideation_pool": IdeationPool,
     }
 
 
