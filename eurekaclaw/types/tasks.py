@@ -104,6 +104,8 @@ class InputSpec(BaseModel):
     # Shared across all modes
     query: str = ""
     additional_context: str = ""
+    draft_path: str | None = None
+    draft_instruction: str = ""  # free-text: "This is my WIP...", "Extend this..."
     selected_skills: list[str] = Field(default_factory=list)
 
 

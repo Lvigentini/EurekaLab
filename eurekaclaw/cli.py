@@ -269,6 +269,78 @@ def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: st
     )
 
 
+@main.command("from-draft")
+@click.argument("draft_file", type=click.Path(exists=True))
+@click.argument("instruction", default="")
+@click.option("--domain", "-d", default="", help="Research domain (auto-inferred if omitted)")
+@click.option("--query", "-q", default="", help="Specific research question")
+@click.option("--mode", default="skills_only", type=click.Choice(["skills_only", "rl", "madmax"]))
+@click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
+@click.option("--output", "-o", default="./results", help="Output directory")
+def from_draft(draft_file: str, instruction: str, domain: str, query: str, mode: str, gate: str, output: str) -> None:
+    """Start research from a draft paper with optional instruction.
+
+    Examples:
+        eurekaclaw from-draft paper.tex "This is my WIP, strengthen the theory"
+        eurekaclaw from-draft paper.tex --domain "ML theory"
+    """
+    from pathlib import Path
+    from eurekaclaw.analyzers.draft_analyzer import DraftAnalyzer
+
+    draft_path = Path(draft_file)
+    console.print(f"[blue]Analyzing draft: {draft_path.name}...[/blue]")
+    analysis = DraftAnalyzer.analyze(draft_path)
+
+    if not analysis.full_text:
+        console.print("[red]Could not extract text from draft file.[/red]")
+        sys.exit(1)
+
+    console.print(f"[green]Draft analyzed:[/green]")
+    if analysis.title:
+        console.print(f"  Title: {analysis.title[:80]}")
+    console.print(f"  Sections: {len(analysis.sections)}")
+    console.print(f"  Claims: {len(analysis.claims)}")
+    console.print(f"  Citations: {len(analysis.citation_keys)}")
+    if analysis.gaps:
+        console.print(f"  [yellow]Gaps/TODOs: {len(analysis.gaps)}[/yellow]")
+
+    # Infer domain from title/abstract if not provided
+    if not domain:
+        domain = analysis.title or "research"
+
+    # Build context from draft analysis
+    draft_context_parts = []
+    if instruction:
+        draft_context_parts.append(f"User instruction: {instruction}")
+    draft_context_parts.append(f"Draft title: {analysis.title}")
+    if analysis.abstract:
+        draft_context_parts.append(f"Draft abstract: {analysis.abstract[:500]}")
+    if analysis.claims:
+        draft_context_parts.append("Draft claims:\n" + "\n".join(f"  - {c[:150]}" for c in analysis.claims))
+    if analysis.gaps:
+        draft_context_parts.append("Identified gaps/TODOs:\n" + "\n".join(f"  - {g}" for g in analysis.gaps))
+    draft_context = "\n\n".join(draft_context_parts)
+
+    if not query:
+        query = (
+            f"The user has a draft paper titled '{analysis.title[:80]}'. "
+            f"{'User says: ' + instruction + '. ' if instruction else ''}"
+            f"Survey related work that complements this draft. "
+            f"The draft cites {len(analysis.citation_keys)} papers — find what's missing."
+        )
+
+    _run_session(
+        mode="exploration",
+        query=query,
+        domain=domain,
+        learn_mode=mode,
+        gate=gate,
+        output_dir=output,
+        _additional_context=draft_context,
+        _draft_path=str(draft_path),
+    )
+
+
 @main.command()
 @click.argument("session_id")
 def pause(session_id: str) -> None:
@@ -1041,6 +1113,8 @@ def _run_session(
     skills: list[str] | None = None,
     output_dir: str = "",
     _preloaded_papers: list | None = None,
+    _additional_context: str = "",
+    _draft_path: str = "",
 ) -> None:
     """Common session runner."""
     import os
@@ -1092,6 +1166,12 @@ def _run_session(
         f"[dim]Session ID: [cyan]{session.session_id}[/cyan]"
         "  (use this to resume if paused)[/dim]"
     )
+
+    # Inject draft/additional context into the InputSpec
+    if _additional_context:
+        spec.additional_context = _additional_context
+    if _draft_path:
+        spec.draft_path = _draft_path
 
     try:
         result = _run_with_pause_support(session.run(spec), _cp)
