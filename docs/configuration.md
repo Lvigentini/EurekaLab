@@ -108,6 +108,23 @@ All 12 values are adjustable from the Settings tab in the web UI.
 | `PAPER_READER_ABSTRACT_PAPERS` | `10` | Max papers to extract from abstract |
 | `PAPER_READER_PDF_PAPERS` | `3` | Max papers to extract from full PDF |
 
+## PDF Extraction
+
+| Variable | Default | Description |
+|---|---|---|
+| `PAPER_READER_PDF_BACKEND` | `pdfplumber` | PDF extraction backend: `pdfplumber` (lightweight) or `docling` (ML-powered) |
+
+## Zotero Integration
+
+| Variable | Default | Description |
+|---|---|---|
+| `ZOTERO_ENABLED` | `false` | Enable Zotero integration |
+| `ZOTERO_API_KEY` | `""` | Zotero Web API key (get at zotero.org/settings/keys) |
+| `ZOTERO_LIBRARY_ID` | `""` | Zotero library ID |
+| `ZOTERO_LIBRARY_TYPE` | `user` | Library type: `user` or `group` |
+| `ZOTERO_LOCAL_DATA_DIR` | `""` | Path to local Zotero data dir for direct PDF access |
+| `ZOTERO_SYNC_BACK` | `false` | Push discoveries back to Zotero |
+
 ## Turn Limits
 
 | Variable | Default | Description |
