@@ -214,6 +214,136 @@ def resume(session_id: str) -> None:
 
 
 @main.command()
+@click.argument("session_id")
+def history(session_id: str) -> None:
+    """Show version history for a session.
+
+    Example: eurekaclaw history abc12345-...
+    """
+    from datetime import datetime, timezone
+    from rich.table import Table
+    from eurekaclaw.versioning.store import VersionStore
+
+    session_dir = settings.runs_dir / session_id
+    if not session_dir.exists():
+        console.print(f"[red]Session not found: {session_dir}[/red]")
+        sys.exit(1)
+
+    store = VersionStore(session_id, session_dir)
+    versions = store.log()
+    if not versions:
+        console.print("[yellow]No versions found for this session.[/yellow]")
+        return
+
+    table = Table(title=f"Version History — {session_id[:8]}")
+    table.add_column("Version", style="cyan", width=8)
+    table.add_column("Time", style="dim", width=20)
+    table.add_column("Trigger", style="green")
+    table.add_column("Stages", style="yellow")
+
+    now = datetime.now(timezone.utc)
+    for v in reversed(versions):
+        age = now - v.timestamp
+        if age.total_seconds() < 3600:
+            time_str = f"{int(age.total_seconds() / 60)}m ago"
+        elif age.total_seconds() < 86400:
+            time_str = f"{int(age.total_seconds() / 3600)}h ago"
+        else:
+            time_str = v.timestamp.strftime("%Y-%m-%d %H:%M")
+
+        head_marker = " *" if v == store.head else ""
+        table.add_row(
+            f"v{v.version_number:03d}{head_marker}",
+            time_str,
+            v.trigger,
+            ", ".join(v.completed_stages[-3:]) if v.completed_stages else "—",
+        )
+
+    console.print(table)
+
+
+@main.command("diff")
+@click.argument("session_id")
+@click.argument("v1", type=int)
+@click.argument("v2", type=int)
+def version_diff(session_id: str, v1: int, v2: int) -> None:
+    """Show changes between two versions.
+
+    Example: eurekaclaw diff abc12345-... 1 3
+    """
+    from eurekaclaw.versioning.store import VersionStore
+    from eurekaclaw.versioning.diff import diff_versions
+
+    session_dir = settings.runs_dir / session_id
+    if not session_dir.exists():
+        console.print(f"[red]Session not found: {session_dir}[/red]")
+        sys.exit(1)
+
+    store = VersionStore(session_id, session_dir)
+    try:
+        changes = diff_versions(store, v1, v2)
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+        sys.exit(1)
+
+    if not changes:
+        console.print(f"[dim]No changes between v{v1:03d} and v{v2:03d}[/dim]")
+        return
+
+    console.print(f"\n[bold]Changes v{v1:03d} → v{v2:03d}:[/bold]")
+    for change in changes:
+        if "+paper" in change or "+proven" in change or "+direction" in change or "+injected" in change:
+            console.print(f"  [green]{change}[/green]")
+        elif "removed" in change.lower() or change.startswith("Removed"):
+            console.print(f"  [red]{change}[/red]")
+        else:
+            console.print(f"  [yellow]{change}[/yellow]")
+
+
+@main.command()
+@click.argument("session_id")
+@click.argument("version_number", type=int)
+def checkout(session_id: str, version_number: int) -> None:
+    """Restore session state to a specific version.
+
+    Example: eurekaclaw checkout abc12345-... 3
+    """
+    from eurekaclaw.versioning.store import VersionStore
+
+    session_dir = settings.runs_dir / session_id
+    if not session_dir.exists():
+        console.print(f"[red]Session not found: {session_dir}[/red]")
+        sys.exit(1)
+
+    store = VersionStore(session_id, session_dir)
+    target = store.get(version_number)
+    if target is None:
+        console.print(f"[red]Version {version_number} not found.[/red]")
+        sys.exit(1)
+
+    from rich.prompt import Confirm
+    console.print(f"\n[bold]Checkout v{version_number:03d}[/bold]: {target.trigger}")
+    console.print(f"  Stages: {', '.join(target.completed_stages) or '(none)'}")
+    if not Confirm.ask("Restore this version? (current HEAD will be preserved as a version)", default=True):
+        return
+
+    bus = store.checkout(version_number)
+    store.commit(
+        bus,
+        trigger=f"checkout:v{version_number:03d}",
+        completed_stages=target.completed_stages,
+        changes=[f"Restored state from v{version_number:03d}"],
+    )
+    bus._session_dir = session_dir
+    bus.persist(session_dir)
+
+    head = store.head
+    console.print(f"\n[green]Restored to v{version_number:03d}. New HEAD is v{head.version_number:03d}.[/green]")
+    console.print(f"  Completed stages: {', '.join(target.completed_stages) or '(none)'}")
+    console.print(f"  Resume with: [bold]eurekaclaw resume {session_id}[/bold]")
+
+
+@main.command()
 def skills() -> None:
     """List all available skills in the skills bank."""
     from eurekaclaw.skills.registry import SkillRegistry
