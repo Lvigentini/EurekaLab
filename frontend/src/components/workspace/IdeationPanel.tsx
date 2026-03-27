@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost } from '@/api/client';
-import type { IdeationPoolState } from '@/types';
+import type { IdeationPoolState, InjectedIdea, ResearchDirection } from '@/types';
 
 interface IdeationPanelProps {
   runId: string;
@@ -67,12 +67,12 @@ export function IdeationPanel({ runId, ideationDone }: IdeationPanelProps) {
         </div>
       )}
 
-      {pool.directions.filter((d) => d.title !== pool.selected_direction?.title).length > 0 && (
+      {pool.directions.filter((d: ResearchDirection) => d.title !== pool.selected_direction?.title).length > 0 && (
         <div className="ideation-other-dirs">
           {pool.directions
-            .filter((d) => d.title !== pool.selected_direction?.title)
+            .filter((d: ResearchDirection) => d.title !== pool.selected_direction?.title)
             .slice(0, 4)
-            .map((d, i) => (
+            .map((d: ResearchDirection, i: number) => (
               <div key={i} className="ideation-dir-item">
                 <span className="ideation-dir-bullet">○</span>
                 <span>{d.title}</span>
@@ -87,7 +87,7 @@ export function IdeationPanel({ runId, ideationDone }: IdeationPanelProps) {
       {pool.injected_ideas.length > 0 && (
         <div className="ideation-ideas">
           <span className="ideation-section-label">Injected Ideas ({pool.injected_ideas.length})</span>
-          {pool.injected_ideas.map((idea, i) => (
+          {pool.injected_ideas.map((idea: InjectedIdea, i: number) => (
             <div key={i} className={`ideation-idea${idea.incorporated ? ' is-incorporated' : ''}`}>
               <span className="ideation-idea-icon">{idea.incorporated ? '✓' : '💡'}</span>
               <span className="ideation-idea-text">{idea.text.slice(0, 120)}</span>
@@ -100,7 +100,7 @@ export function IdeationPanel({ runId, ideationDone }: IdeationPanelProps) {
       {pool.emerged_insights.length > 0 && (
         <div className="ideation-insights">
           <span className="ideation-section-label">Theory Insights ({pool.emerged_insights.length})</span>
-          {pool.emerged_insights.slice(0, 3).map((insight, i) => (
+          {pool.emerged_insights.slice(0, 3).map((insight: string, i: number) => (
             <div key={i} className="ideation-insight">
               <span className="ideation-insight-icon">🔍</span>
               <span>{insight.slice(0, 150)}</span>

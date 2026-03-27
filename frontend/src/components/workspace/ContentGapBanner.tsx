@@ -35,7 +35,7 @@ export function ContentGapBanner({ runId, surveyDone }: ContentGapBannerProps) {
       </div>
       {report.degraded_papers.length > 0 && (
         <div className="content-gap-papers">
-          {report.degraded_papers.slice(0, 5).map((p) => (
+          {report.degraded_papers.slice(0, 5).map((p: ContentGapReport['degraded_papers'][number]) => (
             <div key={p.paper_id} className="gap-paper">
               <span className={`gap-tier gap-tier--${p.content_tier}`}>{p.content_tier}</span>
               <span className="gap-paper-title">{p.title?.slice(0, 60)}</span>
