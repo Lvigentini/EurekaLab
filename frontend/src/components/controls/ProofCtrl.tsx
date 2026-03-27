@@ -42,7 +42,7 @@ export function ProofCtrl({ run, onRestartFast }: ProofCtrlProps) {
 
   const pipeline = run.pipeline ?? [];
   const activeOuter = getActiveOuterStage(pipeline);
-  const runningInfo = RUNNING_LABELS[activeOuter ?? ''] ?? { label: 'Research in progress', sub: 'EurekaClaw is thinking…' };
+  const runningInfo = RUNNING_LABELS[activeOuter ?? ''] ?? { label: 'Research in progress', sub: 'EurekaLab is thinking…' };
   const pauseDisabled = activeOuter === 'experiment' || activeOuter === 'writer';
 
   const handlePause = async () => {
@@ -72,7 +72,7 @@ export function ProofCtrl({ run, onRestartFast }: ProofCtrlProps) {
 
   const handleCopyCmd = () => {
     if (!run.session_id) return;
-    const cmd = `eurekaclaw resume ${run.session_id}`;
+    const cmd = `eurekalab resume ${run.session_id}`;
     navigator.clipboard.writeText(cmd).catch(() => {
       // fallback: select the element
     });
@@ -113,7 +113,7 @@ export function ProofCtrl({ run, onRestartFast }: ProofCtrlProps) {
             {pauseDisabled
               ? 'The theorem proof is complete. Pause is not available at this stage.'
               : activeOuter === 'theory'
-              ? 'Your progress is safe — EurekaClaw will stop at the next natural checkpoint.'
+              ? 'Your progress is safe — EurekaLab will stop at the next natural checkpoint.'
               : 'Pause will take effect when theorem-proving begins.'}
           </p>
         </div>
@@ -157,7 +157,7 @@ export function ProofCtrl({ run, onRestartFast }: ProofCtrlProps) {
               </button>
             </div>
             {run.session_id && (
-              <code className="proof-ctrl-session-id" id="proof-ctrl-session-id" title={`eurekaclaw resume ${run.session_id}`}>
+              <code className="proof-ctrl-session-id" id="proof-ctrl-session-id" title={`eurekalab resume ${run.session_id}`}>
                 {run.session_id.slice(0, 16)}…
               </code>
             )}

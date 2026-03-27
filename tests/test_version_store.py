@@ -1,8 +1,8 @@
 """Tests for VersionStore: commit, log, head, checkout."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief
-from eurekaclaw.versioning.store import VersionStore, ResearchVersion
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief
+from eurekalab.versioning.store import VersionStore, ResearchVersion
 
 
 @pytest.fixture

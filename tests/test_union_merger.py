@@ -1,9 +1,9 @@
 # tests/test_union_merger.py
 """Tests for UnionMerger — combines survey results with deduplication."""
 import pytest
-from eurekaclaw.ensemble.mergers.union import UnionMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.union import UnionMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_result(papers, open_problems=None):

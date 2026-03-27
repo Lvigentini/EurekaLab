@@ -13,7 +13,7 @@ pytestmark = pytest.mark.skipif(
 @pytest.mark.asyncio
 async def test_formalizer_runs(theory_state):
     """Test that the Formalizer can process a real informal statement."""
-    from eurekaclaw.agents.theory.formalizer import Formalizer
+    from eurekalab.agents.theory.formalizer import Formalizer
 
     formalizer = Formalizer()
     result = await formalizer.run(theory_state, domain="mathematical analysis")
@@ -25,8 +25,8 @@ async def test_formalizer_runs(theory_state):
 @pytest.mark.asyncio
 async def test_decomposer_runs(theory_state):
     """Test that the LemmaDecomposer builds a non-empty DAG."""
-    from eurekaclaw.agents.theory.formalizer import Formalizer
-    from eurekaclaw.agents.theory.decomposer import LemmaDecomposer
+    from eurekalab.agents.theory.formalizer import Formalizer
+    from eurekalab.agents.theory.decomposer import LemmaDecomposer
 
     formalizer = Formalizer()
     state = await formalizer.run(theory_state)
@@ -41,10 +41,10 @@ async def test_decomposer_runs(theory_state):
 @pytest.mark.asyncio
 async def test_prover_attempt(theory_state):
     """Test that the Prover generates a proof attempt."""
-    from eurekaclaw.agents.theory.formalizer import Formalizer
-    from eurekaclaw.agents.theory.decomposer import LemmaDecomposer
-    from eurekaclaw.agents.theory.prover import Prover
-    from eurekaclaw.types.artifacts import LemmaNode
+    from eurekalab.agents.theory.formalizer import Formalizer
+    from eurekalab.agents.theory.decomposer import LemmaDecomposer
+    from eurekalab.agents.theory.prover import Prover
+    from eurekalab.types.artifacts import LemmaNode
 
     # Setup a simple state with one known lemma
     theory_state.formal_statement = "\\forall n \\geq 1: \\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"

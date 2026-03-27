@@ -3,9 +3,9 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from eurekaclaw.agents.theory.decomposer import LemmaDecomposer
-from eurekaclaw.agents.theory.prover import Prover, ProofAttempt
-from eurekaclaw.types.artifacts import LemmaNode, TheoryState
+from eurekalab.agents.theory.decomposer import LemmaDecomposer
+from eurekalab.agents.theory.prover import Prover, ProofAttempt
+from eurekalab.types.artifacts import LemmaNode, TheoryState
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 """Tests for LLM error classification."""
 import pytest
-from eurekaclaw.llm.errors import ErrorClass, classify_error
+from eurekalab.llm.errors import ErrorClass, classify_error
 
 
 def test_rate_limit_429():

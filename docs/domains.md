@@ -1,9 +1,9 @@
 # Domain Plugin System
 
-EurekaClaw uses a three-tier plugin architecture to support domain-specific research:
+EurekaLab uses a three-tier plugin architecture to support domain-specific research:
 
 ```
-EurekaClaw (general pipeline)          ← domain-agnostic: survey / theory / experiment / writer
+EurekaLab (general pipeline)          ← domain-agnostic: survey / theory / experiment / writer
     └── DomainPlugin (e.g. MAB)        ← domain sub-interface: tools + skills + workflow + benchmark
             └── Workflow                ← per-domain research guidance injected into agent prompts
 ```
@@ -14,7 +14,7 @@ Plugins add domain-specific tools, skills, and prompt guidance without modifying
 
 ## DomainPlugin Base Class
 
-**File:** `eurekaclaw/domains/base.py`
+**File:** `eurekalab/domains/base.py`
 
 ```python
 class DomainPlugin(ABC):
@@ -54,7 +54,7 @@ def get_benchmark_problems(self, level: str) -> list[dict]:
 
 ## Plugin Registry
 
-**File:** `eurekaclaw/domains/__init__.py`
+**File:** `eurekalab/domains/__init__.py`
 
 ### Registration
 
@@ -83,7 +83,7 @@ Returns `None` if no plugin matches (runs in general mode).
 
 ## MAB Domain Plugin
 
-**Package:** `eurekaclaw/domains/mab/`
+**Package:** `eurekalab/domains/mab/`
 
 The built-in example plugin for stochastic multi-armed bandit theory.
 
@@ -133,9 +133,9 @@ domains/mab/
 1. **Create the plugin package:**
 
 ```python
-# eurekaclaw/domains/my_domain/__init__.py
-from eurekaclaw.domains.base import DomainPlugin
-from eurekaclaw.domains import register_domain
+# eurekalab/domains/my_domain/__init__.py
+from eurekalab.domains.base import DomainPlugin
+from eurekalab.domains import register_domain
 
 @register_domain
 class MyDomainPlugin(DomainPlugin):
@@ -163,12 +163,12 @@ class MyDomainPlugin(DomainPlugin):
         return json.loads(bm_file.read_text()) if bm_file.exists() else []
 ```
 
-2. **Register the import** in `eurekaclaw/domains/__init__.py`:
+2. **Register the import** in `eurekalab/domains/__init__.py`:
 
 ```python
 _DOMAIN_PACKAGES = [
-    "eurekaclaw.domains.mab",
-    "eurekaclaw.domains.my_domain",  # add this line
+    "eurekalab.domains.mab",
+    "eurekalab.domains.my_domain",  # add this line
 ]
 ```
 

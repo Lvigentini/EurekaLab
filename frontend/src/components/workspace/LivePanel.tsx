@@ -182,7 +182,7 @@ export function LivePanel({ run, isVisible: _isVisible = true }: LivePanelProps)
       <div className="live-activity-area">
         <div className="direction-gate-card">
           <p className="direction-gate-heading">📍 No research directions were generated</p>
-          <p className="drawer-muted">Ideation returned no candidate directions. EurekaClaw will use your original conjecture as the proof target:</p>
+          <p className="drawer-muted">Ideation returned no candidate directions. EurekaLab will use your original conjecture as the proof target:</p>
           {conj && <blockquote className="drawer-direction-quote">{conj}</blockquote>}
           <p className="drawer-muted">The theory agent will proceed with this direction. If you'd like to guide the proof differently, pause the session and use the feedback box below.</p>
         </div>

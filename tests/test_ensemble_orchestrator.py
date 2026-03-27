@@ -2,12 +2,12 @@
 """Tests for EnsembleOrchestrator — dispatch + merge coordination."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from eurekaclaw.ensemble.orchestrator import EnsembleOrchestrator
-from eurekaclaw.ensemble.model_pool import ModelPool
-from eurekaclaw.ensemble.config import EnsembleConfig
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.orchestrator import EnsembleOrchestrator
+from eurekalab.ensemble.model_pool import ModelPool
+from eurekalab.ensemble.config import EnsembleConfig
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 
 @pytest.fixture

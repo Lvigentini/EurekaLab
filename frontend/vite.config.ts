@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: fileURLToPath(new URL('../eurekaclaw/ui/static', import.meta.url)),
+    outDir: fileURLToPath(new URL('../eurekalab/ui/static', import.meta.url)),
     emptyOutDir: true,
   },
   resolve: {

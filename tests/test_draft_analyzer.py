@@ -1,7 +1,7 @@
 """Tests for DraftAnalyzer — extract structure from draft papers."""
 import pytest
 from pathlib import Path
-from eurekaclaw.analyzers.draft_analyzer import DraftAnalyzer, DraftAnalysis
+from eurekalab.analyzers.draft_analyzer import DraftAnalyzer, DraftAnalysis
 
 
 SAMPLE_LATEX = r"""

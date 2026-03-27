@@ -1,9 +1,9 @@
-"""Unit tests for the lightweight EurekaClaw UI server utilities."""
+"""Unit tests for the lightweight EurekaLab UI server utilities."""
 
 from pathlib import Path
 
-from eurekaclaw.ui.server import _infer_capabilities, _serialize_value, _write_env_updates
-from eurekaclaw.types.tasks import InputSpec
+from eurekalab.ui.server import _infer_capabilities, _serialize_value, _write_env_updates
+from eurekalab.types.tasks import InputSpec
 
 
 def test_serialize_value_handles_pydantic_models():

@@ -1,8 +1,8 @@
-# EurekaClaw Frontend Prototype
+# EurekaLab Frontend Prototype
 
-This directory contains the EurekaClaw control center frontend. It is now wired to a
+This directory contains the EurekaLab control center frontend. It is now wired to a
 lightweight backend server that can read live configuration, inspect capabilities,
-and launch real EurekaClaw sessions.
+and launch real EurekaLab sessions.
 
 ## What it includes
 
@@ -18,7 +18,7 @@ and launch real EurekaClaw sessions.
 From the repository root, run:
 
 ```bash
-eurekaclaw ui
+eurekalab ui
 ```
 
 Then open:
@@ -30,8 +30,8 @@ http://127.0.0.1:8080/
 You can also choose a different bind address:
 
 ```bash
-eurekaclaw ui --host 127.0.0.1 --port 8080
+eurekalab ui --host 127.0.0.1 --port 8080
 ```
 
-This UI depends on the normal EurekaClaw Python environment. If project
+This UI depends on the normal EurekaLab Python environment. If project
 dependencies are not installed yet, the server will not start correctly.

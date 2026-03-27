@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from eurekaclaw.skills.registry import SkillRegistry
-from eurekaclaw.skills.injector import SkillInjector
-from eurekaclaw.types.skills import SkillMeta, SkillRecord
-from eurekaclaw.types.tasks import Task
+from eurekalab.skills.registry import SkillRegistry
+from eurekalab.skills.injector import SkillInjector
+from eurekalab.types.skills import SkillMeta, SkillRecord
+from eurekalab.types.tasks import Task
 
 
 @pytest.fixture

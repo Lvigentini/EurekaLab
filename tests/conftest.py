@@ -1,9 +1,9 @@
-"""Shared pytest fixtures for EurekaClaw tests."""
+"""Shared pytest fixtures for EurekaLab tests."""
 
 import pytest
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief, TheoryState
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief, TheoryState
 
 
 @pytest.fixture

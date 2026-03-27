@@ -45,7 +45,7 @@ export function ContentGapBanner({ runId, surveyDone }: ContentGapBannerProps) {
         </div>
       )}
       <p className="content-gap-hint">
-        Papers with limited content produce weaker results. Use <code>eurekaclaw inject paper</code> to add full PDFs.
+        Papers with limited content produce weaker results. Use <code>eurekalab inject paper</code> to add full PDFs.
       </p>
     </div>
   );

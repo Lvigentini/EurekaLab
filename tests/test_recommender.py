@@ -1,9 +1,9 @@
 # tests/test_recommender.py
 """Tests for EnsembleRecommender — heuristic suggestions."""
 import pytest
-from eurekaclaw.ensemble.recommender import EnsembleRecommender
-from eurekaclaw.ensemble.config import EnsembleConfig
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.recommender import EnsembleRecommender
+from eurekalab.ensemble.config import EnsembleConfig
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 @pytest.fixture

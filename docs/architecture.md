@@ -2,12 +2,12 @@
 
 ## Overview
 
-EurekaClaw is organized as a **multi-agent pipeline** coordinated by a `MetaOrchestrator`. Each agent is specialized for one stage of the research lifecycle. Artifacts are shared between agents via a central `KnowledgeBus`.
+EurekaLab is organized as a **multi-agent pipeline** coordinated by a `MetaOrchestrator`. Each agent is specialized for one stage of the research lifecycle. Artifacts are shared between agents via a central `KnowledgeBus`.
 
 ## Pipeline Stages
 
 <p align="center">
-  <img src="images/pipeline-main.svg" alt="EurekaClaw Main Pipeline" width="820"/>
+  <img src="images/pipeline-main.svg" alt="EurekaLab Main Pipeline" width="820"/>
 </p>
 
 ## Core Components
@@ -25,7 +25,7 @@ KnowledgeBus
 └── TaskPipeline     — current task execution plan
 ```
 
-Artifacts are persisted to `~/.eurekaclaw/runs/<session_id>/` at the end of each session.
+Artifacts are persisted to `~/.eurekalab/runs/<session_id>/` at the end of each session.
 
 ### Agent Session & Context Compression
 
@@ -127,20 +127,20 @@ This is implemented in `_handle_manual_direction()` in `meta_orchestrator.py`.
 The proof pipeline supports immediate pause at any point during execution.
 
 **Triggering a pause:**
-- `Ctrl+C` in the terminal running `eurekaclaw prove` or `eurekaclaw resume`
-- `eurekaclaw pause <session-id>` from a separate terminal
+- `Ctrl+C` in the terminal running `eurekalab prove` or `eurekalab resume`
+- `eurekalab pause <session-id>` from a separate terminal
 
 **How it works:**
 
 `cli.py` wraps every proof coroutine in `_run_with_pause_support(coro, cp)`:
 - Registers a SIGINT handler via `loop.add_signal_handler` that calls `task.cancel()`
-- Runs a background 1-second poller that watches for the `pause.flag` file (written by `eurekaclaw pause`) and cancels the task if found
+- Runs a background 1-second poller that watches for the `pause.flag` file (written by `eurekalab pause`) and cancels the task if found
 
-When the task is cancelled, `inner_loop_yaml.run()` catches `asyncio.CancelledError` at the stage boundary, saves a checkpoint (`~/.eurekaclaw/sessions/<id>/checkpoint.json`) with all lemmas proved so far, and raises `ProofPausedException`.
+When the task is cancelled, `inner_loop_yaml.run()` catches `asyncio.CancelledError` at the stage boundary, saves a checkpoint (`~/.eurekalab/sessions/<id>/checkpoint.json`) with all lemmas proved so far, and raises `ProofPausedException`.
 
 **Checkpoint contents:** proven lemmas, open goals, current outer iteration, remaining stage spec, research brief.
 
-**Resuming:** `eurekaclaw resume <session-id>` reloads the checkpoint and continues from the saved stage.
+**Resuming:** `eurekalab resume <session-id>` reloads the checkpoint and continues from the saved stage.
 
 ## Theory Review Gate
 

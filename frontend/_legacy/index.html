@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EurekaClaw Control Center</title>
+    <title>EurekaLab Control Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,7 +19,7 @@
           <div class="brand-mark" aria-hidden="true">
             <img src="./logo-claw.png" alt="" class="brand-mark-image" />
           </div>
-          <h1>EurekaClaw</h1>
+          <h1>EurekaLab</h1>
         </div>
 
         <nav class="nav-stack" aria-label="Primary">
@@ -49,7 +49,7 @@
             <div class="new-session-card">
               <div class="canvas-heading">
                 <h2 class="canvas-title">What would you like to prove?</h2>
-                <p class="canvas-sub">EurekaClaw surveys the literature, generates theorems, and writes a complete mathematical proof — autonomously.</p>
+                <p class="canvas-sub">EurekaLab surveys the literature, generates theorems, and writes a complete mathematical proof — autonomously.</p>
               </div>
               <div class="canvas-form-body">
                 <div class="canvas-row-duo">
@@ -72,7 +72,7 @@
                 </label>
                 <label class="canvas-full">
                   <span class="canvas-label" id="prompt-label">Research prompt</span>
-                  <textarea id="input-prompt" rows="5" placeholder="Describe the conjecture, problem setting, or research area you want EurekaClaw to investigate."></textarea>
+                  <textarea id="input-prompt" rows="5" placeholder="Describe the conjecture, problem setting, or research area you want EurekaLab to investigate."></textarea>
                 </label>
                 <div class="canvas-actions">
                   <button class="canvas-launch-btn" id="launch-session-btn">
@@ -151,7 +151,7 @@
                     <span class="proof-ctrl-live-dot" aria-hidden="true"></span>
                     <div>
                       <span class="proof-ctrl-live-label" id="proof-ctrl-live-label">Research in progress</span>
-                      <span class="proof-ctrl-live-sub" id="proof-ctrl-live-sub">EurekaClaw is thinking…</span>
+                      <span class="proof-ctrl-live-sub" id="proof-ctrl-live-sub">EurekaLab is thinking…</span>
                     </div>
                   </div>
                   <button class="proof-ctrl-pause-btn" id="pause-session-btn" aria-label="Pause research at the next safe checkpoint">
@@ -159,7 +159,7 @@
                     <span>Take a break</span>
                   </button>
                 </div>
-                <p class="proof-ctrl-running-hint" id="proof-ctrl-running-hint">Your progress is safe — EurekaClaw will stop at the next natural checkpoint.</p>
+                <p class="proof-ctrl-running-hint" id="proof-ctrl-running-hint">Your progress is safe — EurekaLab will stop at the next natural checkpoint.</p>
               </div>
 
               <!-- State 2: Pausing — waiting for safe stop -->
@@ -327,7 +327,7 @@
                 <div class="clawhub-divider"><span>or</span></div>
                 <div class="clawhub-seeds-row">
                   <button class="clawhub-seeds-btn" id="install-seeds-btn">📦 Install built-in seed skills</button>
-                  <span class="clawhub-seeds-hint">Copies bundled proof strategies to <code>~/.eurekaclaw/skills/</code></span>
+                  <span class="clawhub-seeds-hint">Copies bundled proof strategies to <code>~/.eurekalab/skills/</code></span>
                 </div>
                 <p id="clawhub-status" class="clawhub-status" hidden></p>
               </div>
@@ -429,11 +429,11 @@
                 </label>
                 <label data-config-show="always">
                   <span>Primary model</span>
-                  <input type="text" name="eurekaclaw_model" />
+                  <input type="text" name="eurekalab_model" />
                 </label>
                 <label data-config-show="always">
                   <span>Fast model</span>
-                  <input type="text" name="eurekaclaw_fast_model" />
+                  <input type="text" name="eurekalab_fast_model" />
                 </label>
                 <label data-config-show="always">
                   <span>Theory pipeline</span>
@@ -548,8 +548,8 @@
                   <input type="text" name="openai_compat_model" />
                 </label>
                 <label class="full-width" data-config-show="always">
-                  <span>EurekaClaw directory</span>
-                  <input type="text" name="eurekaclaw_dir" placeholder="~/.eurekaclaw" />
+                  <span>EurekaLab directory</span>
+                  <input type="text" name="eurekalab_dir" placeholder="~/.eurekalab" />
                 </label>
                 <div class="action-row full-width">
                   <button class="secondary-btn" type="button" id="test-connection-btn">Test connection</button>

@@ -1,7 +1,7 @@
 # tests/test_ensemble_config.py
 """Tests for EnsembleConfig — per-stage ensemble configuration."""
 import pytest
-from eurekaclaw.ensemble.config import EnsembleConfig, StageEnsembleConfig
+from eurekalab.ensemble.config import EnsembleConfig, StageEnsembleConfig
 
 
 def test_default_config_is_single():

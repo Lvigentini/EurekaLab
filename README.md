@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-cropped.svg" width="700" alt="EurekaClaw  — The Research Claw">
+  <img src="assets/logo-cropped.svg" width="700" alt="EurekaLab  — The Research Claw">
 </p>
 
 <p align="center">
@@ -9,21 +9,21 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EurekaClaw/EurekaClaw/stargazers"><img src="https://img.shields.io/github/stars/EurekaClaw/EurekaClaw?style=flat-square&color=yellow" alt="Stars"/></a>
+  <a href="https://github.com/EurekaLab/EurekaLab/stargazers"><img src="https://img.shields.io/github/stars/EurekaLab/EurekaLab?style=flat-square&color=yellow" alt="Stars"/></a>
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square" alt="License: Apache 2.0">
   <img src="https://img.shields.io/badge/python-3.11%2B-007ACC?style=flat-square&color=yellow" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/local--first-private%20by%20default-1F8AD2?style=flat-square" alt="Local-first"/>
 </p>
 
 <p align="center">
-  <a href="https://www.eurekaclaw.ai/"><img src="https://img.shields.io/badge/🌐%20Website-eurekaclaw.ai-007ACC?style=flat-square" alt="Website"/></a>
-  <a href="https://eurekaclaw.github.io/"><img src="https://img.shields.io/badge/📚%20Docs-eurekaclaw.github.io-007ACC?style=flat-square&color=green" alt="Docs"/></a>
+  <a href="https://www.eurekalab.ai/"><img src="https://img.shields.io/badge/🌐%20Website-eurekalab.ai-007ACC?style=flat-square" alt="Website"/></a>
+  <a href="https://eurekalab.github.io/"><img src="https://img.shields.io/badge/📚%20Docs-eurekalab.github.io-007ACC?style=flat-square&color=green" alt="Docs"/></a>
   <a href="https://www.xiaohongshu.com/user/profile/69bf26c7000000003402ea57"><img src="https://img.shields.io/badge/📕%20RedNote-Follow%20Us-FF2442?style=flat-square" alt="RedNote"/></a>
   <a href="https://discord.gg/SprC5BgmcW"><img src="https://img.shields.io/badge/💬%20Discord-Join%20Us-5865F2?style=flat-square" alt="Discord"/></a>
 </p>
 
 ```
-$ eurekaclaw prove "Find recent papers on sparse attention + prove efficiency bound"
+$ eurekalab prove "Find recent papers on sparse attention + prove efficiency bound"
 
 🦞 Crawling arXiv cs.LG (2024–2025)...
 📄 Found 23 relevant papers. Summarizing...
@@ -32,17 +32,17 @@ $ eurekaclaw prove "Find recent papers on sparse attention + prove efficiency bo
 🦞 Eureka! Paper draft saved to ./results/
 ```
 
-> **Fork Notice:** This is a fork of [EurekaClaw/EurekaClaw](https://github.com/EurekaClaw/EurekaClaw) with significant improvements to resilience, multi-model support, and research quality. See [What's New in This Fork](#whats-new-in-this-fork) below.
+> **Fork Notice:** This is a fork of [EurekaLab/EurekaLab](https://github.com/EurekaLab/EurekaLab) with significant improvements to resilience, multi-model support, and research quality. See [What's New in This Fork](#whats-new-in-this-fork) below.
 
 ---
 
-**EurekaClaw** is a multi-agent AI research assistant that goes from a question to a publishable result — autonomously. It crawls the literature, generates and stress-tests hypotheses, runs experiments, and writes up findings, all from your terminal or browser UI.
+**EurekaLab** is a multi-agent AI research assistant that goes from a question to a publishable result — autonomously. It crawls the literature, generates and stress-tests hypotheses, runs experiments, and writes up findings, all from your terminal or browser UI.
 
 > **Open Source · Local-First · Privacy by Design · Apache 2.0 License**
 
 ---
 
-## What EurekaClaw Does
+## What EurekaLab Does
 
 | | Feature | Description |
 |---|---|---|
@@ -59,7 +59,7 @@ $ eurekaclaw prove "Find recent papers on sparse attention + prove efficiency bo
 
 ## What's New in This Fork
 
-This fork ([Lvigentini/EurekaClaw](https://github.com/Lvigentini/EurekaClaw)) adds three major contributions over the upstream project:
+This fork ([Lvigentini/EurekaLab](https://github.com/Lvigentini/EurekaLab)) adds three major contributions over the upstream project:
 
 ### 1. N-Model Ensemble Architecture
 Run multiple LLMs (Claude, Gemini, GPT, Kimi, etc.) concurrently across pipeline stages with per-stage merge strategies:
@@ -75,7 +75,7 @@ Configure via environment variables — add `ENSEMBLE_MODELS=claude,gemini` and 
 
 ### 2. Crash Resilience
 - **Incremental checkpointing** — state saved after each pipeline stage, not just at session end
-- **Full-pipeline resume** — `eurekaclaw resume <session_id>` detects progress from any stage
+- **Full-pipeline resume** — `eurekalab resume <session_id>` detects progress from any stage
 - **Circuit breaker** — fails fast after 3 consecutive API failures instead of burning tokens
 - **Error classification** — auth errors (401/403) fail immediately, server errors retry with backoff
 - **ccproxy health monitoring** — auto-restarts OAuth proxy if it crashes mid-session
@@ -105,16 +105,16 @@ Configure via environment variables — add `ENSEMBLE_MODELS=claude,gemini` and 
 **macOS / Linux**
 
 ```bash
-curl -fsSL https://eurekaclaw.ai/install.sh | bash
+curl -fsSL https://eurekalab.ai/install.sh | bash
 ```
 
 **Windows** *(under development — not fully supported yet)*
 
 ```powershell
-powershell -c "irm https://eurekaclaw.ai/install_win.ps1 | iex"
+powershell -c "irm https://eurekalab.ai/install_win.ps1 | iex"
 ```
 
-The macOS/Linux installer clones the repo, creates a virtual environment, installs EurekaClaw, and adds the `eurekaclaw` command to your PATH. Run `eurekaclaw onboard` afterwards to configure your API key and settings.
+The macOS/Linux installer clones the repo, creates a virtual environment, installs EurekaLab, and adds the `eurekalab` command to your PATH. Run `eurekalab onboard` afterwards to configure your API key and settings.
 
 > **Windows users:** native Windows support is under active development. In the meantime, use [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/install) (Ubuntu) and follow the macOS/Linux instructions inside the WSL terminal.
 
@@ -124,8 +124,8 @@ The macOS/Linux installer clones the repo, creates a virtual environment, instal
 **Requirements:** Python ≥ 3.11, Node.js ≥ 20, Git
 
 ```bash
-git clone https://github.com/EurekaClaw/EurekaClaw
-cd EurekaClaw
+git clone https://github.com/EurekaLab/EurekaLab
+cd EurekaLab
 make install                  # pip install -e "." + npm install (frontend)
 ```
 </details>
@@ -135,52 +135,52 @@ make install                  # pip install -e "." + npm install (frontend)
 ## Quick Start
 
 ```bash
-eurekaclaw onboard            # interactive setup wizard (creates .env)
+eurekalab onboard            # interactive setup wizard (creates .env)
 # — or — cp .env.example .env and add ANTHROPIC_API_KEY manually
 
-eurekaclaw install-skills     # install built-in proof skills (do once)
+eurekalab install-skills     # install built-in proof skills (do once)
 
 # Browser UI — build frontend and open in browser
 make open
 
 # CLI — prove a conjecture
-eurekaclaw prove "The sample complexity of transformers is O(L·d·log(d)/ε²)" \
+eurekalab prove "The sample complexity of transformers is O(L·d·log(d)/ε²)" \
     --domain "ML theory" --output ./results
 
 # CLI — explore a domain
-eurekaclaw explore "multi-armed bandit theory"
+eurekalab explore "multi-armed bandit theory"
 
 # CLI — start from arXiv papers
-eurekaclaw from-papers 1706.03762 2005.14165 --domain "attention mechanisms"
+eurekalab from-papers 1706.03762 2005.14165 --domain "attention mechanisms"
 
 # CLI — start from your existing bibliography
-eurekaclaw from-bib references.bib --pdfs ./papers/ --domain "ML theory"
+eurekalab from-bib references.bib --pdfs ./papers/ --domain "ML theory"
 
 # CLI — start from a draft paper
-eurekaclaw from-draft paper.tex "Help me strengthen the theory section"
+eurekalab from-draft paper.tex "Help me strengthen the theory section"
 
 # CLI — start from your Zotero library
 export ZOTERO_API_KEY=your_key ZOTERO_LIBRARY_ID=your_id
-eurekaclaw from-zotero ABC123 --domain "information theory"
+eurekalab from-zotero ABC123 --domain "information theory"
 
 # Mid-session: inject a paper or idea into a paused session
-eurekaclaw inject paper <session-id> 2401.12345
-eurekaclaw inject idea <session-id> "What about spectral methods?"
+eurekalab inject paper <session-id> 2401.12345
+eurekalab inject idea <session-id> "What about spectral methods?"
 
 # Version management: view history, compare, roll back
-eurekaclaw history <session-id>
-eurekaclaw diff <session-id> 1 3
-eurekaclaw checkout <session-id> 2
+eurekalab history <session-id>
+eurekalab diff <session-id> 1 3
+eurekalab checkout <session-id> 2
 ```
 
-> No API key? Use a Claude Pro/Max subscription via [OAuth](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/configuration.md#llm-backend).
+> No API key? Use a Claude Pro/Max subscription via [OAuth](https://github.com/EurekaLab/EurekaLab/blob/main/docs/configuration.md#llm-backend).
 
 ---
 
 ## Pipeline
 
 <p align="center">
-  <img src="docs/images/pipeline-overview.svg" alt="EurekaClaw Pipeline" width="640"/>
+  <img src="docs/images/pipeline-overview.svg" alt="EurekaLab Pipeline" width="640"/>
 </p>
 
 ---
@@ -189,32 +189,32 @@ eurekaclaw checkout <session-id> 2
 
 | Command | When to use |
 |---|---|
-| `eurekaclaw prove "<conjecture>"` | You have a precise mathematical statement to prove |
-| `eurekaclaw from-papers <ids>` | You want to extend or find gaps in specific papers |
-| `eurekaclaw explore "<domain>"` | You have a broad research area but no conjecture yet |
-| `eurekaclaw from-bib refs.bib --pdfs ./papers/` | You have a .bib file and local PDFs from your research |
-| `eurekaclaw from-draft paper.tex "Strengthen theory"` | You have a draft paper and want to extend/complete it |
-| `eurekaclaw from-zotero <collection-id>` | You want to start from your Zotero library (institutional access) |
+| `eurekalab prove "<conjecture>"` | You have a precise mathematical statement to prove |
+| `eurekalab from-papers <ids>` | You want to extend or find gaps in specific papers |
+| `eurekalab explore "<domain>"` | You have a broad research area but no conjecture yet |
+| `eurekalab from-bib refs.bib --pdfs ./papers/` | You have a .bib file and local PDFs from your research |
+| `eurekalab from-draft paper.tex "Strengthen theory"` | You have a draft paper and want to extend/complete it |
+| `eurekalab from-zotero <collection-id>` | You want to start from your Zotero library (institutional access) |
 
 ---
 
 ## Documentation
 
-See detailed documentation in https://eurekaclaw.github.io/ .
+See detailed documentation in https://eurekalab.github.io/ .
 
 | | |
 |---|---|
-| 📖 [**User Guide**](https://eurekaclaw.github.io/user-guide/index.html) | Installation, walkthrough, gate modes, tuning, troubleshooting |
-| ⚙️ [**Configuration**](https://eurekaclaw.github.io/reference/configuration.html) | All `.env` variables with defaults |
-| 🏗️ [**Architecture**](https://eurekaclaw.github.io/reference/architecture.html) | Pipeline stages, data flow, component design |
-| 🤖 [**Agents**](https://eurekaclaw.github.io/reference/agents.html) | Each agent's role, inputs, outputs, and tool usage |
-| 🔧 [**Tools**](https://eurekaclaw.github.io/reference/tools.html) | arXiv, Semantic Scholar, Lean4, WolframAlpha, code execution |
-| 💻 [**CLI Reference**](https://eurekaclaw.github.io/reference/cli.html) | All commands and options |
-| 🐍 [**Python API**](https://eurekaclaw.github.io/reference/api.html) | `EurekaSession`, `KnowledgeBus`, data models |
-| 🧠 [**Memory System**](https://eurekaclaw.github.io/reference/memory.html) | Episodic, persistent, and knowledge graph tiers |
-| ✨ [**Skills**](https://eurekaclaw.github.io/reference/skills.html) | Skill registry, injection, distillation, writing custom skills |
-| 🔌 [**Domain Plugins**](https://eurekaclaw.github.io/reference/domains.html) | Plugin architecture, MAB domain, adding new domains |
-| 🌐 [**UI Design**](https://eurekaclaw.github.io/user-guide/browser-ui.html) | React/TS architecture, component tree, run commands |
+| 📖 [**User Guide**](https://eurekalab.github.io/user-guide/index.html) | Installation, walkthrough, gate modes, tuning, troubleshooting |
+| ⚙️ [**Configuration**](https://eurekalab.github.io/reference/configuration.html) | All `.env` variables with defaults |
+| 🏗️ [**Architecture**](https://eurekalab.github.io/reference/architecture.html) | Pipeline stages, data flow, component design |
+| 🤖 [**Agents**](https://eurekalab.github.io/reference/agents.html) | Each agent's role, inputs, outputs, and tool usage |
+| 🔧 [**Tools**](https://eurekalab.github.io/reference/tools.html) | arXiv, Semantic Scholar, Lean4, WolframAlpha, code execution |
+| 💻 [**CLI Reference**](https://eurekalab.github.io/reference/cli.html) | All commands and options |
+| 🐍 [**Python API**](https://eurekalab.github.io/reference/api.html) | `EurekaSession`, `KnowledgeBus`, data models |
+| 🧠 [**Memory System**](https://eurekalab.github.io/reference/memory.html) | Episodic, persistent, and knowledge graph tiers |
+| ✨ [**Skills**](https://eurekalab.github.io/reference/skills.html) | Skill registry, injection, distillation, writing custom skills |
+| 🔌 [**Domain Plugins**](https://eurekalab.github.io/reference/domains.html) | Plugin architecture, MAB domain, adding new domains |
+| 🌐 [**UI Design**](https://eurekalab.github.io/user-guide/browser-ui.html) | React/TS architecture, component tree, run commands |
 
 ---
 
@@ -226,21 +226,21 @@ cp .env.example .env
 
 | Variable | Default | Description |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | — | API key (or use OAuth, see [User Guide](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/user-guide.md#authentication)) |
-| `EUREKACLAW_MODEL` | `claude-sonnet-4-6` | Main reasoning model |
+| `ANTHROPIC_API_KEY` | — | API key (or use OAuth, see [User Guide](https://github.com/EurekaLab/EurekaLab/blob/main/docs/user-guide.md#authentication)) |
+| `EUREKALAB_MODEL` | `claude-sonnet-4-6` | Main reasoning model |
 | `GATE_MODE` | `auto` | `none` · `auto` · `human` |
 | `THEORY_PIPELINE` | `default` | `default` or `memory_guided` |
 | `OUTPUT_FORMAT` | `latex` | `latex` or `markdown` |
 | `EXPERIMENT_MODE` | `auto` | `auto` · `true` · `false` |
 | `THEORY_MAX_ITERATIONS` | `10` | Max proof loop iterations |
 
-Full reference → [configuration.md](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/configuration.md)
+Full reference → [configuration.md](https://github.com/EurekaLab/EurekaLab/blob/main/docs/configuration.md)
 
 ---
 
 ## Evaluation
 
-EurekaClaw includes a **Scientist-Bench** evaluator:
+EurekaLab includes a **Scientist-Bench** evaluator:
 
 | Dimension | Weight |
 |---|---|
@@ -251,7 +251,7 @@ EurekaClaw includes a **Scientist-Bench** evaluator:
 | Citation coverage | 0.10 |
 
 ```bash
-eurekaclaw eval-session <session_id>
+eurekalab eval-session <session_id>
 ```
 
 ---
@@ -272,17 +272,17 @@ make typecheck
 make dev
 ```
 
-To add a **custom skill**, drop a `.md` file into `~/.eurekaclaw/skills/` — see [skills.md](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/skills.md).
+To add a **custom skill**, drop a `.md` file into `~/.eurekalab/skills/` — see [skills.md](https://github.com/EurekaLab/EurekaLab/blob/main/docs/skills.md).
 
-To add a **new research domain**, subclass `DomainPlugin` — see [domains.md](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/domains.md).
+To add a **new research domain**, subclass `DomainPlugin` — see [domains.md](https://github.com/EurekaLab/EurekaLab/blob/main/docs/domains.md).
 
-To add a **new tool**, subclass `BaseTool` and register it — see [tools.md](https://github.com/EurekaClaw/EurekaClaw/blob/main/docs/tools.md).
+To add a **new tool**, subclass `BaseTool` and register it — see [tools.md](https://github.com/EurekaLab/EurekaLab/blob/main/docs/tools.md).
 
 ---
 
 ## Acknowledgements
 
-EurekaClaw builds on ideas and inspiration from the broader AI-for-science community. We thank the authors of the following projects:
+EurekaLab builds on ideas and inspiration from the broader AI-for-science community. We thank the authors of the following projects:
 
 - [MetaClaw](https://github.com/aiming-lab/MetaClaw) — multi-agent research orchestration
 - [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw) — automated research orchestration
@@ -298,14 +298,14 @@ EurekaClaw builds on ideas and inspiration from the broader AI-for-science commu
 
 ## Citation
 
-If you use EurekaClaw in your research, please cite:
+If you use EurekaLab in your research, please cite:
 
 ```bibtex
-@misc{eurekaclaw2026,
-  title     = {EurekaClaw: An AI Agent for Capturing Eureka Moments},
+@misc{eurekalab2026,
+  title     = {EurekaLab: An AI Agent for Capturing Eureka Moments},
   author    = {Li, Xuheng and Di, Qiwei and Zhang, Chenggong and Ji, Kaixuan and Zhao, Qingyue and Liu, Yifeng and Zhang, Shiyuan and Gu, Quanquan},
   year      = {2026},
-  url       = {https://github.com/EurekaClaw/EurekaClaw}
+  url       = {https://github.com/EurekaLab/EurekaLab}
 }
 ```
 

@@ -1,13 +1,13 @@
 """Integration tests — VersionStore wired into KnowledgeBus."""
 import json
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief, Bibliography, Paper
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief, Bibliography, Paper
 
 
 @pytest.fixture
 def bus(tmp_path, monkeypatch) -> KnowledgeBus:
-    monkeypatch.setattr("eurekaclaw.config.settings.eurekaclaw_dir", tmp_path)
+    monkeypatch.setattr("eurekalab.config.settings.eurekalab_dir", tmp_path)
     b = KnowledgeBus("test-int-001")
     b._session_dir = tmp_path / "runs" / "test-int-001"
     return b
@@ -76,5 +76,5 @@ def test_version_store_uses_sqlite(bus, tmp_path):
     ))
     bus.persist_incremental(completed_stage="survey")
     # Verify SQLite DB was created
-    db_path = tmp_path / "eurekaclaw.db"
+    db_path = tmp_path / "eurekalab.db"
     assert db_path.exists()

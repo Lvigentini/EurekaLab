@@ -1,11 +1,11 @@
 """Tests for version diff logic."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import (
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import (
     Bibliography, Paper, ProofRecord, ResearchBrief, TheoryState,
 )
-from eurekaclaw.versioning.diff import diff_versions
-from eurekaclaw.versioning.store import VersionStore
+from eurekalab.versioning.diff import diff_versions
+from eurekalab.versioning.store import VersionStore
 
 
 @pytest.fixture

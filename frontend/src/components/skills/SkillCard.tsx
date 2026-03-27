@@ -18,7 +18,7 @@ function skillSourceLabel(source: string | undefined): string {
 }
 
 function skillIsDeletable(skill: Skill): boolean {
-  return skill.source !== 'seed' && Boolean(skill.file_path) && (skill.file_path ?? '').includes('.eurekaclaw');
+  return skill.source !== 'seed' && Boolean(skill.file_path) && (skill.file_path ?? '').includes('.eurekalab');
 }
 
 export function SkillCard({ skill, isSelected, onToggle, onDelete }: SkillCardProps) {

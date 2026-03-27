@@ -2,12 +2,12 @@
 
 ## EurekaSession
 
-**File:** `eurekaclaw/main.py`
+**File:** `eurekalab/main.py`
 
 The main entry point for running research programmatically.
 
 ```python
-from eurekaclaw.main import EurekaSession, run_research, save_artifacts
+from eurekalab.main import EurekaSession, run_research, save_artifacts
 
 session = EurekaSession()
 ```
@@ -87,7 +87,7 @@ Write all pipeline artifacts to disk and compile the PDF.
 
 ## KnowledgeBus
 
-**File:** `eurekaclaw/knowledge_bus/bus.py`
+**File:** `eurekalab/knowledge_bus/bus.py`
 
 Central in-memory artifact store shared by all agents in a session. All data flows through the bus — no agent holds private state between turns.
 
@@ -149,7 +149,7 @@ Reconstruct a bus from a previously persisted session directory.
 
 ## InputSpec
 
-**File:** `eurekaclaw/types/tasks.py`
+**File:** `eurekalab/types/tasks.py`
 
 Specifies what to research.
 
@@ -169,7 +169,7 @@ class InputSpec(BaseModel):
 
 ## ResearchOutput
 
-**File:** `eurekaclaw/types/tasks.py`
+**File:** `eurekalab/types/tasks.py`
 
 The result of a full research session.
 
@@ -224,7 +224,7 @@ All models are Pydantic `BaseModel` instances. See [architecture.md](architectur
 
 ```python
 import asyncio
-from eurekaclaw.main import EurekaSession, save_artifacts
+from eurekalab.main import EurekaSession, save_artifacts
 
 async def main():
     session = EurekaSession()
@@ -241,9 +241,9 @@ asyncio.run(main())
 ## Example: Load and Re-generate Artifacts
 
 ```python
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import TheoryState, ResearchBrief
-from eurekaclaw.main import save_artifacts, ResearchOutput
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import TheoryState, ResearchBrief
+from eurekalab.main import save_artifacts, ResearchOutput
 from pathlib import Path
 import json
 
@@ -253,8 +253,8 @@ theory_state = TheoryState.model_validate_json((session_dir / "theory_state.json
 research_brief = ResearchBrief.model_validate_json((session_dir / "research_brief.json").read_text())
 
 # Re-run writer agent
-from eurekaclaw.agents.writer.agent import WriterAgent
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.agents.writer.agent import WriterAgent
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 bus = KnowledgeBus(theory_state.session_id)
 bus.put_theory_state(theory_state)

@@ -2,9 +2,9 @@
 
 import pytest
 
-from eurekaclaw.tools.registry import ToolRegistry
-from eurekaclaw.tools.base import BaseTool
-from eurekaclaw.tools.citation import CitationManagerTool
+from eurekalab.tools.registry import ToolRegistry
+from eurekalab.tools.base import BaseTool
+from eurekalab.tools.citation import CitationManagerTool
 
 
 class MockTool(BaseTool):

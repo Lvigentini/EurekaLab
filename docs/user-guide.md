@@ -1,6 +1,6 @@
 # User Guide
 
-A practical walkthrough for using EurekaClaw — from installation to reading your first generated paper.
+A practical walkthrough for using EurekaLab — from installation to reading your first generated paper.
 
 ---
 
@@ -31,24 +31,24 @@ A practical walkthrough for using EurekaClaw — from installation to reading yo
 **macOS / Linux**
 
 ```bash
-curl -fsSL https://eurekaclaw.ai/install.sh | bash
+curl -fsSL https://eurekalab.ai/install.sh | bash
 ```
 
 **Windows** *(under development — not fully supported yet)*
 
 ```powershell
-powershell -c "irm https://eurekaclaw.ai/install_win.ps1 | iex"
+powershell -c "irm https://eurekalab.ai/install_win.ps1 | iex"
 ```
 
-The macOS/Linux installer clones the repo, creates a virtual environment, installs EurekaClaw, and adds the `eurekaclaw` command to your PATH. Run `eurekaclaw onboard` afterwards to configure your API key and settings.
+The macOS/Linux installer clones the repo, creates a virtual environment, installs EurekaLab, and adds the `eurekalab` command to your PATH. Run `eurekalab onboard` afterwards to configure your API key and settings.
 
 ### Manual install
 
 **Requirements:** Python ≥ 3.11, Node.js ≥ 20, Git
 
 ```bash
-git clone https://github.com/EurekaClaw/EurekaClaw
-cd EurekaClaw
+git clone https://github.com/EurekaLab/EurekaLab
+cd EurekaLab
 make install                  # pip install -e "." + npm install (frontend)
 ```
 
@@ -67,7 +67,7 @@ pip install -e ".[openai,oauth]"
 | **pdflatex** + bibtex | Compile `paper.tex` → `paper.pdf` | TeX Live / MacTeX |
 | **Lean4** | Formal proof verification | [leanprover.github.io](https://leanprover.github.io) |
 
-EurekaClaw works without any of these — it just skips the associated step (PDF compilation, Lean verification).
+EurekaLab works without any of these — it just skips the associated step (PDF compilation, Lean verification).
 
 > **Docker / sandboxed code execution** is **future work** — the experiment runner and `execute_python` tool are not yet safely sandboxed for general use. Keep `EXPERIMENT_MODE=false` until a future release adds proper sandbox support.
 
@@ -90,7 +90,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 ### Option B — Claude Pro/Max via OAuth (no API key)
 
 ```bash
-pip install "eurekaclaw[oauth]"
+pip install "eurekalab[oauth]"
 ccproxy auth login claude_api   # opens browser for one-time login
 ```
 
@@ -98,7 +98,7 @@ ccproxy auth login claude_api   # opens browser for one-time login
 ANTHROPIC_AUTH_MODE=oauth
 ```
 
-EurekaClaw will automatically start/stop ccproxy alongside your session.
+EurekaLab will automatically start/stop ccproxy alongside your session.
 
 ### Option C — OpenRouter or local model
 
@@ -123,10 +123,10 @@ OPENAI_COMPAT_MODEL=llama3
 
 ```bash
 # Install built-in proof skills (required — do this once)
-eurekaclaw install-skills
+eurekalab install-skills
 
 # Prove a conjecture — output goes to ./results/
-eurekaclaw prove "The sample complexity of transformers is O(L·d·log(d)/ε²)" \
+eurekalab prove "The sample complexity of transformers is O(L·d·log(d)/ε²)" \
     --domain "ML theory"
 ```
 
@@ -152,7 +152,7 @@ When the run finishes, artifacts are in `./results/<session_id>/`.
 
 ## Choosing an Input Mode
 
-EurekaClaw has three input modes. Pick the one that matches how well-defined your goal is.
+EurekaLab has three input modes. Pick the one that matches how well-defined your goal is.
 
 ### Level 1 — Prove a specific conjecture (`prove`)
 
@@ -161,13 +161,13 @@ Use this when you have a concrete mathematical statement you want to prove.
 The system uses your statement **exactly as given** — the direction-selection step is bypassed.
 
 ```bash
-eurekaclaw prove "Any PAC-learnable class has finite VC dimension" \
+eurekalab prove "Any PAC-learnable class has finite VC dimension" \
     --domain "ML theory"
 
-eurekaclaw prove "The VC dimension of depth-d width-w ReLU networks is O(wd·log(wd))" \
+eurekalab prove "The VC dimension of depth-d width-w ReLU networks is O(wd·log(wd))" \
     --domain "deep learning theory"
 
-eurekaclaw prove "For all n ≥ 1: Σᵢ₌₁ⁿ i = n(n+1)/2" \
+eurekalab prove "For all n ≥ 1: Σᵢ₌₁ⁿ i = n(n+1)/2" \
     --domain "combinatorics"
 ```
 
@@ -182,11 +182,11 @@ Use this when you have specific papers you want to extend or find gaps in.
 
 ```bash
 # Attention mechanism papers — find open problems and prove something new
-eurekaclaw from-papers 1706.03762 2005.14165 \
+eurekalab from-papers 1706.03762 2005.14165 \
     --domain "attention mechanisms"
 
 # Bandit theory papers
-eurekaclaw from-papers 1602.01783 2106.01336 \
+eurekalab from-papers 1602.01783 2106.01336 \
     --domain "multi-armed bandits"
 ```
 
@@ -198,14 +198,14 @@ Use this when you have a broad research area in mind but no specific conjecture.
 
 ```bash
 # Broad domain exploration
-eurekaclaw explore "spectral graph theory"
+eurekalab explore "spectral graph theory"
 
 # Domain + guiding question
-eurekaclaw explore "multi-armed bandit theory" \
+eurekalab explore "multi-armed bandit theory" \
     --query "What are the tightest known bounds for heavy-tailed rewards?"
 
 # Pure math
-eurekaclaw explore "algebraic topology" \
+eurekalab explore "algebraic topology" \
     --query "What are open problems in persistent homology?"
 ```
 
@@ -218,9 +218,9 @@ The system autonomously surveys the frontier, identifies open problems, proposes
 ### Basic usage
 
 ```bash
-eurekaclaw prove "<conjecture>" [OPTIONS]
-eurekaclaw explore "<domain>"   [OPTIONS]
-eurekaclaw from-papers <id> [<id> ...] --domain "<domain>" [OPTIONS]
+eurekalab prove "<conjecture>" [OPTIONS]
+eurekalab explore "<domain>"   [OPTIONS]
+eurekalab from-papers <id> [<id> ...] --domain "<domain>" [OPTIONS]
 ```
 
 ### Common options
@@ -236,20 +236,20 @@ eurekaclaw from-papers <id> [<id> ...] --domain "<domain>" [OPTIONS]
 ### Verbose logging
 
 ```bash
-eurekaclaw --verbose prove "..."   # shows DEBUG-level logs
+eurekalab --verbose prove "..."   # shows DEBUG-level logs
 ```
 
 ### Useful commands
 
 ```bash
-eurekaclaw onboard                               # interactive setup wizard
-eurekaclaw skills                                # list all available skills
-eurekaclaw install-skills                        # install seed skills
-eurekaclaw install-skills --force                # overwrite existing skills
-eurekaclaw eval-session <session_id>             # evaluate a past session
-eurekaclaw replay-theory-tail <session_id>       # rerun assembler/crystallizer/checker
-eurekaclaw test-paper-reader <session_id> <ref>  # test paper extraction on one paper
-eurekaclaw ui --open-browser                     # launch browser UI
+eurekalab onboard                               # interactive setup wizard
+eurekalab skills                                # list all available skills
+eurekalab install-skills                        # install seed skills
+eurekalab install-skills --force                # overwrite existing skills
+eurekalab eval-session <session_id>             # evaluate a past session
+eurekalab replay-theory-tail <session_id>       # rerun assembler/crystallizer/checker
+eurekalab test-paper-reader <session_id> <ref>  # test paper extraction on one paper
+eurekalab ui --open-browser                     # launch browser UI
 ```
 
 ---
@@ -259,13 +259,13 @@ eurekaclaw ui --open-browser                     # launch browser UI
 Launch the local web interface for a visual experience:
 
 ```bash
-eurekaclaw ui --open-browser
+eurekalab ui --open-browser
 ```
 
 Or with a custom port:
 
 ```bash
-eurekaclaw ui --host 0.0.0.0 --port 8080 --open-browser
+eurekalab ui --host 0.0.0.0 --port 8080 --open-browser
 ```
 
 The UI provides:
@@ -281,7 +281,7 @@ The UI provides:
 
 ```python
 import asyncio
-from eurekaclaw.main import EurekaSession, save_artifacts
+from eurekalab.main import EurekaSession, save_artifacts
 
 session = EurekaSession()
 
@@ -413,7 +413,7 @@ Control how much the system pauses for your input with `--gate`:
 Fully automatic. The pipeline runs end-to-end with no interaction. Summary cards are still printed but no pauses.
 
 ```bash
-eurekaclaw prove "..." --gate none
+eurekalab prove "..." --gate none
 ```
 
 ### `--gate auto`
@@ -421,7 +421,7 @@ eurekaclaw prove "..." --gate none
 Summary cards are printed after each stage. The system pauses for human review only when a low-confidence lemma is detected (i.e., when `verified=false` after the theory stage). Good for runs where you want to catch problems without constant interruption.
 
 ```bash
-eurekaclaw prove "..." --gate auto
+eurekalab prove "..." --gate auto
 ```
 
 ### `--gate human`
@@ -436,7 +436,7 @@ Any feedback for the next stage? (Enter to skip): Use Bernstein instead of Hoeff
 Your feedback is injected directly into the next agent's prompt.
 
 ```bash
-eurekaclaw prove "..." --gate human
+eurekalab prove "..." --gate human
 ```
 
 **Auto-escalation:** Even with `--gate auto`, if any lemma has `verified=false`, the gate automatically escalates to human review for that stage.
@@ -493,27 +493,27 @@ MAX_TOKENS_AGENT=8192
 
 Skills are Markdown files that encode successful proof strategies, domain conventions, and common techniques. They are injected into agent prompts before each task, improving results without retraining the model.
 
-Skills are stored in `~/.eurekaclaw/skills/`.
+Skills are stored in `~/.eurekalab/skills/`.
 
 ### Viewing your skills
 
 ```bash
-eurekaclaw skills
+eurekalab skills
 ```
 
 ### Installing the built-in seed skills
 
 ```bash
-eurekaclaw install-skills
-eurekaclaw install-skills --force   # overwrite existing
+eurekalab install-skills
+eurekalab install-skills --force   # overwrite existing
 ```
 
-### How EurekaClaw learns
+### How EurekaLab learns
 
 After each session, the `ContinualLearningLoop` runs automatically (in `skills_only` mode by default). It:
 1. Extracts unique failure patterns from the session
 2. Distills successful proof strategies using the LLM
-3. Writes new `.md` skill files to `~/.eurekaclaw/skills/`
+3. Writes new `.md` skill files to `~/.eurekalab/skills/`
 
 These new skills are automatically used in future sessions.
 
@@ -532,7 +532,7 @@ Set `EUREKACLAW_MODE` in `.env`:
 If you know which skills are most relevant for a particular conjecture, you can pin them with `--skills`:
 
 ```bash
-eurekaclaw prove "UCB1 achieves O(sqrt(KT log T)) regret" \
+eurekalab prove "UCB1 achieves O(sqrt(KT log T)) regret" \
     --domain "multi-armed bandits" \
     --skills ucb_regret_analysis \
     --skills concentration_inequalities
@@ -542,11 +542,11 @@ Pinned skills are always placed at the front of the top-k injection, before any 
 - A distilled skill is highly relevant but has low `usage_count` and would otherwise be ranked lower
 - You want to force injection of a manually-written custom skill for a specific proof
 
-Use `eurekaclaw skills` to see the names of available skills.
+Use `eurekalab skills` to see the names of available skills.
 
 ### Writing skills manually
 
-Create a `.md` file in `~/.eurekaclaw/skills/`:
+Create a `.md` file in `~/.eurekalab/skills/`:
 
 ```markdown
 ---
@@ -640,7 +640,7 @@ The partial proof is still saved in `theory_state.json`.
 
 **Cause:** Anthropic API rate limit hit during a long run.
 
-**Fix:** EurekaClaw retries automatically with exponential backoff (5 attempts, 4–90 second waits). If errors persist:
+**Fix:** EurekaLab retries automatically with exponential backoff (5 attempts, 4–90 second waits). If errors persist:
 - Reduce `MAX_TOKENS_AGENT` and `MAX_TOKENS_PROVER`
 - Set `CONTEXT_COMPRESS_AFTER_TURNS=4` to reduce input tokens
 - Set `EXPERIMENT_MODE=false` to skip the experiment stage *(recommended — see below)*
@@ -688,7 +688,7 @@ Until proper sandboxing lands in a future release:
 ### Prove a known result (sanity check)
 
 ```bash
-eurekaclaw prove "The sum of the first n natural numbers equals n(n+1)/2" \
+eurekalab prove "The sum of the first n natural numbers equals n(n+1)/2" \
     --domain "combinatorics" --output ./results
 ```
 
@@ -697,7 +697,7 @@ Expected: `proved` with 1–2 simple lemmas in < 5 minutes.
 ### Explore an open research area
 
 ```bash
-eurekaclaw explore "graph neural networks" \
+eurekalab explore "graph neural networks" \
     --query "What complexity-theoretic barriers exist for GNN expressiveness?" \
     --gate auto --output ./results
 ```
@@ -706,14 +706,14 @@ eurekaclaw explore "graph neural networks" \
 
 ```bash
 # Start from the Attention Is All You Need paper
-eurekaclaw from-papers 1706.03762 \
+eurekalab from-papers 1706.03762 \
     --domain "transformer theory" --gate human --output ./results
 ```
 
 ### Domain-specific MAB research
 
 ```bash
-eurekaclaw prove "UCB1 achieves O(sqrt(KT log K)) regret for K-armed Gaussian bandits" \
+eurekalab prove "UCB1 achieves O(sqrt(KT log K)) regret for K-armed Gaussian bandits" \
     --domain "multi-armed bandits" --output ./results
 ```
 

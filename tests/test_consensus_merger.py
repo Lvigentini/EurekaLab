@@ -1,9 +1,9 @@
 # tests/test_consensus_merger.py
 """Tests for ConsensusMerger — independent experiment validation."""
 import pytest
-from eurekaclaw.ensemble.mergers.consensus import ConsensusMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.consensus import ConsensusMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_experiment_result(bounds, alignment_score):

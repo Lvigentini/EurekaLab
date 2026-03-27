@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from eurekaclaw.orchestrator.planner import DivergentConvergentPlanner
-from eurekaclaw.types.artifacts import ResearchBrief, ResearchDirection
+from eurekalab.orchestrator.planner import DivergentConvergentPlanner
+from eurekalab.types.artifacts import ResearchBrief, ResearchDirection
 
 
 @pytest.fixture

@@ -3,7 +3,7 @@ import json
 import pytest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from eurekaclaw.storage.db import SessionDB, SessionRecord
+from eurekalab.storage.db import SessionDB, SessionRecord
 
 
 @pytest.fixture

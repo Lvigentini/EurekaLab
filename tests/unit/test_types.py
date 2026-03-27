@@ -2,12 +2,12 @@
 
 import pytest
 
-from eurekaclaw.types.artifacts import (
+from eurekalab.types.artifacts import (
     LemmaNode,
     ResearchDirection,
     TheoryState,
 )
-from eurekaclaw.types.tasks import Task, TaskPipeline, TaskStatus
+from eurekalab.types.tasks import Task, TaskPipeline, TaskStatus
 
 
 def test_research_direction_composite_score():

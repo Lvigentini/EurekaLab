@@ -11,7 +11,7 @@ export function Sidebar() {
         <div className="brand-mark" aria-hidden="true">
           <img src="/logo-claw.png" alt="" className="brand-mark-image" />
         </div>
-        <h1>EurekaClaw</h1>
+        <h1>EurekaLab</h1>
       </div>
 
       <nav className="nav-stack" aria-label="Primary">

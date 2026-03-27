@@ -1,6 +1,6 @@
 # CLI Reference
 
-Install the package (or run `python -m eurekaclaw`) to get the `eurekaclaw` command.
+Install the package (or run `python -m eurekalab`) to get the `eurekalab` command.
 
 ## Global Options
 
@@ -15,7 +15,7 @@ Install the package (or run `python -m eurekaclaw`) to get the `eurekaclaw` comm
 ### `prove` — Prove a conjecture
 
 ```bash
-eurekaclaw prove "<conjecture>" [OPTIONS]
+eurekalab prove "<conjecture>" [OPTIONS]
 ```
 
 **Arguments:**
@@ -33,7 +33,7 @@ eurekaclaw prove "<conjecture>" [OPTIONS]
 
 **Example:**
 ```bash
-eurekaclaw prove "UCB1 achieves O(sqrt(KT log T)) expected cumulative regret in the stochastic multi-armed bandit setting" \
+eurekalab prove "UCB1 achieves O(sqrt(KT log T)) expected cumulative regret in the stochastic multi-armed bandit setting" \
   --domain "multi-armed bandit theory" \
   --skills ucb_regret_analysis --skills concentration_inequalities \
   --gate human \
@@ -45,7 +45,7 @@ eurekaclaw prove "UCB1 achieves O(sqrt(KT log T)) expected cumulative regret in 
 ### `explore` — Explore a research domain
 
 ```bash
-eurekaclaw explore "<domain>" [OPTIONS]
+eurekalab explore "<domain>" [OPTIONS]
 ```
 
 **Arguments:**
@@ -62,7 +62,7 @@ eurekaclaw explore "<domain>" [OPTIONS]
 
 **Example:**
 ```bash
-eurekaclaw explore "multi-armed bandit theory" \
+eurekalab explore "multi-armed bandit theory" \
   --query "tight regret bounds for heavy-tailed rewards" --output ./results
 ```
 
@@ -71,7 +71,7 @@ eurekaclaw explore "multi-armed bandit theory" \
 ### `from-papers` — Generate hypotheses from reference papers
 
 ```bash
-eurekaclaw from-papers <paper_id> [<paper_id> ...] [OPTIONS]
+eurekalab from-papers <paper_id> [<paper_id> ...] [OPTIONS]
 ```
 
 **Arguments:**
@@ -90,7 +90,7 @@ eurekaclaw from-papers <paper_id> [<paper_id> ...] [OPTIONS]
 
 **Example:**
 ```bash
-eurekaclaw from-papers 1602.01783 2301.00774 \
+eurekalab from-papers 1602.01783 2301.00774 \
   --domain "bandit algorithms" --output ./results
 ```
 
@@ -99,20 +99,20 @@ eurekaclaw from-papers 1602.01783 2301.00774 \
 ### `pause` — Pause a running session
 
 ```bash
-eurekaclaw pause <session_id>
+eurekalab pause <session_id>
 ```
 
 **Arguments:**
 - `session_id` — Session ID of the running proof to pause (found in the console header at startup)
 
-Writes a `pause.flag` file to `~/.eurekaclaw/sessions/<session_id>/`. A background poller detects this flag within 1 second and cancels the running asyncio task immediately, interrupting any in-flight LLM call. The theory agent saves a checkpoint of all lemmas proved so far and raises `ProofPausedException`. The partial proof state is preserved in `~/.eurekaclaw/sessions/<session_id>/checkpoint.json`.
+Writes a `pause.flag` file to `~/.eurekalab/sessions/<session_id>/`. A background poller detects this flag within 1 second and cancels the running asyncio task immediately, interrupting any in-flight LLM call. The theory agent saves a checkpoint of all lemmas proved so far and raises `ProofPausedException`. The partial proof state is preserved in `~/.eurekalab/sessions/<session_id>/checkpoint.json`.
 
-You can also pause by pressing **Ctrl+C** during a run. EurekaClaw intercepts `SIGINT` and cancels the running task immediately — the pipeline stops at the next `await` rather than waiting for the current LLM call to finish.
+You can also pause by pressing **Ctrl+C** during a run. EurekaLab intercepts `SIGINT` and cancels the running task immediately — the pipeline stops at the next `await` rather than waiting for the current LLM call to finish.
 
 **Example:**
 ```bash
 # In a separate terminal while a proof is running:
-eurekaclaw pause abc12345
+eurekalab pause abc12345
 ```
 
 ---
@@ -120,17 +120,17 @@ eurekaclaw pause abc12345
 ### `resume` — Resume a paused session
 
 ```bash
-eurekaclaw resume <session_id>
+eurekalab resume <session_id>
 ```
 
 **Arguments:**
 - `session_id` — Session ID of the paused proof to continue
 
-Loads the checkpoint from `~/.eurekaclaw/sessions/<session_id>/checkpoint.json` and re-runs the theory agent starting from the saved stage, with all previously proved lemmas already in `TheoryState`. Passes the same domain and query as the original session.
+Loads the checkpoint from `~/.eurekalab/sessions/<session_id>/checkpoint.json` and re-runs the theory agent starting from the saved stage, with all previously proved lemmas already in `TheoryState`. Passes the same domain and query as the original session.
 
 **Example:**
 ```bash
-eurekaclaw resume abc12345
+eurekalab resume abc12345
 ```
 
 ---
@@ -138,7 +138,7 @@ eurekaclaw resume abc12345
 ### `replay-theory-tail` — Replay theory tail stages
 
 ```bash
-eurekaclaw replay-theory-tail <session_id> [OPTIONS]
+eurekalab replay-theory-tail <session_id> [OPTIONS]
 ```
 
 **Arguments:**
@@ -154,7 +154,7 @@ Re-runs the final stages of the theory pipeline (Assembler → TheoremCrystalliz
 
 **Example:**
 ```bash
-eurekaclaw replay-theory-tail abc12345 --from assembler
+eurekalab replay-theory-tail abc12345 --from assembler
 ```
 
 ---
@@ -162,7 +162,7 @@ eurekaclaw replay-theory-tail abc12345 --from assembler
 ### `test-paper-reader` — Test PaperReader on a single paper
 
 ```bash
-eurekaclaw test-paper-reader <session_id> <paper_ref> [OPTIONS]
+eurekalab test-paper-reader <session_id> <paper_ref> [OPTIONS]
 ```
 
 **Arguments:**
@@ -180,7 +180,7 @@ Exercises PaperReader's abstract and/or PDF extraction on a single bibliography 
 
 **Example:**
 ```bash
-eurekaclaw test-paper-reader abc12345 "UCB1" --mode both
+eurekalab test-paper-reader abc12345 "UCB1" --mode both
 ```
 
 ---
@@ -188,7 +188,7 @@ eurekaclaw test-paper-reader abc12345 "UCB1" --mode both
 ### `onboard` — Interactive configuration wizard
 
 ```bash
-eurekaclaw onboard [OPTIONS]
+eurekalab onboard [OPTIONS]
 ```
 
 **Options:**
@@ -203,8 +203,8 @@ Walks you through LLM backend selection, API key setup, search tools, and system
 
 **Example:**
 ```bash
-eurekaclaw onboard
-eurekaclaw onboard --env-file ~/.eurekaclaw/.env
+eurekalab onboard
+eurekalab onboard --env-file ~/.eurekalab/.env
 ```
 
 ---
@@ -212,7 +212,7 @@ eurekaclaw onboard --env-file ~/.eurekaclaw/.env
 ### `skills` — List available skills
 
 ```bash
-eurekaclaw skills
+eurekalab skills
 ```
 
 Prints a Rich panel listing all skills in the skill bank with:
@@ -226,7 +226,7 @@ Prints a Rich panel listing all skills in the skill bank with:
 ### `eval-session` — Evaluate a completed session
 
 ```bash
-eurekaclaw eval-session <session_id>
+eurekalab eval-session <session_id>
 ```
 
 **Arguments:**
@@ -239,7 +239,7 @@ Prints an evaluation report with proof quality metrics.
 ### `install-skills` — Install seed skills
 
 ```bash
-eurekaclaw install-skills [SKILLNAME] [--force]
+eurekalab install-skills [SKILLNAME] [--force]
 ```
 
 **Arguments:**
@@ -249,16 +249,16 @@ eurekaclaw install-skills [SKILLNAME] [--force]
 
 | Option | Description |
 |---|---|
-| `--force`, `-f` | Overwrite existing skills in `~/.eurekaclaw/skills/` |
+| `--force`, `-f` | Overwrite existing skills in `~/.eurekalab/skills/` |
 
-Without arguments, copies all bundled seed skills from the package to `~/.eurekaclaw/skills/`. When a skill name is provided, downloads that skill from clawhub instead.
+Without arguments, copies all bundled seed skills from the package to `~/.eurekalab/skills/`. When a skill name is provided, downloads that skill from clawhub instead.
 
 ---
 
 ### `ui` — Launch the browser UI
 
 ```bash
-eurekaclaw ui [OPTIONS]
+eurekalab ui [OPTIONS]
 ```
 
 **Options:**
@@ -271,7 +271,7 @@ eurekaclaw ui [OPTIONS]
 
 **Example:**
 ```bash
-eurekaclaw ui --open-browser
+eurekalab ui --open-browser
 ```
 
 ---
@@ -279,7 +279,7 @@ eurekaclaw ui --open-browser
 ### `from-bib` — Start from a .bib file
 
 ```bash
-eurekaclaw from-bib <bib_file> [OPTIONS]
+eurekalab from-bib <bib_file> [OPTIONS]
 ```
 
 **Arguments:**
@@ -296,11 +296,11 @@ eurekaclaw from-bib <bib_file> [OPTIONS]
 | `--gate` | `none` | Gate control: `human`, `auto`, `none` |
 | `--output`, `-o` | `./results` | Output directory |
 
-Loads all papers from a `.bib` file and optionally matches them to local PDFs in the given directory (full text is extracted if a PDF match is found). EurekaClaw then identifies gaps in the existing bibliography — missing related work, recent advances not represented, foundational papers that should be added — rather than re-fetching papers already present.
+Loads all papers from a `.bib` file and optionally matches them to local PDFs in the given directory (full text is extracted if a PDF match is found). EurekaLab then identifies gaps in the existing bibliography — missing related work, recent advances not represented, foundational papers that should be added — rather than re-fetching papers already present.
 
 **Example:**
 ```bash
-eurekaclaw from-bib refs.bib --pdfs ./papers/ \
+eurekalab from-bib refs.bib --pdfs ./papers/ \
   --domain "ML theory" --output ./results
 ```
 
@@ -309,7 +309,7 @@ eurekaclaw from-bib refs.bib --pdfs ./papers/ \
 ### `from-draft` — Start from a draft paper
 
 ```bash
-eurekaclaw from-draft <draft_file> [instruction] [OPTIONS]
+eurekalab from-draft <draft_file> [instruction] [OPTIONS]
 ```
 
 **Arguments:**
@@ -326,14 +326,14 @@ eurekaclaw from-draft <draft_file> [instruction] [OPTIONS]
 | `--gate` | `none` | Gate control: `human`, `auto`, `none` |
 | `--output`, `-o` | `./results` | Output directory |
 
-Analyzes the draft using `DraftAnalyzer` to extract its title, abstract, claims, citations, and any identified gaps/TODOs, then runs EurekaClaw in exploration mode. The draft context (instruction, claims, gaps) is injected into the session so the pipeline can survey missing related work and strengthen the paper.
+Analyzes the draft using `DraftAnalyzer` to extract its title, abstract, claims, citations, and any identified gaps/TODOs, then runs EurekaLab in exploration mode. The draft context (instruction, claims, gaps) is injected into the session so the pipeline can survey missing related work and strengthen the paper.
 
 **Example:**
 ```bash
-eurekaclaw from-draft paper.tex "This is a WIP, strengthen the theory" \
+eurekalab from-draft paper.tex "This is a WIP, strengthen the theory" \
   --domain "ML theory" --output ./results
 
-eurekaclaw from-draft paper.tex --domain "bandit algorithms"
+eurekalab from-draft paper.tex --domain "bandit algorithms"
 ```
 
 ---
@@ -341,7 +341,7 @@ eurekaclaw from-draft paper.tex --domain "bandit algorithms"
 ### `from-zotero` — Start from a Zotero collection
 
 ```bash
-eurekaclaw from-zotero <collection_id> [OPTIONS]
+eurekalab from-zotero <collection_id> [OPTIONS]
 ```
 
 **Arguments:**
@@ -357,11 +357,11 @@ eurekaclaw from-zotero <collection_id> [OPTIONS]
 | `--gate` | `none` | Gate control: `human`, `auto`, `none` |
 | `--output`, `-o` | `./results` | Output directory |
 
-Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables. Install the optional Zotero extra first: `pip install 'eurekaclaw[zotero]'`. Imports all items from the collection via the Zotero API and extracts full text from any locally available PDFs, then runs EurekaClaw in reference mode to find gaps and missing work.
+Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables. Install the optional Zotero extra first: `pip install 'eurekalab[zotero]'`. Imports all items from the collection via the Zotero API and extracts full text from any locally available PDFs, then runs EurekaLab in reference mode to find gaps and missing work.
 
 **Example:**
 ```bash
-eurekaclaw from-zotero ABC123 --domain "ML theory" --output ./results
+eurekalab from-zotero ABC123 --domain "ML theory" --output ./results
 ```
 
 ---
@@ -369,7 +369,7 @@ eurekaclaw from-zotero ABC123 --domain "ML theory" --output ./results
 ### `history` — Show version history for a session
 
 ```bash
-eurekaclaw history <session_id>
+eurekalab history <session_id>
 ```
 
 **Arguments:**
@@ -379,7 +379,7 @@ Prints a Rich table of all saved versions for the session, showing version numbe
 
 **Example:**
 ```bash
-eurekaclaw history abc12345
+eurekalab history abc12345
 ```
 
 ---
@@ -387,7 +387,7 @@ eurekaclaw history abc12345
 ### `diff` — Show changes between two versions
 
 ```bash
-eurekaclaw diff <session_id> <v1> <v2>
+eurekalab diff <session_id> <v1> <v2>
 ```
 
 **Arguments:**
@@ -399,7 +399,7 @@ Compares the two snapshots and prints a colour-coded list of changes: additions 
 
 **Example:**
 ```bash
-eurekaclaw diff abc12345 1 3
+eurekalab diff abc12345 1 3
 ```
 
 ---
@@ -407,18 +407,18 @@ eurekaclaw diff abc12345 1 3
 ### `checkout` — Restore session state to a specific version
 
 ```bash
-eurekaclaw checkout <session_id> <version_number>
+eurekalab checkout <session_id> <version_number>
 ```
 
 **Arguments:**
 - `session_id` — Session ID
-- `version_number` — Version number to restore to (integer, from `eurekaclaw history`)
+- `version_number` — Version number to restore to (integer, from `eurekalab history`)
 
-Displays a summary of the target version and asks for confirmation. On confirmation, the current HEAD is snapshotted as a new version (preserving it), and the session state is restored to the selected version. Use `eurekaclaw resume <session_id>` afterwards to continue from that point.
+Displays a summary of the target version and asks for confirmation. On confirmation, the current HEAD is snapshotted as a new version (preserving it), and the session state is restored to the selected version. Use `eurekalab resume <session_id>` afterwards to continue from that point.
 
 **Example:**
 ```bash
-eurekaclaw checkout abc12345 3
+eurekalab checkout abc12345 3
 ```
 
 ---
@@ -426,19 +426,19 @@ eurekaclaw checkout abc12345 3
 ### `inject paper` — Inject a paper into a paused session
 
 ```bash
-eurekaclaw inject paper <session_id> <paper_ref>
+eurekalab inject paper <session_id> <paper_ref>
 ```
 
 **Arguments:**
 - `session_id` — Session ID of a paused session
 - `paper_ref` — arXiv ID (e.g. `2401.12345`) or path to a local `.pdf` file
 
-Adds the paper to the session's bibliography. If `paper_ref` is a local PDF, its full text is extracted. The paper is also registered in the ideation pool as a new input signal. A version snapshot is saved automatically. Resume the session with `eurekaclaw resume <session_id>`.
+Adds the paper to the session's bibliography. If `paper_ref` is a local PDF, its full text is extracted. The paper is also registered in the ideation pool as a new input signal. A version snapshot is saved automatically. Resume the session with `eurekalab resume <session_id>`.
 
 **Example:**
 ```bash
-eurekaclaw inject paper abc12345 2401.12345
-eurekaclaw inject paper abc12345 ./my-paper.pdf
+eurekalab inject paper abc12345 2401.12345
+eurekalab inject paper abc12345 ./my-paper.pdf
 ```
 
 ---
@@ -446,7 +446,7 @@ eurekaclaw inject paper abc12345 ./my-paper.pdf
 ### `inject idea` — Inject an idea into a paused session
 
 ```bash
-eurekaclaw inject idea <session_id> <text>
+eurekalab inject idea <session_id> <text>
 ```
 
 **Arguments:**
@@ -457,7 +457,7 @@ Adds the idea to the session's ideation pool so that it will be considered when 
 
 **Example:**
 ```bash
-eurekaclaw inject idea abc12345 "What if we apply spectral methods here?"
+eurekalab inject idea abc12345 "What if we apply spectral methods here?"
 ```
 
 ---
@@ -465,7 +465,7 @@ eurekaclaw inject idea abc12345 "What if we apply spectral methods here?"
 ### `inject draft` — Inject a draft paper into a paused session
 
 ```bash
-eurekaclaw inject draft <session_id> <draft_file> [instruction]
+eurekalab inject draft <session_id> <draft_file> [instruction]
 ```
 
 **Arguments:**
@@ -477,8 +477,8 @@ Analyzes the draft (extracts title, abstract, claims, and citations) and injects
 
 **Example:**
 ```bash
-eurekaclaw inject draft abc12345 paper.tex "Consider these new results"
-eurekaclaw inject draft abc12345 paper.tex
+eurekalab inject draft abc12345 paper.tex "Consider these new results"
+eurekalab inject draft abc12345 paper.tex
 ```
 
 ---
@@ -486,7 +486,7 @@ eurekaclaw inject draft abc12345 paper.tex
 ### `push-to-zotero` — Push session results to Zotero
 
 ```bash
-eurekaclaw push-to-zotero <session_id> [OPTIONS]
+eurekalab push-to-zotero <session_id> [OPTIONS]
 ```
 
 **Arguments:**
@@ -496,14 +496,14 @@ eurekaclaw push-to-zotero <session_id> [OPTIONS]
 
 | Option | Default | Description |
 |---|---|---|
-| `--collection`, `-c` | `EurekaClaw Results` | Zotero collection name to push results into |
+| `--collection`, `-c` | `EurekaLab Results` | Zotero collection name to push results into |
 
-Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables and `pip install 'eurekaclaw[zotero]'`. Creates (or reuses) the named collection in your Zotero library, pushes all newly discovered papers (those not already in Zotero), and attaches a session summary note to the primary source paper.
+Requires `ZOTERO_API_KEY` and `ZOTERO_LIBRARY_ID` environment variables and `pip install 'eurekalab[zotero]'`. Creates (or reuses) the named collection in your Zotero library, pushes all newly discovered papers (those not already in Zotero), and attaches a session summary note to the primary source paper.
 
 **Example:**
 ```bash
-eurekaclaw push-to-zotero abc12345
-eurekaclaw push-to-zotero abc12345 --collection "Bandit Theory Survey"
+eurekalab push-to-zotero abc12345
+eurekalab push-to-zotero abc12345 --collection "Bandit Theory Survey"
 ```
 
 ---
@@ -522,11 +522,11 @@ All three research commands (`prove`, `explore`, `from-papers`) write artifacts 
 └── experiment_result.json Numerical validation results (if run)
 ```
 
-Paused sessions also write a checkpoint to `~/.eurekaclaw/sessions/<session_id>/checkpoint.json`.
+Paused sessions also write a checkpoint to `~/.eurekalab/sessions/<session_id>/checkpoint.json`.
 
 ## Theory Review Gate
 
-After the Theory Agent finishes and before the Writer runs, EurekaClaw displays a numbered proof sketch and asks for approval:
+After the Theory Agent finishes and before the Writer runs, EurekaLab displays a numbered proof sketch and asks for approval:
 
 ```
 ──────────────── Proof Sketch Review ────────────────

@@ -29,9 +29,9 @@ export function App() {
 
   // On first visit (no persisted view), show onboarding unless tutorial was skipped
   useEffect(() => {
-    const hasPersistedView = localStorage.getItem('eurekaclaw_ui');
+    const hasPersistedView = localStorage.getItem('eurekalab_ui');
     if (!hasPersistedView) {
-      if (localStorage.getItem('eurekaclaw_tutorial_skipped') === '1') {
+      if (localStorage.getItem('eurekalab_tutorial_skipped') === '1') {
         setActiveView('workspace');
       } else {
         setActiveView('onboarding');
@@ -54,7 +54,7 @@ export function App() {
   const isWorkspaceView = activeView === 'workspace';
 
   const handleGuideClick = () => {
-    localStorage.removeItem('eurekaclaw_tutorial_skipped');
+    localStorage.removeItem('eurekalab_tutorial_skipped');
     setCurrentWizardStep(0);
     setActiveView('onboarding');
   };

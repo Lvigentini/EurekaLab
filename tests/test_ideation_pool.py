@@ -1,8 +1,8 @@
 """Tests for IdeationPool and InjectedIdea models."""
 import pytest
 from datetime import datetime
-from eurekaclaw.types.artifacts import ResearchBrief, ResearchDirection
-from eurekaclaw.orchestrator.ideation_pool import IdeationPool, InjectedIdea
+from eurekalab.types.artifacts import ResearchBrief, ResearchDirection
+from eurekalab.orchestrator.ideation_pool import IdeationPool, InjectedIdea
 
 
 @pytest.fixture

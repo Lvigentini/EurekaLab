@@ -20,7 +20,7 @@ build/
 # ── Virtual environments ───────────────────────────────────────────────────────
 .venv/
 venv/
-.eurekaclaw-ui/
+.eurekalab-ui/
 
 # ── Testing & type checking ────────────────────────────────────────────────────
 .pytest_cache/

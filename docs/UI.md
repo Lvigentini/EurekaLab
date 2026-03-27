@@ -1,4 +1,4 @@
-# EurekaClaw UI — Design Notes & Changelog
+# EurekaLab UI — Design Notes & Changelog
 
 A full record of every UI feature, redesign, and fix shipped on the `chenggong` branch.
 
@@ -18,15 +18,15 @@ make start
 # Development — hot-reload Vite on :5173 + Python backend on :7860
 make dev
 
-# Or use the CLI directly (serves last build from eurekaclaw/ui/static/)
-eurekaclaw ui --open-browser
+# Or use the CLI directly (serves last build from eurekalab/ui/static/)
+eurekalab ui --open-browser
 ```
 
 ### How it works
 
 | Mode | Frontend | Backend | URL |
 |---|---|---|---|
-| **Production** (`make start`) | Pre-built bundle in `eurekaclaw/ui/static/` | Python `SimpleHTTPRequestHandler` + API on same port | `http://localhost:8080` |
+| **Production** (`make start`) | Pre-built bundle in `eurekalab/ui/static/` | Python `SimpleHTTPRequestHandler` + API on same port | `http://localhost:8080` |
 | **Dev** (`make dev`) | Vite dev server with HMR | Python API on `:7860`; Vite proxies `/api/*` | `http://localhost:5173` |
 
 ### First-time setup
@@ -34,14 +34,14 @@ eurekaclaw ui --open-browser
 ```bash
 pip install -e "."          # Python backend
 make install                 # installs both pip package + npm deps
-eurekaclaw install-skills   # copy seed skills (once)
+eurekalab install-skills   # copy seed skills (once)
 cp .env.example .env        # add ANTHROPIC_API_KEY
 ```
 
 ### Frontend build (when you change React code)
 
 ```bash
-make build       # tsc + vite build → eurekaclaw/ui/static/
+make build       # tsc + vite build → eurekalab/ui/static/
 make typecheck   # type-check only, no output
 ```
 
@@ -188,7 +188,7 @@ App
 ```
 frontend/
 ├── index.html                  # Vite entry point (fonts, root div)
-├── vite.config.ts              # build → eurekaclaw/ui/static/; dev proxy /api → :7860
+├── vite.config.ts              # build → eurekalab/ui/static/; dev proxy /api → :7860
 ├── package.json                # React 18, Zustand, Vite 5, TypeScript 5, concurrently
 ├── _legacy/                    # original app.js / styles.css / index.html (archived)
 └── src/
@@ -226,7 +226,7 @@ frontend/
 
 #### Build output
 
-`vite build` emits 77 modules → **231 kB JS** + **56 kB CSS** → `eurekaclaw/ui/static/`. The Python `SimpleHTTPRequestHandler` serves these files identically to before — no server changes required.
+`vite build` emits 77 modules → **231 kB JS** + **56 kB CSS** → `eurekalab/ui/static/`. The Python `SimpleHTTPRequestHandler` serves these files identically to before — no server changes required.
 
 #### Developer workflow
 
@@ -294,7 +294,7 @@ Shown only when session is **paused**; lives inside the paused proof-ctrl card:
 - **Textarea** — freeform guidance; sent as `{feedback}` in the `POST /api/runs/<id>/resume` body
 - On resume: feedback is injected into the theory domain context as `[Human guidance for this proof attempt]: <text>` and cleared after use
 
-#### Backend additions for theory feedback (`eurekaclaw/ui/server.py`)
+#### Backend additions for theory feedback (`eurekalab/ui/server.py`)
 
 - `SessionRun.theory_feedback: str` — stores pending feedback between pause and resume
 - `resume_run(run_id, feedback)` — new `feedback` parameter; stored in `run.theory_feedback`
@@ -304,7 +304,7 @@ Shown only when session is **paused**; lives inside the paused proof-ctrl card:
 #### Skills page additions
 
 - `POST /api/skills/install` — installs a named ClawHub skill or copies seed skills
-- `DELETE /api/skills/<name>` — removes a user-installed skill from `~/.eurekaclaw/skills/`
+- `DELETE /api/skills/<name>` — removes a user-installed skill from `~/.eurekalab/skills/`
 - Skills payload now includes `file_path` so the frontend can distinguish deletable vs seed skills
 - **Source badges**: seed (blue) · auto-learned (teal) · manual (grey) · ClawHub (orange)
 - **Stats bar**: usage count + success rate progress bar per skill
@@ -332,7 +332,7 @@ Shown only when session is **paused**; lives inside the paused proof-ctrl card:
 
 **Goal**: Make pause/resume feel instant with no perceptible lag; expose every intermediate state to the user with animated transitions.
 
-#### Backend (`eurekaclaw/ui/server.py`)
+#### Backend (`eurekalab/ui/server.py`)
 
 - **New `SessionRun` fields**
   - `pause_requested_at: datetime | None` — timestamp written the moment a pause is requested (before the agent thread completes the current lemma)
@@ -449,7 +449,7 @@ Rules:
 
 #### Session persistence (server restart survival)
 
-- `_persist_run()` — writes `~/.eurekaclaw/ui_sessions/<run_id>.json` on every status change
+- `_persist_run()` — writes `~/.eurekalab/ui_sessions/<run_id>.json` on every status change
 - `_load_persisted_runs()` — called on `UIServerState.__init__`; marks `running`/`queued` as `failed` with "interrupted by server restart" message
 - `snapshot_run()` includes `"name": run.name`
 
@@ -477,7 +477,7 @@ Rules:
 - `#proof-ctrl` — container hidden unless session is running or paused
 - `#proof-ctrl-running` — "Pause proof" button + caption "Stops gracefully at the next lemma boundary"
 - `#proof-ctrl-paused` — amber status dot + session ID + "Resume proof" button + "Copy command" button
-- Copy button writes `eurekaclaw resume <session_id>` to clipboard with a ✓ confirmation tick
+- Copy button writes `eurekalab resume <session_id>` to clipboard with a ✓ confirmation tick
 
 ---
 
@@ -487,7 +487,7 @@ Rules:
 
 #### Changes
 
-- `localStorage` key `eurekaclaw_tutorial_skipped` — set to `"1"` when the skip button is clicked
+- `localStorage` key `eurekalab_tutorial_skipped` — set to `"1"` when the skip button is clicked
 - On page load: if the key is set, navigate directly to the Research tab instead of the Guide tab
 - "Skip tutorial" link added to the wizard footer on every step
 - "Show tutorial again" link in the Guide tab header lets users re-open the wizard at any time
@@ -587,11 +587,11 @@ User clicks "Resume" (optionally with feedback text)
 ### Checkpoint files
 
 ```
-~/.eurekaclaw/sessions/<session_id>/
+~/.eurekalab/sessions/<session_id>/
   pause.flag         # touched to request pause; deleted on resume
   checkpoint.json    # written when paused; deleted after successful resume
 
-~/.eurekaclaw/ui_sessions/
+~/.eurekalab/ui_sessions/
   <run_id>.json      # UI session metadata; survives server restarts
 ```
 

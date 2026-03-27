@@ -5,7 +5,7 @@ import type { WizardStep } from '@/types';
 const WIZARD_STEPS: WizardStep[] = [
   {
     icon: '🦞',
-    title: 'Welcome to EurekaClaw',
+    title: 'Welcome to EurekaLab',
     subtitle: 'An AI co-author that takes your mathematical question all the way to a camera-ready paper.',
     visual: `
       <div class="wiz-pipeline">
@@ -19,7 +19,7 @@ const WIZARD_STEPS: WizardStep[] = [
         <div class="wiz-pipe-arrow">→</div>
         <div class="wiz-pipe-step"><span class="wiz-pipe-icon">✍️</span><span>Paper</span></div>
       </div>
-      <p class="wiz-pipeline-caption">You give a question or domain. EurekaClaw does the rest — reading papers, formulating theorems, proving them, and writing a LaTeX paper.</p>
+      <p class="wiz-pipeline-caption">You give a question or domain. EurekaLab does the rest — reading papers, formulating theorems, proving them, and writing a LaTeX paper.</p>
     `,
     items: [
       { label: 'Reads 100s of papers on arXiv & Semantic Scholar', note: 'Identifies research gaps and related work automatically' },
@@ -28,17 +28,17 @@ const WIZARD_STEPS: WizardStep[] = [
       { label: 'Produces a camera-ready LaTeX paper + PDF', note: 'Theorem environments, bibliography, and figures included' },
       { label: 'Your data stays on your machine — MIT licensed', note: 'No data is sent anywhere except the AI model you configure' },
     ],
-    tip: 'Setup takes about 5 minutes. Optional tools like Lean4 and LaTeX can be added later — EurekaClaw runs in a useful mode without them.',
+    tip: 'Setup takes about 5 minutes. Optional tools like Lean4 and LaTeX can be added later — EurekaLab runs in a useful mode without them.',
   },
   {
     icon: '📦',
-    title: 'Install EurekaClaw',
+    title: 'Install EurekaLab',
     subtitle: 'You need Python 3.11 or newer. Open your Terminal and run these commands in order.',
     items: [
-      { label: 'Clone the source code', code: 'git clone https://github.com/EurekaClaw/EurekaClaw\ncd EurekaClaw' },
-      { label: 'Install the package and CLI', code: 'pip install -e "."', note: 'The eurekaclaw command will now be available in your terminal' },
+      { label: 'Clone the source code', code: 'git clone https://github.com/EurekaLab/EurekaLab\ncd EurekaLab' },
+      { label: 'Install the package and CLI', code: 'pip install -e "."', note: 'The eurekalab command will now be available in your terminal' },
       { label: 'Create your settings file', code: 'cp .env.example .env', note: 'Open .env in any text editor to add your API key in the next step' },
-      { label: 'Start the web interface', code: 'eurekaclaw ui', note: "Then open http://localhost:7860 in your browser — you're already there!" },
+      { label: 'Start the web interface', code: 'eurekalab ui', note: "Then open http://localhost:7860 in your browser — you're already there!" },
       { label: 'Optional: OpenRouter / OAuth support', code: 'pip install -e ".[openai,oauth]"', optional: true },
     ],
     tip: 'If pip install fails, try: python -m pip install -e "." — and make sure you have Python 3.11+ with: python --version',
@@ -46,7 +46,7 @@ const WIZARD_STEPS: WizardStep[] = [
   {
     icon: '🔑',
     title: 'Connect Your AI Model',
-    subtitle: 'EurekaClaw needs access to a large language model. Choose the option that fits you.',
+    subtitle: 'EurekaLab needs access to a large language model. Choose the option that fits you.',
     visual: `
       <div class="wiz-options-grid">
         <div class="wiz-option-card wiz-option-recommended">
@@ -100,7 +100,7 @@ const WIZARD_STEPS: WizardStep[] = [
     title: 'Optional Power Tools',
     subtitle: 'None of these are required. Each one unlocks a specific capability.',
     items: [
-      { label: 'Lean 4 — formal proof verification', code: 'curl https://elan.lean-lang.org/elan-init.sh | sh', note: 'Makes EurekaClaw mathematically rigorous — proofs are formally checked, not just LLM-evaluated', optional: true },
+      { label: 'Lean 4 — formal proof verification', code: 'curl https://elan.lean-lang.org/elan-init.sh | sh', note: 'Makes EurekaLab mathematically rigorous — proofs are formally checked, not just LLM-evaluated', optional: true },
       { label: 'LaTeX / MacTeX — PDF compilation', code: 'brew install --cask mactex-no-gui   # macOS\nsudo apt install texlive-full       # Linux', note: 'Needed to compile paper.pdf — the .tex source file is always generated even without this', optional: true, badge: 'macOS / Linux' },
       { label: 'Docker — safe code sandbox', note: 'Install from docker.com — lets experiments run in an isolated container', optional: true },
       { label: 'Semantic Scholar API key', code: 'S2_API_KEY=your-key-here   # in .env', note: 'Unlocks citation counts, venue rankings, and richer paper metadata', optional: true },
@@ -113,13 +113,13 @@ const WIZARD_STEPS: WizardStep[] = [
     title: 'Activate Built-in Skills',
     subtitle: 'Skills are proof strategies and writing rules that all agents share. Install them once.',
     items: [
-      { label: 'Install seed skills (run this once)', code: 'eurekaclaw install-skills', note: 'Saves proof patterns to ~/.eurekaclaw/skills/ — these persist across all future sessions' },
-      { label: 'See what skills are installed', code: 'eurekaclaw skills' },
+      { label: 'Install seed skills (run this once)', code: 'eurekalab install-skills', note: 'Saves proof patterns to ~/.eurekalab/skills/ — these persist across all future sessions' },
+      { label: 'See what skills are installed', code: 'eurekalab skills' },
       { label: 'Theory skills included', note: 'Mathematical induction, proof by contradiction, compactness, concentration inequalities, UCB regret bounds' },
       { label: 'Survey & writing skills included', note: 'Literature gap analysis, theorem statement style, proof readability, reference formatting' },
-      { label: 'Add your own skills anytime', code: '# Save any .md file into ~/.eurekaclaw/skills/', note: 'EurekaClaw also distills new skills automatically after each successful proof', optional: true },
+      { label: 'Add your own skills anytime', code: '# Save any .md file into ~/.eurekalab/skills/', note: 'EurekaLab also distills new skills automatically after each successful proof', optional: true },
     ],
-    tip: 'Think of skills as a growing personal proof library. After each successful session, EurekaClaw adds what it learned — your system gets smarter over time.',
+    tip: 'Think of skills as a growing personal proof library. After each successful session, EurekaLab adds what it learned — your system gets smarter over time.',
   },
   {
     icon: '🚀',
@@ -130,26 +130,26 @@ const WIZARD_STEPS: WizardStep[] = [
         <div class="wiz-mode-card">
           <div class="wiz-mode-icon">🔭</div>
           <div class="wiz-mode-title">Explore a domain</div>
-          <div class="wiz-mode-desc">You give a broad area. EurekaClaw finds open problems and proposes conjectures.</div>
-          <code class="wiz-mode-code">eurekaclaw explore "multi-armed bandit theory"</code>
+          <div class="wiz-mode-desc">You give a broad area. EurekaLab finds open problems and proposes conjectures.</div>
+          <code class="wiz-mode-code">eurekalab explore "multi-armed bandit theory"</code>
         </div>
         <div class="wiz-mode-card">
           <div class="wiz-mode-icon">📐</div>
           <div class="wiz-mode-title">Prove a conjecture</div>
-          <div class="wiz-mode-desc">You state the theorem. EurekaClaw builds a full proof and writes the paper.</div>
-          <code class="wiz-mode-code">eurekaclaw prove "O(n log n) via sparse attention" --domain "ML theory"</code>
+          <div class="wiz-mode-desc">You state the theorem. EurekaLab builds a full proof and writes the paper.</div>
+          <code class="wiz-mode-code">eurekalab prove "O(n log n) via sparse attention" --domain "ML theory"</code>
         </div>
         <div class="wiz-mode-card">
           <div class="wiz-mode-icon">📄</div>
           <div class="wiz-mode-title">Start from papers</div>
-          <div class="wiz-mode-desc">Paste arXiv IDs. EurekaClaw reads them and generates follow-up research.</div>
-          <code class="wiz-mode-code">eurekaclaw from-papers 1706.03762 2005.14165</code>
+          <div class="wiz-mode-desc">Paste arXiv IDs. EurekaLab reads them and generates follow-up research.</div>
+          <code class="wiz-mode-code">eurekalab from-papers 1706.03762 2005.14165</code>
         </div>
       </div>
     `,
     items: [
       { label: 'Or use this browser UI', note: 'Click the Research tab → fill in the form → Launch Session. Live progress streams in real time.' },
-      { label: 'Results are saved here', code: '~/.eurekaclaw/runs/<session_id>/\n  paper.tex   paper.pdf   references.bib', note: 'Also: theory_state.json, research_brief.json, experiment_result.json' },
+      { label: 'Results are saved here', code: '~/.eurekalab/runs/<session_id>/\n  paper.tex   paper.pdf   references.bib', note: 'Also: theory_state.json, research_brief.json, experiment_result.json' },
     ],
     tip: "First time? Use the Research tab here, set Gate Mode to 'human', and start with a narrow domain you know well — that way you can judge the output quality.",
   },
@@ -173,7 +173,7 @@ export function WizardPanel() {
   };
 
   const handleSkip = () => {
-    localStorage.setItem('eurekaclaw_tutorial_skipped', '1');
+    localStorage.setItem('eurekalab_tutorial_skipped', '1');
     setActiveView('workspace');
   };
 

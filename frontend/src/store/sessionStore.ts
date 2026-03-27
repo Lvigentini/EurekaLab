@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import type { SessionRun } from '@/types';
 
-const RUN_ID_KEY = 'eurekaclaw_current_run';
-const SESSIONS_KEY = 'eurekaclaw_sessions';
+const RUN_ID_KEY = 'eurekalab_current_run';
+const SESSIONS_KEY = 'eurekalab_sessions';
 
 function loadRunId(): string | null {
   try { return localStorage.getItem(RUN_ID_KEY) || null; } catch { return null; }

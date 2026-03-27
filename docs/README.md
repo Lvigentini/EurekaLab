@@ -1,6 +1,6 @@
-# EurekaClaw Documentation
+# EurekaLab Documentation
 
-EurekaClaw is a multi-agent autonomous research system for generating and proving theoretical results in mathematics and machine learning. It runs a complete pipeline from literature survey through formal proof to paper writing.
+EurekaLab is a multi-agent autonomous research system for generating and proving theoretical results in mathematics and machine learning. It runs a complete pipeline from literature survey through formal proof to paper writing.
 
 ## Documentation Index
 
@@ -22,13 +22,13 @@ EurekaClaw is a multi-agent autonomous research system for generating and provin
 
 ```bash
 # Prove a specific conjecture (outputs to ./results/)
-eurekaclaw prove "The sample complexity of transformers is O(L·d·log(d)/ε²)"
+eurekalab prove "The sample complexity of transformers is O(L·d·log(d)/ε²)"
 
 # Open domain exploration
-eurekaclaw explore "multi-armed bandit theory"
+eurekalab explore "multi-armed bandit theory"
 
 # Launch browser UI
-eurekaclaw ui --open-browser
+eurekalab ui --open-browser
 ```
 
 ## Architecture at a Glance

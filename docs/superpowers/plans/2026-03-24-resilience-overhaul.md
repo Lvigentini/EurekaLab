@@ -1,8 +1,8 @@
-# EurekaClaw Resilience Overhaul
+# EurekaLab Resilience Overhaul
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make EurekaClaw crash-resilient: fix auth monitoring, eliminate double retries, add per-stage checkpointing, and surface errors instead of swallowing them.
+**Goal:** Make EurekaLab crash-resilient: fix auth monitoring, eliminate double retries, add per-stage checkpointing, and surface errors instead of swallowing them.
 
 **Architecture:** Three layers of fixes: (1) LLM call reliability — single retry layer with error classification and ccproxy health monitoring, (2) Pipeline durability — incremental bus persistence after each stage with full-pipeline resume support, (3) Error transparency — replace silent `pass` blocks with logged warnings and structured error returns.
 
@@ -14,16 +14,16 @@
 
 | File | Action | Responsibility |
 |------|--------|----------------|
-| `eurekaclaw/llm/errors.py` | **Create** | Error classification enum + classifier function |
-| `eurekaclaw/llm/base.py` | Modify | Add error classification to retry, add 500 to retryable, add circuit breaker |
-| `eurekaclaw/agents/base.py` | Modify | Remove tenacity double-retry, add token waste tracking |
-| `eurekaclaw/ccproxy_manager.py` | Modify | Add health monitor, auto-restart on crash |
-| `eurekaclaw/knowledge_bus/bus.py` | Modify | Add `persist_incremental()` method |
-| `eurekaclaw/orchestrator/meta_orchestrator.py` | Modify | Call `bus.persist_incremental()` after each stage, stop pipeline on critical failure |
-| `eurekaclaw/orchestrator/session_checkpoint.py` | **Create** | Full-pipeline checkpoint (which stage completed, bus state) |
-| `eurekaclaw/cli.py` | Modify | Add `resume` that works for all stages, not just theory |
-| `eurekaclaw/agents/survey/agent.py` | Modify | Log JSON parse failures instead of silent pass |
-| `eurekaclaw/tools/registry.py` | Modify | Return structured JSON errors |
+| `eurekalab/llm/errors.py` | **Create** | Error classification enum + classifier function |
+| `eurekalab/llm/base.py` | Modify | Add error classification to retry, add 500 to retryable, add circuit breaker |
+| `eurekalab/agents/base.py` | Modify | Remove tenacity double-retry, add token waste tracking |
+| `eurekalab/ccproxy_manager.py` | Modify | Add health monitor, auto-restart on crash |
+| `eurekalab/knowledge_bus/bus.py` | Modify | Add `persist_incremental()` method |
+| `eurekalab/orchestrator/meta_orchestrator.py` | Modify | Call `bus.persist_incremental()` after each stage, stop pipeline on critical failure |
+| `eurekalab/orchestrator/session_checkpoint.py` | **Create** | Full-pipeline checkpoint (which stage completed, bus state) |
+| `eurekalab/cli.py` | Modify | Add `resume` that works for all stages, not just theory |
+| `eurekalab/agents/survey/agent.py` | Modify | Log JSON parse failures instead of silent pass |
+| `eurekalab/tools/registry.py` | Modify | Return structured JSON errors |
 | `tests/test_error_classification.py` | **Create** | Tests for error classifier |
 | `tests/test_circuit_breaker.py` | **Create** | Tests for circuit breaker |
 | `tests/test_session_checkpoint.py` | **Create** | Tests for full-pipeline checkpoint |
@@ -35,7 +35,7 @@
 ### Task 1: Error Classification
 
 **Files:**
-- Create: `eurekaclaw/llm/errors.py`
+- Create: `eurekalab/llm/errors.py`
 - Test: `tests/test_error_classification.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -44,7 +44,7 @@
 # tests/test_error_classification.py
 """Tests for LLM error classification."""
 import pytest
-from eurekaclaw.llm.errors import ErrorClass, classify_error
+from eurekalab.llm.errors import ErrorClass, classify_error
 
 
 def test_rate_limit_429():
@@ -113,13 +113,13 @@ def test_retryable_classes():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_error_classification.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'eurekaclaw.llm.errors'`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_error_classification.py -v`
+Expected: FAIL with `ModuleNotFoundError: No module named 'eurekalab.llm.errors'`
 
 - [ ] **Step 3: Write the implementation**
 
 ```python
-# eurekaclaw/llm/errors.py
+# eurekalab/llm/errors.py
 """LLM error classification — distinguishes auth, rate-limit, server, timeout, and client errors."""
 
 from __future__ import annotations
@@ -165,13 +165,13 @@ def classify_error(exc: Exception) -> ErrorClass:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_error_classification.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_error_classification.py -v`
 Expected: All 13 tests PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/llm/errors.py tests/test_error_classification.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/llm/errors.py tests/test_error_classification.py
 git commit -m "feat: add LLM error classification for retry decisions"
 ```
 
@@ -180,7 +180,7 @@ git commit -m "feat: add LLM error classification for retry decisions"
 ### Task 2: Fix LLM Retry with Error Classification + Circuit Breaker
 
 **Files:**
-- Modify: `eurekaclaw/llm/base.py`
+- Modify: `eurekalab/llm/base.py`
 - Test: `tests/test_circuit_breaker.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -192,7 +192,7 @@ import asyncio
 import time
 import pytest
 from unittest.mock import AsyncMock, patch
-from eurekaclaw.llm.base import CircuitBreaker
+from eurekalab.llm.base import CircuitBreaker
 
 
 @pytest.fixture
@@ -236,10 +236,10 @@ def test_breaker_raises_when_open(breaker):
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_circuit_breaker.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_circuit_breaker.py -v`
 Expected: FAIL with `ImportError: cannot import name 'CircuitBreaker'`
 
-- [ ] **Step 3: Rewrite `eurekaclaw/llm/base.py`**
+- [ ] **Step 3: Rewrite `eurekalab/llm/base.py`**
 
 Replace the full file with:
 
@@ -255,8 +255,8 @@ import time
 from abc import ABC, abstractmethod
 from typing import Any
 
-from eurekaclaw.llm.errors import ErrorClass, classify_error
-from eurekaclaw.llm.types import NormalizedMessage
+from eurekalab.llm.errors import ErrorClass, classify_error
+from eurekalab.llm.types import NormalizedMessage
 
 logger = logging.getLogger(__name__)
 
@@ -349,7 +349,7 @@ class _MessagesNamespace:
         tools: list[dict[str, Any]] | None = None,
         **kwargs: Any,
     ) -> NormalizedMessage:
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
 
         attempts = max(1, settings.llm_retry_attempts)
         wait_min = settings.llm_retry_wait_min
@@ -438,13 +438,13 @@ class LLMClient(ABC):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_circuit_breaker.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_circuit_breaker.py -v`
 Expected: All 5 tests PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/llm/base.py tests/test_circuit_breaker.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/llm/base.py tests/test_circuit_breaker.py
 git commit -m "feat: add circuit breaker and error-classified retry to LLM client"
 ```
 
@@ -453,7 +453,7 @@ git commit -m "feat: add circuit breaker and error-classified retry to LLM clien
 ### Task 3: Remove Double Retry from BaseAgent
 
 **Files:**
-- Modify: `eurekaclaw/agents/base.py`
+- Modify: `eurekalab/agents/base.py`
 - Test: `tests/test_retry_single_layer.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -468,7 +468,7 @@ import textwrap
 
 def test_no_tenacity_in_call_model():
     """BaseAgent._call_model must not use tenacity — retry is in LLMClient only."""
-    from eurekaclaw.agents.base import BaseAgent
+    from eurekalab.agents.base import BaseAgent
     source = inspect.getsource(BaseAgent._call_model)
     assert "AsyncRetrying" not in source, "_call_model still uses tenacity double-retry"
     assert "Retrying" not in source, "_call_model still uses tenacity double-retry"
@@ -476,7 +476,7 @@ def test_no_tenacity_in_call_model():
 
 def test_no_tenacity_import():
     """The agents.base module should not import tenacity at all."""
-    import eurekaclaw.agents.base as mod
+    import eurekalab.agents.base as mod
     source = inspect.getsource(mod)
     # Allow comments mentioning tenacity, but no actual import
     tree = ast.parse(source)
@@ -493,10 +493,10 @@ def test_no_tenacity_import():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_retry_single_layer.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_retry_single_layer.py -v`
 Expected: FAIL — tenacity is still imported and used in `_call_model`
 
-- [ ] **Step 3: Modify `eurekaclaw/agents/base.py`**
+- [ ] **Step 3: Modify `eurekalab/agents/base.py`**
 
 Remove the tenacity import (lines 9-10):
 ```python
@@ -515,7 +515,7 @@ Replace `_call_model` method (lines 274-305) with:
         max_tokens: int | None = None,
     ) -> NormalizedMessage:
         """Call the LLM. Retry logic lives in LLMClient — no double-wrapping here."""
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
         _max_tokens = max_tokens if max_tokens is not None else settings.max_tokens_agent
         try:
             return await self.client.messages.create(
@@ -535,13 +535,13 @@ Replace `_call_model` method (lines 274-305) with:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_retry_single_layer.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_retry_single_layer.py -v`
 Expected: Both tests PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/agents/base.py tests/test_retry_single_layer.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/agents/base.py tests/test_retry_single_layer.py
 git commit -m "fix: remove tenacity double-retry from BaseAgent — single retry layer in LLMClient"
 ```
 
@@ -550,7 +550,7 @@ git commit -m "fix: remove tenacity double-retry from BaseAgent — single retry
 ### Task 4: Add ccproxy Health Monitoring + Auto-Restart
 
 **Files:**
-- Modify: `eurekaclaw/ccproxy_manager.py`
+- Modify: `eurekalab/ccproxy_manager.py`
 
 - [ ] **Step 1: Add `CcproxyMonitor` class after `stop_ccproxy`**
 
@@ -623,12 +623,12 @@ Note: cli.py callers need updating to unpack the tuple. The monitor's `stop()` r
 
 - [ ] **Step 3: Run existing tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ccproxy_manager.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ccproxy_manager.py
 git commit -m "feat: add ccproxy health monitor with auto-restart on crash"
 ```
 
@@ -637,7 +637,7 @@ git commit -m "feat: add ccproxy health monitor with auto-restart on crash"
 ### Task 5: Incremental Bus Persistence
 
 **Files:**
-- Modify: `eurekaclaw/knowledge_bus/bus.py`
+- Modify: `eurekalab/knowledge_bus/bus.py`
 - Test: `tests/test_incremental_persist.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -648,7 +648,7 @@ git commit -m "feat: add ccproxy health monitor with auto-restart on crash"
 import json
 import pytest
 from pathlib import Path
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 @pytest.fixture
@@ -691,7 +691,7 @@ def test_persist_incremental_accumulates_stages(bus):
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_incremental_persist.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_incremental_persist.py -v`
 Expected: FAIL — `persist_incremental` doesn't exist
 
 - [ ] **Step 3: Implement `persist_incremental` in `bus.py`**
@@ -714,7 +714,7 @@ def persist_incremental(self, completed_stage: str | None = None) -> None:
     Called after each pipeline stage to ensure partial work survives crashes.
     """
     if self._session_dir is None:
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
         self._session_dir = settings.runs_dir / self.session_id
 
     self._session_dir.mkdir(parents=True, exist_ok=True)
@@ -743,13 +743,13 @@ def persist_incremental(self, completed_stage: str | None = None) -> None:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_incremental_persist.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_incremental_persist.py -v`
 Expected: All 4 tests PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/knowledge_bus/bus.py tests/test_incremental_persist.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/knowledge_bus/bus.py tests/test_incremental_persist.py
 git commit -m "feat: add incremental bus persistence after each stage"
 ```
 
@@ -758,7 +758,7 @@ git commit -m "feat: add incremental bus persistence after each stage"
 ### Task 6: Wire Incremental Persistence into MetaOrchestrator
 
 **Files:**
-- Modify: `eurekaclaw/orchestrator/meta_orchestrator.py`
+- Modify: `eurekalab/orchestrator/meta_orchestrator.py`
 
 - [ ] **Step 1: Add `bus.persist_incremental()` after each completed task**
 
@@ -791,12 +791,12 @@ In the failure block (around line 189), after max retries exhausted, add:
 
 - [ ] **Step 3: Run existing tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/orchestrator/meta_orchestrator.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/orchestrator/meta_orchestrator.py
 git commit -m "feat: wire incremental persistence into pipeline, stop on critical failures"
 ```
 
@@ -805,8 +805,8 @@ git commit -m "feat: wire incremental persistence into pipeline, stop on critica
 ### Task 7: Full-Pipeline Session Checkpoint + Resume
 
 **Files:**
-- Create: `eurekaclaw/orchestrator/session_checkpoint.py`
-- Modify: `eurekaclaw/cli.py`
+- Create: `eurekalab/orchestrator/session_checkpoint.py`
+- Modify: `eurekalab/cli.py`
 - Test: `tests/test_session_checkpoint.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -817,12 +817,12 @@ git commit -m "feat: wire incremental persistence into pipeline, stop on critica
 import json
 import pytest
 from pathlib import Path
-from eurekaclaw.orchestrator.session_checkpoint import SessionCheckpoint
+from eurekalab.orchestrator.session_checkpoint import SessionCheckpoint
 
 
 @pytest.fixture
 def cp(tmp_path, monkeypatch):
-    monkeypatch.setattr("eurekaclaw.config.settings.eurekaclaw_dir", tmp_path)
+    monkeypatch.setattr("eurekalab.config.settings.eurekalab_dir", tmp_path)
     return SessionCheckpoint("test-session-456")
 
 
@@ -859,13 +859,13 @@ def test_next_stage_after_last(cp):
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_session_checkpoint.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_session_checkpoint.py -v`
 Expected: FAIL — module doesn't exist
 
 - [ ] **Step 3: Write the implementation**
 
 ```python
-# eurekaclaw/orchestrator/session_checkpoint.py
+# eurekalab/orchestrator/session_checkpoint.py
 """Full-pipeline session checkpoint — detects progress and enables resume from any stage."""
 
 from __future__ import annotations
@@ -874,7 +874,7 @@ import json
 import logging
 from pathlib import Path
 
-from eurekaclaw.config import settings
+from eurekalab.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -928,17 +928,17 @@ class SessionCheckpoint:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_session_checkpoint.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_session_checkpoint.py -v`
 Expected: All 5 tests PASS
 
-- [ ] **Step 5: Update `eurekaclaw/cli.py` resume command**
+- [ ] **Step 5: Update `eurekalab/cli.py` resume command**
 
 Find the existing `resume` command and add a fallback when theory checkpoint doesn't exist:
 
 After the existing "No checkpoint found" error, add:
 ```python
     # Fallback: check for pipeline-level checkpoint
-    from eurekaclaw.orchestrator.session_checkpoint import SessionCheckpoint
+    from eurekalab.orchestrator.session_checkpoint import SessionCheckpoint
     scp = SessionCheckpoint(session_id)
     last_stage, completed = scp.detect_progress()
 
@@ -948,7 +948,7 @@ After the existing "No checkpoint found" error, add:
         if next_stage:
             console.print(f"[blue]Resuming from stage: {next_stage}[/blue]")
             # Load bus from persisted state and re-run pipeline from next_stage
-            from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+            from eurekalab.knowledge_bus.bus import KnowledgeBus
             bus = KnowledgeBus.load(session_id, settings.runs_dir / session_id)
             # ... continue pipeline from next_stage
         else:
@@ -962,7 +962,7 @@ After the existing "No checkpoint found" error, add:
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/orchestrator/session_checkpoint.py tests/test_session_checkpoint.py eurekaclaw/cli.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/orchestrator/session_checkpoint.py tests/test_session_checkpoint.py eurekalab/cli.py
 git commit -m "feat: add full-pipeline session checkpoint with resume from any stage"
 ```
 
@@ -971,7 +971,7 @@ git commit -m "feat: add full-pipeline session checkpoint with resume from any s
 ### Task 8: Fix Silent JSON Parse Failures in Survey Agent
 
 **Files:**
-- Modify: `eurekaclaw/agents/survey/agent.py`
+- Modify: `eurekalab/agents/survey/agent.py`
 
 - [ ] **Step 1: Replace silent `pass` blocks in `_parse_survey_output`**
 
@@ -1014,12 +1014,12 @@ Replace lines 168-192 of `survey/agent.py` with:
 
 - [ ] **Step 2: Run existing tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/agents/survey/agent.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/agents/survey/agent.py
 git commit -m "fix: log survey JSON parse failures instead of silently swallowing"
 ```
 
@@ -1028,7 +1028,7 @@ git commit -m "fix: log survey JSON parse failures instead of silently swallowin
 ### Task 9: Structured Tool Error Returns
 
 **Files:**
-- Modify: `eurekaclaw/tools/registry.py`
+- Modify: `eurekalab/tools/registry.py`
 
 - [ ] **Step 1: Replace error string with structured JSON in `call()`**
 
@@ -1054,12 +1054,12 @@ Add `import json` at top of file.
 
 - [ ] **Step 2: Run existing tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v -x --timeout=30 2>&1 | head -40`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/tools/registry.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/tools/registry.py
 git commit -m "fix: return structured JSON errors from tool registry instead of plain strings"
 ```
 
@@ -1068,14 +1068,14 @@ git commit -m "fix: return structured JSON errors from tool registry instead of 
 ### Task 10: Token Waste Tracking
 
 **Files:**
-- Modify: `eurekaclaw/llm/base.py` (already has `_WASTED_TOKENS` from Task 2)
-- Modify: `eurekaclaw/orchestrator/meta_orchestrator.py`
+- Modify: `eurekalab/llm/base.py` (already has `_WASTED_TOKENS` from Task 2)
+- Modify: `eurekalab/orchestrator/meta_orchestrator.py`
 
 - [ ] **Step 1: Log token waste at session end**
 
 In `meta_orchestrator.py`, in the `run()` method, before the final output section (around line 214), add:
 ```python
-        from eurekaclaw.llm.base import get_global_tokens, get_wasted_tokens
+        from eurekalab.llm.base import get_global_tokens, get_wasted_tokens
         total = get_global_tokens()
         wasted = get_wasted_tokens()
         console.print(f"\n[dim]Token usage — input: {total['input']:,}, output: {total['output']:,}[/dim]")
@@ -1086,7 +1086,7 @@ In `meta_orchestrator.py`, in the `run()` method, before the final output sectio
 - [ ] **Step 2: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/orchestrator/meta_orchestrator.py
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/orchestrator/meta_orchestrator.py
 git commit -m "feat: log token usage and waste at session end"
 ```
 
@@ -1095,12 +1095,12 @@ git commit -m "feat: log token usage and waste at session end"
 ### Task 11: Gemini Parallel Search Tool
 
 **Files:**
-- Create: `eurekaclaw/tools/gemini_search.py`
-- Modify: `eurekaclaw/config.py`
-- Modify: `eurekaclaw/tools/registry.py`
-- Modify: `eurekaclaw/agents/survey/agent.py`
+- Create: `eurekalab/tools/gemini_search.py`
+- Modify: `eurekalab/config.py`
+- Modify: `eurekalab/tools/registry.py`
+- Modify: `eurekalab/agents/survey/agent.py`
 
-- [ ] **Step 1: Add Gemini config to `eurekaclaw/config.py`**
+- [ ] **Step 1: Add Gemini config to `eurekalab/config.py`**
 
 Add after the `s2_api_key` field (line 53):
 ```python
@@ -1110,7 +1110,7 @@ Add after the `s2_api_key` field (line 53):
 - [ ] **Step 2: Create the Gemini search tool**
 
 ```python
-# eurekaclaw/tools/gemini_search.py
+# eurekalab/tools/gemini_search.py
 """Gemini-powered web + academic search — runs in parallel with arXiv/S2 for broader coverage."""
 
 from __future__ import annotations
@@ -1121,8 +1121,8 @@ from typing import Any
 
 import httpx
 
-from eurekaclaw.config import settings
-from eurekaclaw.tools.base import BaseTool
+from eurekalab.config import settings
+from eurekalab.tools.base import BaseTool
 
 logger = logging.getLogger(__name__)
 
@@ -1265,11 +1265,11 @@ class GeminiSearchTool(BaseTool):
         return []
 ```
 
-- [ ] **Step 3: Register the tool in `eurekaclaw/tools/registry.py`**
+- [ ] **Step 3: Register the tool in `eurekalab/tools/registry.py`**
 
 Add to imports in `build_default_registry()`:
 ```python
-    from eurekaclaw.tools.gemini_search import GeminiSearchTool
+    from eurekalab.tools.gemini_search import GeminiSearchTool
 ```
 
 Add to the tool list:
@@ -1279,11 +1279,11 @@ Add to the tool list:
 
 - [ ] **Step 4: Add `gemini_search` to SurveyAgent's tool list**
 
-In `eurekaclaw/agents/survey/agent.py`, update `get_tool_names()`:
+In `eurekalab/agents/survey/agent.py`, update `get_tool_names()`:
 ```python
     def get_tool_names(self) -> list[str]:
         tools = ["arxiv_search", "semantic_scholar_search", "web_search", "citation_manager"]
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
         if settings.gemini_api_key:
             tools.append("gemini_search")
         return tools
@@ -1292,7 +1292,7 @@ In `eurekaclaw/agents/survey/agent.py`, update `get_tool_names()`:
 Update the system prompt to mention the Gemini tool when available:
 ```python
     def _role_system_prompt(self, task: Task) -> str:
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
         gemini_hint = ""
         if settings.gemini_api_key:
             gemini_hint = (
@@ -1301,7 +1301,7 @@ Update the system prompt to mention the Gemini tool when available:
                 "to maximize coverage — especially for interdisciplinary topics.\n"
             )
         return f"""\
-You are the Survey Agent of EurekaClaw. Your job: fast, focused literature search.
+You are the Survey Agent of EurekaLab. Your job: fast, focused literature search.
 
 Do 2-3 targeted arXiv searches, then synthesize. Be concise.
 {gemini_hint}
@@ -1325,7 +1325,7 @@ GEMINI_API_KEY=
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/tools/gemini_search.py eurekaclaw/config.py eurekaclaw/tools/registry.py eurekaclaw/agents/survey/agent.py .env.example
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/tools/gemini_search.py eurekalab/config.py eurekalab/tools/registry.py eurekalab/agents/survey/agent.py .env.example
 git commit -m "feat: add Gemini parallel search tool for broader academic coverage"
 ```
 
@@ -1335,17 +1335,17 @@ git commit -m "feat: add Gemini parallel search tool for broader academic covera
 
 - [ ] **Step 1: Run all tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v --timeout=30`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v --timeout=30`
 Expected: All tests PASS
 
 - [ ] **Step 2: Verify imports work end-to-end**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/python -c "from eurekaclaw.cli import main; print('OK')"`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/python -c "from eurekalab.cli import main; print('OK')"`
 Expected: `OK`
 
 - [ ] **Step 3: Final commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add -A
+cd /Users/lor/_coding/EurekaLab && git add -A
 git commit -m "chore: resilience overhaul complete — error classification, circuit breaker, incremental checkpoints, structured errors"
 ```

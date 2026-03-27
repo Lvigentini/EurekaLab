@@ -2,7 +2,7 @@
 import json
 import pytest
 from pathlib import Path
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 @pytest.fixture

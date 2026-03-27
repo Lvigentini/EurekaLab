@@ -5,13 +5,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-# Stub out sentence_transformers before any eurekaclaw submodule is imported,
+# Stub out sentence_transformers before any eurekalab submodule is imported,
 # since embedding_utils.py imports it at module level and it may not be installed
 # in the test environment.
 sys.modules.setdefault("sentence_transformers", MagicMock())
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief
 
 
 @pytest.fixture
@@ -34,23 +34,23 @@ def bus(brief):
 
 def _make_orchestrator(bus):
     """Build a MetaOrchestrator with all heavy dependencies mocked out."""
-    from eurekaclaw.orchestrator.meta_orchestrator import MetaOrchestrator
+    from eurekalab.orchestrator.meta_orchestrator import MetaOrchestrator
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.create_client"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.build_default_registry"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.SkillRegistry"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.SkillInjector"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.MemoryManager"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.SurveyAgent"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.IdeationAgent"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.TheoryAgent"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.ExperimentAgent"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.WriterAgent"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.DivergentConvergentPlanner"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.GateController"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.PipelineManager"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.TaskRouter"), \
-         patch("eurekaclaw.orchestrator.meta_orchestrator.ContinualLearningLoop"):
+    with patch("eurekalab.orchestrator.meta_orchestrator.create_client"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.build_default_registry"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.SkillRegistry"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.SkillInjector"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.MemoryManager"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.SurveyAgent"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.IdeationAgent"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.TheoryAgent"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.ExperimentAgent"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.WriterAgent"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.DivergentConvergentPlanner"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.GateController"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.PipelineManager"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.TaskRouter"), \
+         patch("eurekalab.orchestrator.meta_orchestrator.ContinualLearningLoop"):
         orch = MetaOrchestrator(bus=bus)
     return orch
 
@@ -80,7 +80,7 @@ async def test_fallback_called_when_diverge_raises(bus, brief):
 @pytest.mark.asyncio
 async def test_fallback_not_called_when_diverge_succeeds(bus, brief):
     """When diverge() returns directions normally, no fallback should occur."""
-    from eurekaclaw.types.artifacts import ResearchDirection
+    from eurekalab.types.artifacts import ResearchDirection
     orch = _make_orchestrator(bus)
 
     direction = ResearchDirection(
@@ -105,7 +105,7 @@ async def test_manual_direction_sets_brief(bus, brief):
     """User input should be stored as the selected direction on the bus."""
     orch = _make_orchestrator(bus)
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         mock_console.input = MagicMock(return_value="UCB1 achieves O(sqrt(KT log T)) regret")
         await orch._handle_manual_direction(brief)
 
@@ -120,7 +120,7 @@ async def test_manual_direction_empty_then_valid_input(bus, brief):
     """Empty input should re-prompt; a valid input on the second try succeeds."""
     orch = _make_orchestrator(bus)
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         mock_console.input = MagicMock(side_effect=["", "UCB1 achieves O(sqrt(KT)) regret"])
         await orch._handle_manual_direction(brief)
 
@@ -134,7 +134,7 @@ async def test_manual_direction_ctrl_c_raises(bus, brief):
     """Ctrl+C (KeyboardInterrupt / EOFError) should raise RuntimeError."""
     orch = _make_orchestrator(bus)
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         mock_console.input = MagicMock(side_effect=EOFError)
         with pytest.raises(RuntimeError):
             await orch._handle_manual_direction(brief)
@@ -184,7 +184,7 @@ async def test_empty_enter_reprompts_even_with_conjecture(
     orch = _make_orchestrator(detailed_bus)
 
     # User presses Enter twice, then types the conjecture explicitly
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         mock_console.input = MagicMock(side_effect=["", "", detailed_brief.conjecture])
         await orch._handle_manual_direction(detailed_brief)
 
@@ -200,7 +200,7 @@ async def test_user_can_override_conjecture_in_detailed_mode(
     """In prove mode, the user can type a different direction instead of accepting the conjecture."""
     orch = _make_orchestrator(detailed_bus)
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         mock_console.input = MagicMock(return_value="1+1=2 via ZFC set theory")
         await orch._handle_manual_direction(detailed_brief)
 
@@ -215,7 +215,7 @@ async def test_empty_input_no_conjecture_reprompts_then_accepts(bus, brief):
     orch = _make_orchestrator(bus)
     # brief.conjecture is not set in the exploration fixture
 
-    with patch("eurekaclaw.orchestrator.meta_orchestrator.console") as mock_console:
+    with patch("eurekalab.orchestrator.meta_orchestrator.console") as mock_console:
         # Two empty inputs, then Ctrl+C
         mock_console.input = MagicMock(side_effect=["", "", KeyboardInterrupt])
         with pytest.raises(RuntimeError):

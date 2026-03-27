@@ -25,7 +25,7 @@ export function SkillsView() {
         <div className="skills-hero-text">
           <h2 className="skills-hero-title">Proof Strategies &amp; Skills</h2>
           <p className="skills-hero-sub">
-            Skills guide how EurekaClaw approaches each proof — from choosing proof techniques
+            Skills guide how EurekaLab approaches each proof — from choosing proof techniques
             to structuring lemma decompositions. The system learns new strategies after every successful session.
           </p>
         </div>

@@ -3,7 +3,7 @@ import { create } from 'zustand';
 type ActiveView = 'workspace' | 'skills' | 'systems' | 'onboarding';
 type ActiveWsTab = 'live' | 'proof' | 'paper' | 'logs' | 'history';
 
-const STORAGE_KEY = 'eurekaclaw_ui';
+const STORAGE_KEY = 'eurekalab_ui';
 
 function loadPersistedUi(): { activeView: ActiveView; activeWsTab: ActiveWsTab } {
   try {

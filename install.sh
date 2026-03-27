@@ -1,18 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
-# ── EurekaClaw Installer ──────────────────────────────────────────────────────
+# ── EurekaLab Installer ──────────────────────────────────────────────────────
 # macOS and Linux (including WSL).
 #
 # Usage:
-#   curl -fsSL https://eurekaclaw.ai/install.sh | bash
-#   curl -fsSL https://eurekaclaw.ai/install.sh | bash -s -- --install-method git
+#   curl -fsSL https://eurekalab.ai/install.sh | bash
+#   curl -fsSL https://eurekalab.ai/install.sh | bash -s -- --install-method git
 #
 # Environment variable overrides mirror every --flag below.
 
 # ── colours ───────────────────────────────────────────────────────────────────
 BOLD='\033[1m'
-ACCENT='\033[38;2;100;180;255m'    # EurekaClaw blue
+ACCENT='\033[38;2;100;180;255m'    # EurekaLab blue
 INFO='\033[38;2;136;146;176m'
 SUCCESS='\033[38;2;0;229;204m'
 WARN='\033[38;2;255;176;32m'
@@ -21,8 +21,8 @@ MUTED='\033[38;2;90;100;128m'
 NC='\033[0m'
 
 # ── defaults (overridable via env) ────────────────────────────────────────────
-EUREKACLAW_REPO_URL="${EUREKACLAW_REPO_URL:-https://github.com/EurekaClaw/EurekaClaw.git}"
-GIT_DIR_DEFAULT="${HOME}/eurekaclaw"
+EUREKACLAW_REPO_URL="${EUREKACLAW_REPO_URL:-https://github.com/EurekaLab/EurekaLab.git}"
+GIT_DIR_DEFAULT="${HOME}/eurekalab"
 
 INSTALL_METHOD="${EUREKACLAW_INSTALL_METHOD:-git}"
 GIT_DIR="${EUREKACLAW_GIT_DIR:-${GIT_DIR_DEFAULT}}"
@@ -241,16 +241,16 @@ run_quiet_step() {
 # ── arg parsing ───────────────────────────────────────────────────────────────
 print_usage() {
     cat <<EOF
-EurekaClaw installer — macOS + Linux
+EurekaLab installer — macOS + Linux
 
 Usage:
-  curl -fsSL https://eurekaclaw.ai/install.sh | bash
-  curl -fsSL https://eurekaclaw.ai/install.sh | bash -s -- [options]
+  curl -fsSL https://eurekalab.ai/install.sh | bash
+  curl -fsSL https://eurekalab.ai/install.sh | bash -s -- [options]
 
 Options:
   --install-method, --method git    Install from a git checkout (default; only supported method)
   --git, --github                   Shortcut for --install-method git
-  --git-dir, --dir <path>           Checkout directory (default: ~/eurekaclaw)
+  --git-dir, --dir <path>           Checkout directory (default: ~/eurekalab)
   --no-git-update                   Skip git pull for an existing checkout
   --extras <groups>                 pip extras to install, e.g. "all" (default), ""
   --no-onboard                      Skip post-install setup prompt
@@ -266,15 +266,15 @@ Environment variable equivalents:
 
 Examples:
   # default git install
-  curl -fsSL https://eurekaclaw.ai/install.sh | bash
+  curl -fsSL https://eurekalab.ai/install.sh | bash
 
   # custom checkout dir, no onboarding
-  curl -fsSL https://eurekaclaw.ai/install.sh | bash -s -- \\
-      --git-dir ~/projects/eurekaclaw --no-onboard
+  curl -fsSL https://eurekalab.ai/install.sh | bash -s -- \\
+      --git-dir ~/projects/eurekalab --no-onboard
 
   # CI / non-interactive
   EUREKACLAW_NO_PROMPT=1 EUREKACLAW_NO_ONBOARD=1 \\
-      bash <(curl -fsSL https://eurekaclaw.ai/install.sh)
+      bash <(curl -fsSL https://eurekalab.ai/install.sh)
 EOF
 }
 
@@ -311,7 +311,7 @@ detect_os_or_die() {
         ui_error "Windows is not yet supported by this bash installer."
         echo ""
         echo "  Coming soon:"
-        echo "    powershell -c \"irm https://eurekaclaw.ai/install.ps1 | iex\""
+        echo "    powershell -c \"irm https://eurekalab.ai/install.ps1 | iex\""
         echo ""
         echo "  In the meantime, use WSL2:"
         echo "    https://docs.microsoft.com/en-us/windows/wsl/install"
@@ -530,7 +530,7 @@ warn_path_missing() {
 }
 
 # ── git install ───────────────────────────────────────────────────────────────
-install_eurekaclaw_from_git() {
+install_eurekalab_from_git() {
     local repo_dir="$1"
 
     # ── clone or update ───────────────────────────────────────────────────────
@@ -545,7 +545,7 @@ install_eurekaclaw_from_git() {
             fi
         fi
     else
-        run_quiet_step "Cloning EurekaClaw" git clone "$EUREKACLAW_REPO_URL" "$repo_dir"
+        run_quiet_step "Cloning EurekaLab" git clone "$EUREKACLAW_REPO_URL" "$repo_dir"
         ui_success "Repository cloned to ${repo_dir}"
     fi
 
@@ -565,34 +565,34 @@ install_eurekaclaw_from_git() {
     local install_target="${repo_dir}"
     if [[ -n "$EXTRAS" ]]; then install_target="${repo_dir}[${EXTRAS}]"; fi
 
-    ui_info "Installing EurekaClaw${EXTRAS:+ (extras: ${EXTRAS})}"
-    run_quiet_step "Installing EurekaClaw" "$pip_bin" install --quiet "$install_target"
-    ui_success "EurekaClaw installed into virtual environment"
+    ui_info "Installing EurekaLab${EXTRAS:+ (extras: ${EXTRAS})}"
+    run_quiet_step "Installing EurekaLab" "$pip_bin" install --quiet "$install_target"
+    ui_success "EurekaLab installed into virtual environment"
 
     # ── shim ──────────────────────────────────────────────────────────────────
     ensure_user_local_bin_on_path
 
-    local shim_path="$HOME/.local/bin/eurekaclaw"
-    local eurekaclaw_bin="${venv_dir}/bin/eurekaclaw"
+    local shim_path="$HOME/.local/bin/eurekalab"
+    local eurekalab_bin="${venv_dir}/bin/eurekalab"
 
     cat > "$shim_path" <<SHIM
 #!/usr/bin/env bash
 set -euo pipefail
-exec "${eurekaclaw_bin}" "\$@"
+exec "${eurekalab_bin}" "\$@"
 SHIM
     chmod +x "$shim_path"
     ui_success "Shim installed: ${shim_path}"
 }
 
 # ── resolve installed binary ──────────────────────────────────────────────────
-resolve_eurekaclaw_bin() {
+resolve_eurekalab_bin() {
     hash -r 2>/dev/null || true
     local resolved
-    resolved="$(command -v eurekaclaw 2>/dev/null || true)"
+    resolved="$(command -v eurekalab 2>/dev/null || true)"
     if [[ -n "$resolved" && -x "$resolved" ]]; then
         EUREKACLAW_BIN="$resolved"; return 0
     fi
-    local local_bin="$HOME/.local/bin/eurekaclaw"
+    local local_bin="$HOME/.local/bin/eurekalab"
     if [[ -x "$local_bin" ]]; then
         EUREKACLAW_BIN="$local_bin"; return 0
     fi
@@ -602,13 +602,13 @@ resolve_eurekaclaw_bin() {
 # ── post-install ──────────────────────────────────────────────────────────────
 run_install_skills() {
     local claw="${EUREKACLAW_BIN:-}"
-    if [[ -z "$claw" ]]; then claw="$(command -v eurekaclaw 2>/dev/null || true)"; fi
+    if [[ -z "$claw" ]]; then claw="$(command -v eurekalab 2>/dev/null || true)"; fi
     if [[ -z "$claw" ]]; then
-        ui_warn "eurekaclaw not on PATH — skipping seed skill installation"
+        ui_warn "eurekalab not on PATH — skipping seed skill installation"
         return 0
     fi
     run_quiet_step "Installing seed skills" "$claw" install-skills || true
-    ui_success "Seed skills installed to ~/.eurekaclaw/skills/"
+    ui_success "Seed skills installed to ~/.eurekalab/skills/"
 }
 
 show_next_steps() {
@@ -617,14 +617,14 @@ show_next_steps() {
     ui_section "Next steps"
     echo "  1. Copy the example config and add your API key:"
     echo ""
-    echo "       cp ${GIT_DIR}/.env.example ~/.eurekaclaw/.env"
-    echo "       \$EDITOR ~/.eurekaclaw/.env"
+    echo "       cp ${GIT_DIR}/.env.example ~/.eurekalab/.env"
+    echo "       \$EDITOR ~/.eurekalab/.env"
     echo ""
     echo "  2. Run your first proof:"
     echo ""
-    echo "       eurekaclaw prove \"Your conjecture here\""
+    echo "       eurekalab prove \"Your conjecture here\""
     echo ""
-    echo "  Docs: https://docs.eurekaclaw.ai"
+    echo "  Docs: https://docs.eurekalab.ai"
     echo ""
 }
 
@@ -632,14 +632,14 @@ show_next_steps() {
 print_banner() {
     if [[ -n "$GUM" ]]; then
         local title tagline
-        title="$("$GUM"   style --foreground "#64b4ff" --bold    "🔬 EurekaClaw Installer")"
+        title="$("$GUM"   style --foreground "#64b4ff" --bold    "🔬 EurekaLab Installer")"
         tagline="$("$GUM" style --foreground "#8892b0"           "Multi-agent theoretical research system")"
         "$GUM" style --border rounded --border-foreground "#64b4ff" --padding "1 2" \
             "$(printf '%s\n%s' "$title" "$tagline")"
         echo ""
     else
         echo -e "${ACCENT}${BOLD}"
-        echo "  🔬 EurekaClaw Installer"
+        echo "  🔬 EurekaLab Installer"
         echo -e "${NC}${INFO}  Multi-agent theoretical research system${NC}"
         echo ""
     fi
@@ -671,7 +671,7 @@ main() {
             ui_error "--install-method '${INSTALL_METHOD}' is not yet available in this release."
             echo ""
             echo "  Only the git method is supported right now:"
-            echo "    curl -fsSL https://eurekaclaw.ai/install.sh | bash"
+            echo "    curl -fsSL https://eurekalab.ai/install.sh | bash"
             echo "    (--install-method git is the default)"
             echo ""
             echo "  npm and pip install methods are coming soon."
@@ -698,16 +698,16 @@ main() {
     check_python || install_python
     check_git    || install_git
 
-    # ── [2/3] Install EurekaClaw ──────────────────────────────────────────────
-    ui_stage "Installing EurekaClaw"
+    # ── [2/3] Install EurekaLab ──────────────────────────────────────────────
+    ui_stage "Installing EurekaLab"
 
     mkdir -p "$(dirname "${GIT_DIR}")" 2>/dev/null || true
-    install_eurekaclaw_from_git "$GIT_DIR"
+    install_eurekalab_from_git "$GIT_DIR"
 
     # ── [3/3] Finalize ────────────────────────────────────────────────────────
     ui_stage "Finalizing"
 
-    resolve_eurekaclaw_bin || true
+    resolve_eurekalab_bin || true
     warn_path_missing "$HOME/.local/bin"
     run_install_skills
     show_next_steps
@@ -715,19 +715,19 @@ main() {
     # Installed version (from package metadata)
     local version=""
     if [[ -n "$EUREKACLAW_BIN" ]]; then
-        version="$("${GIT_DIR}/.venv/bin/pip" show eurekaclaw 2>/dev/null \
+        version="$("${GIT_DIR}/.venv/bin/pip" show eurekalab 2>/dev/null \
                     | grep "^Version:" | cut -d' ' -f2 || true)"
     fi
 
     echo ""
     if [[ -n "$version" ]]; then
-        ui_celebrate "🔬 EurekaClaw ${version} installed successfully!"
+        ui_celebrate "🔬 EurekaLab ${version} installed successfully!"
     else
-        ui_celebrate "🔬 EurekaClaw installed successfully!"
+        ui_celebrate "🔬 EurekaLab installed successfully!"
     fi
 
     ui_kv "Checkout"       "$GIT_DIR"
-    ui_kv "Shim"           "$HOME/.local/bin/eurekaclaw"
+    ui_kv "Shim"           "$HOME/.local/bin/eurekalab"
     ui_kv "Update command" "cd ${GIT_DIR} && git pull && ${GIT_DIR}/.venv/bin/pip install ."
     echo ""
 }

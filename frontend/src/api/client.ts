@@ -16,7 +16,7 @@ export async function apiPost<T>(path: string, payload: unknown): Promise<T> {
     const errorText = await response.text();
     if (response.status === 501 && errorText.includes('Unsupported method')) {
       throw new Error(
-        'This page is being served by a static file server. Start the real backend with `eurekaclaw ui` and open http://127.0.0.1:8080/.'
+        'This page is being served by a static file server. Start the real backend with `eurekalab ui` and open http://127.0.0.1:8080/.'
       );
     }
     throw new Error(errorText || `Request failed: ${response.status}`);

@@ -1,8 +1,8 @@
 """Tests for BibLoader — .bib file parsing and PDF matching."""
 import pytest
 from pathlib import Path
-from eurekaclaw.analyzers.bib_loader import BibLoader
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.analyzers.bib_loader import BibLoader
+from eurekalab.types.artifacts import Paper
 
 
 SAMPLE_BIB = """\

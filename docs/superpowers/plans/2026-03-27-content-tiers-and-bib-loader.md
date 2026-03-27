@@ -13,14 +13,14 @@
 ## File Structure
 
 ```
-eurekaclaw/types/artifacts.py          # Modify: extend Paper model with content fields
-eurekaclaw/analyzers/                   # New directory
+eurekalab/types/artifacts.py          # Modify: extend Paper model with content fields
+eurekalab/analyzers/                   # New directory
   __init__.py
   content_gap.py                        # ContentGapAnalyzer + interactive prompt
   bib_loader.py                         # Parse .bib files + match local PDFs
-eurekaclaw/orchestrator/gate.py         # Modify: add content status report after survey
-eurekaclaw/cli.py                       # Modify: add from-bib command
-eurekaclaw/agents/survey/agent.py       # Modify: gap-fill survey mode
+eurekalab/orchestrator/gate.py         # Modify: add content status report after survey
+eurekalab/cli.py                       # Modify: add from-bib command
+eurekalab/agents/survey/agent.py       # Modify: gap-fill survey mode
 
 tests/test_content_tier.py              # Paper content tier + gap analysis
 tests/test_bib_loader.py               # .bib parsing + PDF matching
@@ -31,7 +31,7 @@ tests/test_bib_loader.py               # .bib parsing + PDF matching
 ### Task 1: Extend Paper Model with Content Fields
 
 **Files:**
-- Modify: `eurekaclaw/types/artifacts.py` (Paper class, lines 16-27)
+- Modify: `eurekalab/types/artifacts.py` (Paper class, lines 16-27)
 - Test: `tests/test_content_tier.py`
 
 - [ ] **Step 1: Write the failing tests**
@@ -40,7 +40,7 @@ tests/test_bib_loader.py               # .bib parsing + PDF matching
 # tests/test_content_tier.py
 """Tests for Paper content tier tracking."""
 import pytest
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.types.artifacts import Paper
 
 
 def test_paper_default_content_tier():
@@ -102,7 +102,7 @@ Expected: FAIL — `Paper` has no `content_tier` field
 
 - [ ] **Step 3: Add new fields to Paper model**
 
-In `eurekaclaw/types/artifacts.py`, add these fields to the `Paper` class after the existing `relevance_score` field:
+In `eurekalab/types/artifacts.py`, add these fields to the `Paper` class after the existing `relevance_score` field:
 
 ```python
     # Content tracking (Phase 1)
@@ -123,7 +123,7 @@ Expected: All PASS (new tests + existing type tests for backward compat)
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/types/artifacts.py tests/test_content_tier.py
+git add eurekalab/types/artifacts.py tests/test_content_tier.py
 git commit -m "feat: add content_tier and source fields to Paper model"
 ```
 
@@ -132,8 +132,8 @@ git commit -m "feat: add content_tier and source fields to Paper model"
 ### Task 2: ContentGapAnalyzer
 
 **Files:**
-- Create: `eurekaclaw/analyzers/__init__.py`
-- Create: `eurekaclaw/analyzers/content_gap.py`
+- Create: `eurekalab/analyzers/__init__.py`
+- Create: `eurekalab/analyzers/content_gap.py`
 - Test: `tests/test_content_tier.py` (append)
 
 - [ ] **Step 1: Write the failing tests**
@@ -141,8 +141,8 @@ git commit -m "feat: add content_tier and source fields to Paper model"
 Append to `tests/test_content_tier.py`:
 
 ```python
-from eurekaclaw.types.artifacts import Bibliography
-from eurekaclaw.analyzers.content_gap import ContentGapAnalyzer, ContentGapReport
+from eurekalab.types.artifacts import Bibliography
+from eurekalab.analyzers.content_gap import ContentGapAnalyzer, ContentGapReport
 
 
 def test_gap_report_categorizes_tiers():
@@ -190,23 +190,23 @@ def test_gap_report_has_gaps():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_content_tier.py::test_gap_report_categorizes_tiers -v`
-Expected: FAIL — `No module named 'eurekaclaw.analyzers'`
+Expected: FAIL — `No module named 'eurekalab.analyzers'`
 
 - [ ] **Step 3: Implement ContentGapAnalyzer**
 
 ```python
-# eurekaclaw/analyzers/__init__.py
+# eurekalab/analyzers/__init__.py
 """Analyzers for content gaps, draft papers, and bibliography loading."""
 ```
 
 ```python
-# eurekaclaw/analyzers/content_gap.py
+# eurekalab/analyzers/content_gap.py
 """ContentGapAnalyzer — identify papers with degraded or missing content."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from eurekaclaw.types.artifacts import Bibliography, Paper
+from eurekalab.types.artifacts import Bibliography, Paper
 
 
 @dataclass
@@ -253,7 +253,7 @@ Expected: All PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/analyzers/ tests/test_content_tier.py
+git add eurekalab/analyzers/ tests/test_content_tier.py
 git commit -m "feat: add ContentGapAnalyzer for tracking paper content completeness"
 ```
 
@@ -262,7 +262,7 @@ git commit -m "feat: add ContentGapAnalyzer for tracking paper content completen
 ### Task 3: BibLoader — Parse .bib Files
 
 **Files:**
-- Create: `eurekaclaw/analyzers/bib_loader.py`
+- Create: `eurekalab/analyzers/bib_loader.py`
 - Create: `tests/test_bib_loader.py`
 
 - [ ] **Step 1: Write the failing tests**
@@ -272,8 +272,8 @@ git commit -m "feat: add ContentGapAnalyzer for tracking paper content completen
 """Tests for BibLoader — .bib file parsing and PDF matching."""
 import pytest
 from pathlib import Path
-from eurekaclaw.analyzers.bib_loader import BibLoader
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.analyzers.bib_loader import BibLoader
+from eurekalab.types.artifacts import Paper
 
 
 SAMPLE_BIB = """\
@@ -373,12 +373,12 @@ def test_match_pdfs_no_match(bib_file, tmp_path):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_bib_loader.py -v`
-Expected: FAIL — `No module named 'eurekaclaw.analyzers.bib_loader'`
+Expected: FAIL — `No module named 'eurekalab.analyzers.bib_loader'`
 
 - [ ] **Step 3: Implement BibLoader**
 
 ```python
-# eurekaclaw/analyzers/bib_loader.py
+# eurekalab/analyzers/bib_loader.py
 """BibLoader — parse .bib files into Paper objects and match local PDFs."""
 from __future__ import annotations
 
@@ -388,7 +388,7 @@ from pathlib import Path
 
 import bibtexparser
 
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.types.artifacts import Paper
 
 logger = logging.getLogger(__name__)
 
@@ -500,7 +500,7 @@ Expected: All PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/analyzers/bib_loader.py tests/test_bib_loader.py
+git add eurekalab/analyzers/bib_loader.py tests/test_bib_loader.py
 git commit -m "feat: add BibLoader for parsing .bib files and matching local PDFs"
 ```
 
@@ -509,7 +509,7 @@ git commit -m "feat: add BibLoader for parsing .bib files and matching local PDF
 ### Task 4: Interactive Content Gap Report in Gate
 
 **Files:**
-- Modify: `eurekaclaw/orchestrator/gate.py`
+- Modify: `eurekalab/orchestrator/gate.py`
 
 - [ ] **Step 1: Add content gap report method to GateController**
 
@@ -527,7 +527,7 @@ def print_content_status(self) -> str | None:
     if not bib or not bib.papers:
         return None
 
-    from eurekaclaw.analyzers.content_gap import ContentGapAnalyzer
+    from eurekalab.analyzers.content_gap import ContentGapAnalyzer
     report = ContentGapAnalyzer.analyze(bib)
 
     lines = [
@@ -573,7 +573,7 @@ def print_content_status(self) -> str | None:
 
 - [ ] **Step 2: Wire into MetaOrchestrator after survey stage**
 
-In `eurekaclaw/orchestrator/meta_orchestrator.py`, find the block after survey completion (around line 230):
+In `eurekalab/orchestrator/meta_orchestrator.py`, find the block after survey completion (around line 230):
 ```python
 if task.name == "survey":
     await self._handle_empty_survey_fallback(pipeline)
@@ -594,7 +594,7 @@ def _handle_content_gaps(self) -> None:
         from pathlib import Path
         pdf_dir = Path(response).expanduser()
         if pdf_dir.is_dir():
-            from eurekaclaw.analyzers.bib_loader import BibLoader
+            from eurekalab.analyzers.bib_loader import BibLoader
             bib = self.bus.get_bibliography()
             if bib:
                 BibLoader.match_pdfs(bib.papers, pdf_dir)
@@ -628,7 +628,7 @@ Expected: All PASS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add eurekaclaw/orchestrator/gate.py eurekaclaw/orchestrator/meta_orchestrator.py
+git add eurekalab/orchestrator/gate.py eurekalab/orchestrator/meta_orchestrator.py
 git commit -m "feat: add interactive content gap report after survey"
 ```
 
@@ -637,7 +637,7 @@ git commit -m "feat: add interactive content gap report after survey"
 ### Task 5: Update SurveyAgent Content Tier Assignment
 
 **Files:**
-- Modify: `eurekaclaw/agents/survey/agent.py` (lines 139-154, Paper creation)
+- Modify: `eurekalab/agents/survey/agent.py` (lines 139-154, Paper creation)
 
 - [ ] **Step 1: Set content_tier based on what's available in survey results**
 
@@ -663,7 +663,7 @@ Expected: All PASS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add eurekaclaw/agents/survey/agent.py
+git add eurekalab/agents/survey/agent.py
 git commit -m "feat: set content_tier on papers during survey based on available data"
 ```
 
@@ -672,7 +672,7 @@ git commit -m "feat: set content_tier on papers during survey based on available
 ### Task 6: `from-bib` CLI Command
 
 **Files:**
-- Modify: `eurekaclaw/cli.py`
+- Modify: `eurekalab/cli.py`
 
 - [ ] **Step 1: Add the from-bib command**
 
@@ -691,11 +691,11 @@ Add after the `from-papers` command:
 def from_bib(bib_file: str, pdfs: str | None, domain: str, query: str, mode: str, gate: str, output: str) -> None:
     """Start research from a .bib file and optional local PDFs.
 
-    Example: eurekaclaw from-bib refs.bib --pdfs ./papers/ --domain "ML theory"
+    Example: eurekalab from-bib refs.bib --pdfs ./papers/ --domain "ML theory"
     """
     from pathlib import Path
-    from eurekaclaw.analyzers.bib_loader import BibLoader
-    from eurekaclaw.types.artifacts import Bibliography
+    from eurekalab.analyzers.bib_loader import BibLoader
+    from eurekalab.types.artifacts import Bibliography
 
     # Parse .bib file
     papers = BibLoader.load_bib(Path(bib_file))
@@ -755,14 +755,14 @@ Add `_preloaded_papers: list | None = None` parameter to `_run_session`. Before 
 
 ```python
 if _preloaded_papers:
-    from eurekaclaw.types.artifacts import Bibliography
+    from eurekalab.types.artifacts import Bibliography
     bib = Bibliography(session_id=session.session_id, papers=_preloaded_papers)
     session.bus.put_bibliography(bib)
 ```
 
 - [ ] **Step 3: Verify the command registers**
 
-Run: `.venv/bin/python -m eurekaclaw.cli --help`
+Run: `.venv/bin/python -m eurekalab.cli --help`
 Expected: `from-bib` appears in command list
 
 - [ ] **Step 4: Run all tests**
@@ -773,7 +773,7 @@ Expected: All PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/cli.py
+git add eurekalab/cli.py
 git commit -m "feat: add from-bib CLI command for starting from .bib files"
 ```
 
@@ -784,7 +784,7 @@ git commit -m "feat: add from-bib CLI command for starting from .bib files"
 - [ ] **Step 1: Bump version to 0.2.1**
 
 In `pyproject.toml`: change `version = "0.2.0"` to `version = "0.2.1"`
-In `eurekaclaw/__init__.py`: change `__version__ = "0.2.0"` to `__version__ = "0.2.1"`
+In `eurekalab/__init__.py`: change `__version__ = "0.2.0"` to `__version__ = "0.2.1"`
 
 - [ ] **Step 2: Run full test suite**
 
@@ -794,7 +794,7 @@ Expected: ALL PASS
 - [ ] **Step 3: Commit and push**
 
 ```bash
-git add eurekaclaw/__init__.py pyproject.toml
+git add eurekalab/__init__.py pyproject.toml
 git commit -m "feat: content tiers, gap analysis, and from-bib entry point (Phases 1+2)
 
 - Paper model extended with content_tier, full_text, local_pdf_path, source

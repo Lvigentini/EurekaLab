@@ -1,12 +1,12 @@
 """Tests for full-pipeline session checkpoint."""
 import json
 import pytest
-from eurekaclaw.orchestrator.session_checkpoint import SessionCheckpoint
+from eurekalab.orchestrator.session_checkpoint import SessionCheckpoint
 
 
 @pytest.fixture
 def cp(tmp_path, monkeypatch):
-    monkeypatch.setattr("eurekaclaw.config.settings.eurekaclaw_dir", tmp_path)
+    monkeypatch.setattr("eurekalab.config.settings.eurekalab_dir", tmp_path)
     return SessionCheckpoint("test-session-456")
 
 

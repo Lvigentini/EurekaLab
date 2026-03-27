@@ -1,16 +1,16 @@
-# EurekaClaw Updates
+# EurekaLab Updates
 
 # 2026-03-21 (xuheng branch)
 
-## 1. `eurekaclaw onboard` — Interactive Setup Wizard
+## 1. `eurekalab onboard` — Interactive Setup Wizard
 
 A new `onboard` CLI command walks users through configuring all `.env` options interactively, then writes (or updates) the file.
 
 ```bash
-eurekaclaw onboard
-eurekaclaw onboard --env-file ~/.eurekaclaw/.env   # custom path
-eurekaclaw onboard --non-interactive               # use defaults, no prompts
-eurekaclaw onboard --reset                         # overwrite existing .env
+eurekalab onboard
+eurekalab onboard --env-file ~/.eurekalab/.env   # custom path
+eurekalab onboard --non-interactive               # use defaults, no prompts
+eurekalab onboard --reset                         # overwrite existing .env
 ```
 
 The wizard is split into 5 sections:
@@ -27,8 +27,8 @@ After writing `.env`, the wizard offers to run `install-skills` automatically.
 
 | File | Change |
 |------|--------|
-| `eurekaclaw/onboard.py` | New file — full wizard implementation |
-| `eurekaclaw/cli.py` | Registered `onboard` command (thin stub calling `run_onboard`) |
+| `eurekalab/onboard.py` | New file — full wizard implementation |
+| `eurekalab/cli.py` | Registered `onboard` command (thin stub calling `run_onboard`) |
 
 ## 2. Windows Installer (`install_win.ps1`)
 
@@ -36,22 +36,22 @@ A native PowerShell installer for Windows users, equivalent to `bash install.sh 
 
 ```powershell
 # One-liner
-powershell -c "irm https://eurekaclaw.ai/install_win.ps1 | iex"
+powershell -c "irm https://eurekalab.ai/install_win.ps1 | iex"
 
 # Local file
 powershell -ExecutionPolicy Bypass -File install_win.ps1
 
 # Options
-powershell -ExecutionPolicy Bypass -File install_win.ps1 -GitDir C:\eurekaclaw -NoOnboard
+powershell -ExecutionPolicy Bypass -File install_win.ps1 -GitDir C:\eurekalab -NoOnboard
 ```
 
 The installer:
 - Checks for Python ≥ 3.11 and Git (with `winget` install hints if missing)
-- Clones or updates the repo to `~\eurekaclaw`
-- Creates a `.venv` and pip-installs EurekaClaw with all extras
-- Adds `~\eurekaclaw\.venv\Scripts\` to the user's PATH permanently
+- Clones or updates the repo to `~\eurekalab`
+- Creates a `.venv` and pip-installs EurekaLab with all extras
+- Adds `~\eurekalab\.venv\Scripts\` to the user's PATH permanently
 - Installs seed skills
-- Suggests `eurekaclaw onboard` as the next step
+- Suggests `eurekalab onboard` as the next step
 
 ## 3. Windows Line-Ending Fix (`.gitattributes`)
 
@@ -75,7 +75,7 @@ Added `LLM_BACKEND=minimax` as a first-class shortcut alongside `openrouter` and
 
 ## 2. `active_model` / `active_fast_model` Rollout
 
-All hardcoded `settings.eurekaclaw_model` and `settings.fast_model` calls have been replaced with `settings.active_model` and `settings.active_fast_model` respectively, making the full inference pipeline backend-agnostic.
+All hardcoded `settings.eurekalab_model` and `settings.fast_model` calls have been replaced with `settings.active_model` and `settings.active_fast_model` respectively, making the full inference pipeline backend-agnostic.
 
 Affected files: `agents/base.py`, `agents/theory/assembler.py`, `agents/theory/consistency_checker.py`, `agents/theory/counterexample.py`, `agents/theory/decomposer.py`, `agents/theory/formalizer.py`, `agents/theory/gap_analyst.py`, `agents/theory/proof_architect.py`, `agents/theory/prover.py`, `agents/theory/refiner.py`, `agents/theory/resource_analyst.py`, `agents/theory/theorem_crystallizer.py`, `agents/theory/verifier.py`, `agents/survey/agent.py`, `orchestrator/planner.py`, `evaluation/evaluator.py`, `learning/prm_scorer.py`, `skills/evolver.py`.
 
@@ -88,7 +88,7 @@ Affected files: `agents/base.py`, `agents/theory/assembler.py`, `agents/theory/c
 2. `_extract_math_sections()` filters the resulting Markdown to theorem/lemma-bearing sections (≤ 8 000 chars) using regex patterns on heading names and bold theorem labels.
 3. The existing LLM prompt runs over the filtered excerpt instead of just the abstract, yielding far more extracted `KnownResult` objects.
 
-Docling is optional: install with `pip install 'eurekaclaw[pdf]'`. Falls back gracefully if not installed.
+Docling is optional: install with `pip install 'eurekalab[pdf]'`. Falls back gracefully if not installed.
 
 | File | Change |
 |------|--------|
@@ -300,7 +300,7 @@ Added three named backends to `config.py` and `llm/factory.py`:
 
 **ccproxy / OAuth fallback** (`llm/anthropic_adapter.py`): if `ANTHROPIC_API_KEY` is empty,
 the adapter automatically reads `~/.claude/.credentials.json` and routes through ccproxy,
-allowing Claude Pro/Max users to run EurekaClaw without a separate API key.
+allowing Claude Pro/Max users to run EurekaLab without a separate API key.
 
 ---
 
@@ -374,7 +374,7 @@ Specific file-level changes to `max_turns` and model selection to streamline age
 | `ideation/agent.py` | `max_turns` 5 $\rightarrow$ 3 |
 | `experiment/agent.py` | `max_turns` 10 $\rightarrow$ 5 |
 | `writer/agent.py` | `max_turns` 5 $\rightarrow$ 3 |
-| `theory/counterexample.py` | model `eurekaclaw_model` $\rightarrow$ `eurekaclaw_fast_model` |
+| `theory/counterexample.py` | model `eurekalab_model` $\rightarrow$ `eurekalab_fast_model` |
 | `theory/decomposer.py` | `max_tokens` 3000 $\rightarrow$ 2048 |
 
 > **Run Performance Impact:** A typical run now utilizes **~20 LLM calls** (down from ~35), while worst-case scenarios have dropped from **~100 to ~55 calls**.
@@ -412,20 +412,20 @@ for setting the involvement of experiment stage (auto judge / force requirement 
 
 ### Architecture Overview
 
-EurekaClaw now uses a three-tier plugin architecture:
+EurekaLab now uses a three-tier plugin architecture:
 
 ```
-EurekaClaw (general pipeline)          ← domain-agnostic: survey / theory / experiment / writer
+EurekaLab (general pipeline)          ← domain-agnostic: survey / theory / experiment / writer
     └── DomainPlugin (e.g. MAB)        ← domain sub-interface: tools + skills + workflow + benchmark
             └── Workflow                ← per-domain research guidance injected into agent prompts
 ```
 
 To add a new research domain (e.g. game theory, statistical learning), create
-`eurekaclaw/domains/<name>/` and subclass `DomainPlugin`. No changes to core code needed.
+`eurekalab/domains/<name>/` and subclass `DomainPlugin`. No changes to core code needed.
 
 ---
 
-### New: Domain Plugin System (`eurekaclaw/domains/`)
+### New: Domain Plugin System (`eurekalab/domains/`)
 
 #### `domains/base.py` — `DomainPlugin` ABC
 | Method | Purpose |
@@ -441,7 +441,7 @@ To add a new research domain (e.g. game theory, statistical learning), create
 
 ---
 
-### New: MAB Domain Plugin (`eurekaclaw/domains/mab/`)
+### New: MAB Domain Plugin (`eurekalab/domains/mab/`)
 
 Self-contained package for stochastic multi-armed bandit theory research.
 
@@ -489,10 +489,10 @@ The MABDomainPlugin is auto-detected when the domain string contains keywords li
 
 ### How to Add a New Domain
 
-1. Create `eurekaclaw/domains/my_domain/__init__.py`:
+1. Create `eurekalab/domains/my_domain/__init__.py`:
    ```python
-   from eurekaclaw.domains.base import DomainPlugin
-   from eurekaclaw.domains import register_domain
+   from eurekalab.domains.base import DomainPlugin
+   from eurekalab.domains import register_domain
 
    @register_domain
    class MyDomainPlugin(DomainPlugin):

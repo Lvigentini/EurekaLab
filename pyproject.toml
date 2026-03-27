@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "eurekaclaw"
-version = "0.4.0"
+name = "eurekalab"
+version = "0.5.0"
 description = "Multi-agent system for theoretical research — proof-heavy, formalism-rich, math-dense domains"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache 2.0" }
-authors = [{ name = "EurekaClaw Contributors" }]
+authors = [{ name = "EurekaLab Contributors" }]
 
 dependencies = [
     "anthropic>=0.34.0",
@@ -53,15 +53,15 @@ dev = [
 ]
 # Install everything at once (except system-level Lean4/pdflatex)
 all = [
-    "eurekaclaw[embeddings,docker,openai,pdf,pdf-docling,zotero]",
+    "eurekalab[embeddings,docker,openai,pdf,pdf-docling,zotero]",
 ]
 
 [project.scripts]
-eurekaclaw = "eurekaclaw.cli:main"
+eurekalab = "eurekalab.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["eurekaclaw"]
-artifacts = ["eurekaclaw/ui/static/*"]
+packages = ["eurekalab"]
+artifacts = ["eurekalab/ui/static/*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

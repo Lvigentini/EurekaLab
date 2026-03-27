@@ -1,9 +1,9 @@
 """Tests for BusSnapshot serialization."""
 import json
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief, Bibliography, Paper, TheoryState
-from eurekaclaw.versioning.snapshot import BusSnapshot
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief, Bibliography, Paper, TheoryState
+from eurekalab.versioning.snapshot import BusSnapshot
 
 
 @pytest.fixture

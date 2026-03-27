@@ -1,8 +1,8 @@
 """Tests for ZoteroAdapter with mocked pyzotero."""
 import pytest
 from unittest.mock import MagicMock, patch
-from eurekaclaw.integrations.zotero.adapter import ZoteroAdapter
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.integrations.zotero.adapter import ZoteroAdapter
+from eurekalab.types.artifacts import Paper
 
 
 MOCK_ITEMS = [
@@ -65,7 +65,7 @@ def mock_zot():
 
 @pytest.fixture
 def adapter(mock_zot):
-    with patch("eurekaclaw.integrations.zotero.adapter.zotero.Zotero", return_value=mock_zot):
+    with patch("eurekalab.integrations.zotero.adapter.zotero.Zotero", return_value=mock_zot):
         return ZoteroAdapter(library_id="12345", api_key="fake-key")
 
 
@@ -132,7 +132,7 @@ def test_import_collection_sets_venue(adapter):
 
 def test_create_collection(adapter, mock_zot):
     mock_zot.create_collections.return_value = [{"data": {"key": "NEW_COL"}}]
-    key = adapter.create_collection("EurekaClaw Results")
+    key = adapter.create_collection("EurekaLab Results")
     assert key == "NEW_COL"
     mock_zot.create_collections.assert_called_once()
 

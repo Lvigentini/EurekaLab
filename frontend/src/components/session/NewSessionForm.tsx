@@ -68,7 +68,7 @@ const MODES = [
     icon: '✏️',
     label: 'From Draft',
     desc: 'Start from a draft paper with instructions',
-    promptLabel: 'Instruction for EurekaClaw',
+    promptLabel: 'Instruction for EurekaLab',
     promptPlaceholder: 'e.g. Help me strengthen the theory section',
     requirePrompt: false,
     requireDomain: false,
@@ -100,11 +100,11 @@ export function NewSessionForm() {
   const lastSpec = allSessions.length > 0 ? allSessions[0]?.input_spec : undefined;
 
   const [mode, setModeState] = useState(() => {
-    try { return localStorage.getItem('eurekaclaw_session_mode') || lastSpec?.mode || 'detailed'; } catch { return 'detailed'; }
+    try { return localStorage.getItem('eurekalab_session_mode') || lastSpec?.mode || 'detailed'; } catch { return 'detailed'; }
   });
   const setMode = (m: string) => {
     setModeState(m);
-    try { localStorage.setItem('eurekaclaw_session_mode', m); } catch { /* ignore */ }
+    try { localStorage.setItem('eurekalab_session_mode', m); } catch { /* ignore */ }
   };
   const [domain, setDomain] = useState(() => lastSpec?.domain || 'Machine learning theory');
   const [prompt, setPrompt] = useState(() => lastSpec?.conjecture || lastSpec?.query || '');
@@ -129,7 +129,7 @@ export function NewSessionForm() {
     if (cfg.requireDomain && !domain.trim()) return `Research domain is required for ${mode} mode.`;
     if (cfg.requirePrompt && !prompt.trim()) {
       return mode === 'detailed'
-        ? 'Please enter the conjecture or theorem you want EurekaClaw to prove.'
+        ? 'Please enter the conjecture or theorem you want EurekaLab to prove.'
         : 'Research prompt is required for this mode.';
     }
     return null;
@@ -188,7 +188,7 @@ export function NewSessionForm() {
       <div className="new-session-card">
         <div className="canvas-heading">
           <h2 className="canvas-title">What would you like to prove?</h2>
-          <p className="canvas-sub">EurekaClaw surveys the literature, generates theorems, and writes a complete mathematical proof — autonomously.</p>
+          <p className="canvas-sub">EurekaLab surveys the literature, generates theorems, and writes a complete mathematical proof — autonomously.</p>
         </div>
         <div className="canvas-form-body">
           <div className="canvas-mode-row">

@@ -35,7 +35,7 @@ The existing UI is a React 18 + TypeScript + Vite SPA (35 components, 231KB bund
 
 ## 2. Phase A: API Endpoints (Python only)
 
-All endpoints go in `eurekaclaw/ui/server.py`. No frontend changes needed.
+All endpoints go in `eurekalab/ui/server.py`. No frontend changes needed.
 
 ### A1. Version History Endpoints
 
@@ -60,7 +60,7 @@ POST /api/runs/<run_id>/versions/checkout
 **Implementation notes:**
 - Load `VersionStore` from `SessionDB` using the session's run_id
 - For `GET /versions`: return metadata only (no snapshot_json — too large)
-- For `/diff`: call `diff_versions()` from `eurekaclaw/versioning/diff.py`
+- For `/diff`: call `diff_versions()` from `eurekalab/versioning/diff.py`
 - For `/checkout`: call `store.checkout()`, commit a new version, persist bus to disk
 
 ### A2. Content Gap Endpoint
@@ -364,7 +364,7 @@ Add 3 new modes to the MODES array:
 **Behavior:**
 - Button visible when session is `completed` and Zotero is configured
 - Calls `POST /api/runs/<id>/push-to-zotero`
-- Shows result: "Pushed 5 papers to 'EurekaClaw Results'"
+- Shows result: "Pushed 5 papers to 'EurekaLab Results'"
 
 ### B7. Sessions Management View
 
@@ -433,7 +433,7 @@ Frontend development requires:
 ```bash
 cd frontend && npm install    # one-time
 make dev                      # hot-reload on :5173, API proxy to :7860
-make build                    # production build → eurekaclaw/ui/static/
+make build                    # production build → eurekalab/ui/static/
 ```
 
 React components should follow existing patterns:

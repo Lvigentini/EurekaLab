@@ -17,7 +17,7 @@ export function PaperPanel({ run }: PaperPanelProps) {
   const theoryState = run?.artifacts?.theory_state;
   const result = run?.result;
   const selDir = run?.artifacts?.research_brief?.selected_direction;
-  const title = humanize(selDir?.title || selDir?.hypothesis?.slice(0, 80) || 'EurekaClaw Autonomous Research System');
+  const title = humanize(selDir?.title || selDir?.hypothesis?.slice(0, 80) || 'EurekaLab Autonomous Research System');
   const paperText = result?.latex_paper || '';
   const pdfPath = result?.pdf_path;
   const outputDir = run?.output_dir;

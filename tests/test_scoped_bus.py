@@ -1,8 +1,8 @@
 # tests/test_scoped_bus.py
 """Tests for ScopedBus — namespaced bus wrapper for parallel isolation."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.ensemble.scoped_bus import ScopedBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.scoped_bus import ScopedBus
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def test_two_scopes_dont_collide(bus):
 
 
 def test_read_only_methods_delegate(bus):
-    from eurekaclaw.types.artifacts import ResearchBrief
+    from eurekalab.types.artifacts import ResearchBrief
     brief = ResearchBrief(session_id="test", domain="test", query="test", input_mode="detailed")
     bus.put_research_brief(brief)
     scoped = ScopedBus(bus, namespace="claude")

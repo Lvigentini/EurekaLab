@@ -2,8 +2,8 @@
 
 import pytest
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import Paper, ResearchBrief, TheoryState
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import Paper, ResearchBrief, TheoryState
 
 
 def test_put_and_get_research_brief(bus, research_brief):

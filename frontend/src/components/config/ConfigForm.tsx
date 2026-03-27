@@ -323,11 +323,11 @@ export function ConfigForm({ onRefreshHealth }: Props) {
           <div className="settings-inline-row">
             <label className="settings-field">
               <span className="settings-field-label">Primary model</span>
-              <input type="text" name="eurekaclaw_model" placeholder="claude-sonnet-4-20250514" value={val('eurekaclaw_model')} onChange={(e) => handleChange('eurekaclaw_model', e.target.value)} />
+              <input type="text" name="eurekalab_model" placeholder="claude-sonnet-4-20250514" value={val('eurekalab_model')} onChange={(e) => handleChange('eurekalab_model', e.target.value)} />
             </label>
             <label className="settings-field">
               <span className="settings-field-label">Fast model</span>
-              <input type="text" name="eurekaclaw_fast_model" placeholder="claude-haiku-4-20250414" value={val('eurekaclaw_fast_model')} onChange={(e) => handleChange('eurekaclaw_fast_model', e.target.value)} />
+              <input type="text" name="eurekalab_fast_model" placeholder="claude-haiku-4-20250414" value={val('eurekalab_fast_model')} onChange={(e) => handleChange('eurekalab_fast_model', e.target.value)} />
             </label>
           </div>
         )}
@@ -349,7 +349,7 @@ export function ConfigForm({ onRefreshHealth }: Props) {
           <span className="settings-section-icon">⚙</span>
           <div>
             <h3 className="settings-section-title">Pipeline</h3>
-            <p className="settings-section-desc">Control how EurekaClaw runs proofs</p>
+            <p className="settings-section-desc">Control how EurekaLab runs proofs</p>
           </div>
         </div>
 
@@ -454,7 +454,7 @@ export function ConfigForm({ onRefreshHealth }: Props) {
 
         <label className="settings-field">
           <span className="settings-field-label">Data directory</span>
-          <input type="text" name="eurekaclaw_dir" placeholder="~/.eurekaclaw" value={val('eurekaclaw_dir')} onChange={(e) => handleChange('eurekaclaw_dir', e.target.value)} />
+          <input type="text" name="eurekalab_dir" placeholder="~/.eurekalab" value={val('eurekalab_dir')} onChange={(e) => handleChange('eurekalab_dir', e.target.value)} />
         </label>
 
         <details className="settings-details">

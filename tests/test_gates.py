@@ -3,14 +3,14 @@ Quick smoke test for the three UI gates.
 
 Tests:
   1. review_gate.py threading logic (no server needed)
-  2. Server gate API endpoints (requires `eurekaclaw ui --port 8099` running)
+  2. Server gate API endpoints (requires `eurekalab ui --port 8099` running)
 
 Run:
   # Unit tests only (no server needed):
   python tests/test_gates.py
 
   # With server integration tests:
-  eurekaclaw ui --port 8099 &
+  eurekalab ui --port 8099 &
   python tests/test_gates.py --with-server
 """
 import sys
@@ -21,7 +21,7 @@ sys.path.insert(0, ".")
 
 # ── 1. Unit tests for review_gate threading ───────────────────────────────────
 
-from eurekaclaw.ui.review_gate import (
+from eurekalab.ui.review_gate import (
     register_survey, wait_survey, submit_survey, is_survey_waiting,
     register_direction, wait_direction, submit_direction, is_direction_waiting,
     register_theory, wait_theory, submit_theory, reset_theory, is_theory_waiting,
@@ -145,7 +145,7 @@ import pytest
 
 @pytest.mark.skipif(
     "--with-server" not in sys.argv,
-    reason="Requires running server: eurekaclaw ui --port 8099",
+    reason="Requires running server: eurekalab ui --port 8099",
 )
 def test_server(port=8099):
     import json, urllib.request, urllib.error
@@ -192,7 +192,7 @@ def test_server(port=8099):
     print(f"    session_id: {session_id}")
 
     # Register gates manually (simulates what _execute_run does)
-    from eurekaclaw.ui import review_gate as rg
+    from eurekalab.ui import review_gate as rg
     rg.register_survey(session_id)
     rg.register_direction(session_id)
     rg.register_theory(session_id)

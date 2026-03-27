@@ -1,4 +1,4 @@
-# EurekaClaw
+# EurekaLab
 
 Multi-agent system for theoretical research — proof-heavy, formalism-rich, math-dense domains.
 
@@ -6,9 +6,9 @@ Multi-agent system for theoretical research — proof-heavy, formalism-rich, mat
 
 - **Version:** 0.4.0
 - **Python:** 3.11+
-- **Entry:** `eurekaclaw/cli.py` (Click CLI), `eurekaclaw/main.py` (EurekaSession)
+- **Entry:** `eurekalab/cli.py` (Click CLI), `eurekalab/main.py` (EurekaSession)
 - **Tests:** `pytest tests/ -v` (193 tests, ~6s)
-- **Database:** `~/.eurekaclaw/eurekaclaw.db` (SQLite — session metadata + version history)
+- **Database:** `~/.eurekalab/eurekalab.db` (SQLite — session metadata + version history)
 - **Package:** `pip install -e "."` (or `pip install -e ".[all]"` for all extras)
 
 ## Architecture
@@ -18,21 +18,21 @@ Multi-agent system for theoretical research — proof-heavy, formalism-rich, mat
 survey → ideation → direction_gate → theory → theory_review_gate → experiment → writer
 ```
 
-Pipeline is defined in `eurekaclaw/orchestrator/pipelines/default_pipeline.yaml` and executed by `MetaOrchestrator` in `eurekaclaw/orchestrator/meta_orchestrator.py`.
+Pipeline is defined in `eurekalab/orchestrator/pipelines/default_pipeline.yaml` and executed by `MetaOrchestrator` in `eurekalab/orchestrator/meta_orchestrator.py`.
 
 ### Key Components
 | Component | Path | Purpose |
 |-----------|------|---------|
-| KnowledgeBus | `eurekaclaw/knowledge_bus/bus.py` | Central artifact store, reactive subscriptions |
-| MetaOrchestrator | `eurekaclaw/orchestrator/meta_orchestrator.py` | Pipeline execution, gates, feedback |
-| VersionStore | `eurekaclaw/versioning/store.py` | Git-like session versioning (SQLite backend) |
-| SessionDB | `eurekaclaw/storage/db.py` | SQLite for session metadata + versions |
-| IdeationPool | `eurekaclaw/orchestrator/ideation_pool.py` | Continuous ideation, injected ideas |
-| GateController | `eurekaclaw/orchestrator/gate.py` | Human/auto gates, content status |
-| Config | `eurekaclaw/config.py` | Pydantic Settings, all env vars |
+| KnowledgeBus | `eurekalab/knowledge_bus/bus.py` | Central artifact store, reactive subscriptions |
+| MetaOrchestrator | `eurekalab/orchestrator/meta_orchestrator.py` | Pipeline execution, gates, feedback |
+| VersionStore | `eurekalab/versioning/store.py` | Git-like session versioning (SQLite backend) |
+| SessionDB | `eurekalab/storage/db.py` | SQLite for session metadata + versions |
+| IdeationPool | `eurekalab/orchestrator/ideation_pool.py` | Continuous ideation, injected ideas |
+| GateController | `eurekalab/orchestrator/gate.py` | Human/auto gates, content status |
+| Config | `eurekalab/config.py` | Pydantic Settings, all env vars |
 
 ### Data Models
-All in `eurekaclaw/types/artifacts.py` and `eurekaclaw/types/tasks.py`:
+All in `eurekalab/types/artifacts.py` and `eurekalab/types/tasks.py`:
 - `Paper` — with content_tier, full_text, local_pdf_path, zotero_item_key
 - `Bibliography` — papers + citation_graph
 - `ResearchBrief` — session state: directions, selected_direction, draft info
@@ -58,12 +58,12 @@ All in `eurekaclaw/types/artifacts.py` and `eurekaclaw/types/tasks.py`:
 
 ## Conventions
 
-- All agents extend `BaseAgent` in `eurekaclaw/agents/base.py`
-- LLM calls go through `eurekaclaw/llm/base.py` (normalized response types)
+- All agents extend `BaseAgent` in `eurekalab/agents/base.py`
+- LLM calls go through `eurekalab/llm/base.py` (normalized response types)
 - Config uses Pydantic Settings with `alias=ENV_VAR_NAME` pattern
 - Tests use `tmp_path` fixtures, mock external APIs, no network calls in unit tests
 - Commits follow conventional commits: `feat:`, `fix:`, `chore:`, `docs:`
-- Version in both `pyproject.toml` and `eurekaclaw/__init__.py` — keep in sync
+- Version in both `pyproject.toml` and `eurekalab/__init__.py` — keep in sync
 
 ## Important Patterns
 

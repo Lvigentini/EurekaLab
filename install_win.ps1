@@ -1,14 +1,14 @@
-# EurekaClaw Windows Installer (PowerShell)
+# EurekaLab Windows Installer (PowerShell)
 # ──────────────────────────────────────────────────────────────────────────────
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File install_win.ps1
-#   powershell -ExecutionPolicy Bypass -File install_win.ps1 -GitDir C:\eurekaclaw
+#   powershell -ExecutionPolicy Bypass -File install_win.ps1 -GitDir C:\eurekalab
 #
 # Or one-liner (once hosted):
-#   powershell -c "irm https://eurekaclaw.ai/install.ps1 | iex"
+#   powershell -c "irm https://eurekalab.ai/install.ps1 | iex"
 
 param(
-    [string]$GitDir   = "$env:USERPROFILE\eurekaclaw",
+    [string]$GitDir   = "$env:USERPROFILE\eurekalab",
     [string]$Extras   = "all",
     [switch]$NoOnboard,
     [switch]$NoGitUpdate,
@@ -30,13 +30,13 @@ function Write-Section { param($msg) Write-Host "`n● $msg" -ForegroundColor Bl
 # ── help ──────────────────────────────────────────────────────────────────────
 if ($Help) {
     Write-Host @"
-EurekaClaw Windows Installer
+EurekaLab Windows Installer
 
 Usage:
   powershell -ExecutionPolicy Bypass -File install_win.ps1 [options]
 
 Options:
-  -GitDir <path>    Checkout directory (default: ~\eurekaclaw)
+  -GitDir <path>    Checkout directory (default: ~\eurekalab)
   -Extras <groups>  pip extras to install, e.g. "all" (default)
   -NoOnboard        Skip post-install setup prompt
   -NoGitUpdate      Skip git pull for an existing checkout
@@ -49,7 +49,7 @@ Options:
 
 # ── banner ────────────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "  EurekaClaw Installer" -ForegroundColor Blue -NoNewline
+Write-Host "  EurekaLab Installer" -ForegroundColor Blue -NoNewline
 Write-Host "  (Windows)" -ForegroundColor DarkGray
 Write-Host "  Multi-agent theoretical research system" -ForegroundColor DarkGray
 Write-Host ""
@@ -142,11 +142,11 @@ if ($gitCmd) {
     exit 1
 }
 
-# ── [2/3] Install EurekaClaw ──────────────────────────────────────────────────
-Write-Section "[2/3] Installing EurekaClaw"
+# ── [2/3] Install EurekaLab ──────────────────────────────────────────────────
+Write-Section "[2/3] Installing EurekaLab"
 
 $RepoUrl = if ($env:EUREKACLAW_REPO_URL) { $env:EUREKACLAW_REPO_URL } `
-           else { "https://github.com/EurekaClaw/EurekaClaw.git" }
+           else { "https://github.com/EurekaLab/EurekaLab.git" }
 
 # Clone or update
 if (Test-Path (Join-Path $GitDir ".git")) {
@@ -166,7 +166,7 @@ if (Test-Path (Join-Path $GitDir ".git")) {
 } else {
     $parentDir = Split-Path $GitDir -Parent
     if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Path $parentDir -Force | Out-Null }
-    Invoke-Step "Cloning EurekaClaw" {
+    Invoke-Step "Cloning EurekaLab" {
         & git clone $RepoUrl $GitDir
         if ($LASTEXITCODE -ne 0) { throw "git clone failed" }
     }
@@ -176,7 +176,7 @@ if (Test-Path (Join-Path $GitDir ".git")) {
 # Virtual environment
 $VenvDir  = Join-Path $GitDir ".venv"
 $PipBin   = Join-Path $VenvDir "Scripts\pip.exe"
-$ClawBin  = Join-Path $VenvDir "Scripts\eurekaclaw.exe"
+$ClawBin  = Join-Path $VenvDir "Scripts\eurekalab.exe"
 
 if (-not (Test-Path $VenvDir)) {
     Invoke-Step "Creating virtual environment" {
@@ -194,12 +194,12 @@ Invoke-Step "Upgrading pip" {
 
 # pip install
 $InstallTarget = if ($Extras) { "${GitDir}[$Extras]" } else { $GitDir }
-Write-Info "Installing EurekaClaw$(if ($Extras) { " (extras: $Extras)" })"
-Invoke-Step "Installing EurekaClaw" {
+Write-Info "Installing EurekaLab$(if ($Extras) { " (extras: $Extras)" })"
+Invoke-Step "Installing EurekaLab" {
     & $PipBin install --quiet $InstallTarget
     if ($LASTEXITCODE -ne 0) { throw "pip install failed" }
 }
-Write-Success "EurekaClaw installed into virtual environment"
+Write-Success "EurekaLab installed into virtual environment"
 
 # ── [3/3] Finalize ────────────────────────────────────────────────────────────
 Write-Section "[3/3] Finalizing"
@@ -222,9 +222,9 @@ if (Test-Path $ClawBin) {
     Invoke-Step "Installing seed skills" {
         & $ClawBin install-skills 2>$null
     }
-    Write-Success "Seed skills installed to ~/.eurekaclaw/skills/"
+    Write-Success "Seed skills installed to ~/.eurekalab/skills/"
 } else {
-    Write-Warn "eurekaclaw binary not found at $ClawBin — skipping seed skills"
+    Write-Warn "eurekalab binary not found at $ClawBin — skipping seed skills"
 }
 
 # Next steps
@@ -238,27 +238,27 @@ if (-not $NoOnboard) {
     Write-Host ""
     Write-Host "     Or run the interactive wizard:"
     Write-Host ""
-    Write-Host "       eurekaclaw onboard"
+    Write-Host "       eurekalab onboard"
     Write-Host ""
     Write-Host "  2. Run your first proof:"
     Write-Host ""
-    Write-Host "       eurekaclaw prove ""Your conjecture here"""
+    Write-Host "       eurekalab prove ""Your conjecture here"""
     Write-Host ""
-    Write-Host "  Docs: https://docs.eurekaclaw.ai"
+    Write-Host "  Docs: https://docs.eurekalab.ai"
     Write-Host ""
 }
 
 # Version
 $version = ""
 try {
-    $version = (& $PipBin show eurekaclaw 2>$null | Select-String "^Version:").ToString().Split(" ")[1]
+    $version = (& $PipBin show eurekalab 2>$null | Select-String "^Version:").ToString().Split(" ")[1]
 } catch {}
 
 Write-Host ""
 if ($version) {
-    Write-Success "EurekaClaw $version installed successfully!"
+    Write-Success "EurekaLab $version installed successfully!"
 } else {
-    Write-Success "EurekaClaw installed successfully!"
+    Write-Success "EurekaLab installed successfully!"
 }
 Write-Host "  Checkout      : $GitDir" -ForegroundColor DarkGray
 Write-Host "  Binary        : $ClawBin" -ForegroundColor DarkGray

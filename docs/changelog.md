@@ -18,9 +18,9 @@ Summary of all updates from `UPDATES.md`.
 - `versions/` folder replaced by SQLite `versions` table
 
 ### New CLI Commands
-- `eurekaclaw sessions` — list all sessions in a Rich table (status, domain, stages, age)
-- `eurekaclaw clean --older-than 30 --status failed` — prune old sessions with disk usage report
-- `eurekaclaw housekeep --push-papers` — push unfiled papers from all sessions to Zotero
+- `eurekalab sessions` — list all sessions in a Rich table (status, domain, stages, age)
+- `eurekalab clean --older-than 30 --status failed` — prune old sessions with disk usage report
+- `eurekalab housekeep --push-papers` — push unfiled papers from all sessions to Zotero
 
 ### CLI Improvements
 - `history` shows session context panel (domain, query, status) before version table
@@ -30,7 +30,7 @@ Summary of all updates from `UPDATES.md`.
 
 ### Stats
 - 193 tests (16 new for SessionDB)
-- Database: `~/.eurekaclaw/eurekaclaw.db`
+- Database: `~/.eurekalab/eurekalab.db`
 
 ---
 
@@ -95,13 +95,13 @@ The theory review gate previously re-ran theory at most once. If the user reject
 
 **New behavior:** The gate loops — each rejection injects feedback and re-runs the full TheoryAgent — until the user approves or `THEORY_REVIEW_MAX_RETRIES` rejections are reached (default 3, configurable in `.env`). After the limit, the pipeline continues to the writer with a warning. Each iteration shows the attempt counter `(attempt N/max)`.
 
-**Relevant files:** `eurekaclaw/orchestrator/meta_orchestrator.py`, `eurekaclaw/config.py`
+**Relevant files:** `eurekalab/orchestrator/meta_orchestrator.py`, `eurekalab/config.py`
 
 ### 8. Direction Fallback Always Re-prompts on Empty Input
 
 Empty input (plain Enter or whitespace-only) in `_handle_manual_direction` now always re-prompts. Previously, pressing Enter accepted `brief.conjecture` as a silent default in `prove` mode — easy to trigger accidentally. The conjecture is still shown as a reference but the user must type it explicitly to accept.
 
-**Relevant file:** `eurekaclaw/orchestrator/meta_orchestrator.py`
+**Relevant file:** `eurekalab/orchestrator/meta_orchestrator.py`
 
 ### 7. Add `LEAN4_BIN` path to `.env` for elan-installed Lean
 
@@ -117,19 +117,19 @@ The `uncited` retry path in `inner_loop_yaml.py` previously set `current_spec` t
 
 **Fix:** The `uncited` branch now runs `TheoremCrystallizer` inline, then immediately sets `state.status = "proved"` and `break`s out of the outer loop. This matches the spec: uncited failures mean proof logic is sound, only citation gaps need fixing, so no second consistency check is required.
 
-**Relevant file:** `eurekaclaw/agents/theory/inner_loop_yaml.py`
+**Relevant file:** `eurekalab/agents/theory/inner_loop_yaml.py`
 
 ### 4. Immediate Pause on Ctrl+C (Cancel Running LLM Call)
 
 Previously, Ctrl+C only wrote a pause flag and the pipeline waited until the next lemma boundary to stop — potentially waiting several minutes for the current LLM call to complete.
 
-**New behavior:** Ctrl+C (or `eurekaclaw pause <session-id>` from another terminal) now immediately cancels the running asyncio task, interrupting any in-flight LLM call. `inner_loop_yaml.run()` catches `asyncio.CancelledError`, saves a checkpoint containing all lemmas proved before the interrupt, then raises `ProofPausedException`. Resume picks up exactly where it left off.
+**New behavior:** Ctrl+C (or `eurekalab pause <session-id>` from another terminal) now immediately cancels the running asyncio task, interrupting any in-flight LLM call. `inner_loop_yaml.run()` catches `asyncio.CancelledError`, saves a checkpoint containing all lemmas proved before the interrupt, then raises `ProofPausedException`. Resume picks up exactly where it left off.
 
 **Implementation:**
-- `cli.py`: replaced `_install_pause_handler` + `asyncio.run()` with `_run_with_pause_support(coro, cp)`, which uses `loop.add_signal_handler` to cancel the task on SIGINT, and a 1-second background poller to detect pause flags written by an external `eurekaclaw pause` process.
+- `cli.py`: replaced `_install_pause_handler` + `asyncio.run()` with `_run_with_pause_support(coro, cp)`, which uses `loop.add_signal_handler` to cancel the task on SIGINT, and a 1-second background poller to detect pause flags written by an external `eurekalab pause` process.
 - `inner_loop_yaml.py`: each stage execution is wrapped in `try/except asyncio.CancelledError` — on cancellation, checkpoint is saved and `ProofPausedException` is raised.
 
-**Relevant files:** `eurekaclaw/cli.py`, `eurekaclaw/agents/theory/inner_loop_yaml.py`
+**Relevant files:** `eurekalab/cli.py`, `eurekalab/agents/theory/inner_loop_yaml.py`
 
 ### 3. Force Human Intervention When Ideation Returns 0 Directions
 
@@ -137,13 +137,13 @@ Previously, in `prove` (detailed) mode, `_handle_direction_gate` silently auto-c
 
 **Fix:** The silent "detailed mode" auto-creation block has been removed. `_handle_manual_direction` is now called whenever `brief.directions` is empty, regardless of `input_mode`. In `prove` mode the user's conjecture is shown as a default — pressing Enter accepts it, or the user can type a different direction.
 
-**Relevant files:** `eurekaclaw/orchestrator/meta_orchestrator.py`, `tests/unit/test_direction_fallback.py`
+**Relevant files:** `eurekalab/orchestrator/meta_orchestrator.py`, `tests/unit/test_direction_fallback.py`
 
 ### 2. Pause Immediately Before Next Lemma
 
 The pause-flag check in `inner_loop_yaml.py` (`LemmaDeveloper` loop) has been moved to the **start** of each lemma iteration. Previously the check happened after a lemma completed, meaning a pause request could wait up to several minutes for the current lemma's LLM calls to finish. Now the pipeline halts before the next lemma's first LLM call.
 
-**Relevant file:** `eurekaclaw/agents/theory/inner_loop_yaml.py`
+**Relevant file:** `eurekalab/agents/theory/inner_loop_yaml.py`
 
 ### 1. ConsistencyChecker Severity-Based Retry Routing
 
@@ -257,7 +257,7 @@ New backend shortcut `LLM_BACKEND=minimax`:
 Enable with the `[pdf]` optional extra:
 
 ```bash
-pip install eurekaclaw[pdf]
+pip install eurekalab[pdf]
 ```
 
 ### 16. Memory Relevance-Based Retrieval (PR #30)
@@ -266,7 +266,7 @@ Tier 4 domain memories are now ranked by **cosine similarity** to the current ta
 
 - `_index.json` now stores a `"embedding"` field per memory file (computed at write time using `embedding_utils.get_embedding()`)
 - `MemoryManager.load_for_injection(domain, k, query)` accepts a `query` argument; if provided, ranks candidates by cosine similarity and returns the top-k most relevant files
-- New helper module: `eurekaclaw/memory/embedding_utils.py` (`get_embedding()`, `cosine_similarity()`)
+- New helper module: `eurekalab/memory/embedding_utils.py` (`get_embedding()`, `cosine_similarity()`)
 
 ### 17. smile.sty Math Macro Package (PR #28)
 
@@ -285,11 +285,11 @@ The writer agent system prompt is updated to list all available macros and instr
 Skills can now be installed directly from the [ClawHub](https://clawhub.ai/) registry:
 
 ```bash
-eurekaclaw install-skills <skillname>
-# e.g. eurekaclaw install-skills steipete/github
+eurekalab install-skills <skillname>
+# e.g. eurekalab install-skills steipete/github
 ```
 
-`install-skills` with no argument continues to install all bundled seed skills. The `clawhub` CLI must be installed separately. The implementation lives in `eurekaclaw/skills/from_hub.py`.
+`install-skills` with no argument continues to install all bundled seed skills. The `clawhub` CLI must be installed separately. The implementation lives in `eurekalab/skills/from_hub.py`.
 
 ### 19. Bug Fix: pause AttributeError (PR #33)
 
@@ -317,11 +317,11 @@ Two new CLI commands and a graceful `SIGINT` handler:
 
 | Command | Description |
 |---|---|
-| `eurekaclaw pause <session_id>` | Write `pause.flag`; theory agent stops at next stage boundary and saves `checkpoint.json` |
-| `eurekaclaw resume <session_id>` | Load checkpoint and continue from the saved stage |
+| `eurekalab pause <session_id>` | Write `pause.flag`; theory agent stops at next stage boundary and saves `checkpoint.json` |
+| `eurekalab resume <session_id>` | Load checkpoint and continue from the saved stage |
 | **Ctrl+C** during `prove` | Same as `pause` — writes flag instead of raising `KeyboardInterrupt` |
 
-Checkpoint file: `~/.eurekaclaw/sessions/<session_id>/checkpoint.json`
+Checkpoint file: `~/.eurekalab/sessions/<session_id>/checkpoint.json`
 
 ### 3. ProofArchitect Improvements
 
@@ -515,7 +515,7 @@ Three named backends in `config.py` and `llm/factory.py`:
 New three-tier plugin system:
 
 ```
-EurekaClaw (general pipeline)
+EurekaLab (general pipeline)
     └── DomainPlugin (e.g. MAB)
             └── Workflow (per-domain prompt guidance)
 ```

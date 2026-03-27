@@ -12,14 +12,14 @@ In practice:
 ## Where These Settings Live
 
 Backend configuration lives in:
-- `eurekaclaw/config.py`
+- `eurekalab/config.py`
 
 The UI config mapping lives in:
-- `eurekaclaw/ui/server.py` (`_CONFIG_FIELDS`)
+- `eurekalab/ui/server.py` (`_CONFIG_FIELDS`)
 
 The UI form lives in:
 - `frontend/index.html`
-- `eurekaclaw/ui/static/index.html`
+- `eurekalab/ui/static/index.html`
 
 ## Quick Reference
 
@@ -54,12 +54,12 @@ The stages that matter most for `default` are:
 - `Verifier`
 
 Relevant code:
-- [default_proof_pipeline.yaml](eurekaclaw/agents/theory/proof_pipelines/default_proof_pipeline.yaml)
-- [proof_architect.py](eurekaclaw/agents/theory/proof_architect.py)
-- [prover.py](eurekaclaw/agents/theory/prover.py)
-- [assembler.py](eurekaclaw/agents/theory/assembler.py)
-- [theorem_crystallizer.py](eurekaclaw/agents/theory/theorem_crystallizer.py)
-- [verifier.py](eurekaclaw/agents/theory/verifier.py)
+- [default_proof_pipeline.yaml](eurekalab/agents/theory/proof_pipelines/default_proof_pipeline.yaml)
+- [proof_architect.py](eurekalab/agents/theory/proof_architect.py)
+- [prover.py](eurekalab/agents/theory/prover.py)
+- [assembler.py](eurekalab/agents/theory/assembler.py)
+- [theorem_crystallizer.py](eurekalab/agents/theory/theorem_crystallizer.py)
+- [verifier.py](eurekalab/agents/theory/verifier.py)
 
 If the `default` pipeline is struggling, the most useful knobs are usually:
 1. `Architect`
@@ -79,13 +79,13 @@ The stages that matter most for `memory_guided` are:
 - `Verifier`
 
 Relevant code:
-- [memory_guided_proof_pipeline.yaml](eurekaclaw/agents/theory/proof_pipelines/memory_guided_proof_pipeline.yaml)
-- [analysis_stages.py](eurekaclaw/agents/theory/analysis_stages.py)
-- [key_lemma_extractor.py](eurekaclaw/agents/theory/key_lemma_extractor.py)
-- [prover.py](eurekaclaw/agents/theory/prover.py)
-- [assembler.py](eurekaclaw/agents/theory/assembler.py)
-- [theorem_crystallizer.py](eurekaclaw/agents/theory/theorem_crystallizer.py)
-- [verifier.py](eurekaclaw/agents/theory/verifier.py)
+- [memory_guided_proof_pipeline.yaml](eurekalab/agents/theory/proof_pipelines/memory_guided_proof_pipeline.yaml)
+- [analysis_stages.py](eurekalab/agents/theory/analysis_stages.py)
+- [key_lemma_extractor.py](eurekalab/agents/theory/key_lemma_extractor.py)
+- [prover.py](eurekalab/agents/theory/prover.py)
+- [assembler.py](eurekalab/agents/theory/assembler.py)
+- [theorem_crystallizer.py](eurekalab/agents/theory/theorem_crystallizer.py)
+- [verifier.py](eurekalab/agents/theory/verifier.py)
 
 If the `memory_guided` pipeline is struggling, the most useful knobs are usually:
 1. `Analyst`
@@ -105,9 +105,9 @@ Used by generic agent calls, including:
 - any stage that falls back to the generic base agent path
 
 Relevant code:
-- [base.py](eurekaclaw/agents/base.py)
-- [agent.py](eurekaclaw/agents/survey/agent.py)
-- [agent.py](eurekaclaw/agents/writer/agent.py)
+- [base.py](eurekalab/agents/base.py)
+- [agent.py](eurekalab/agents/survey/agent.py)
+- [agent.py](eurekalab/agents/writer/agent.py)
 
 Raise this when:
 - survey answers are too short
@@ -118,7 +118,7 @@ Raise this when:
 Used for theorem-proof generation at the lemma level.
 
 Relevant code:
-- [prover.py](eurekaclaw/agents/theory/prover.py)
+- [prover.py](eurekalab/agents/theory/prover.py)
 
 Raise this when:
 - lemma proofs stop mid-argument
@@ -129,7 +129,7 @@ Raise this when:
 Used by `ProofArchitect` in the `default` pipeline.
 
 Relevant code:
-- [proof_architect.py](eurekaclaw/agents/theory/proof_architect.py)
+- [proof_architect.py](eurekalab/agents/theory/proof_architect.py)
 
 Raise this when:
 - proof plans are too shallow
@@ -140,7 +140,7 @@ Raise this when:
 Used by `MemoryGuidedAnalyzer`, `TemplateSelector`, and `ProofSkeletonBuilder` in the `memory_guided` pipeline.
 
 Relevant code:
-- [analysis_stages.py](eurekaclaw/agents/theory/analysis_stages.py)
+- [analysis_stages.py](eurekalab/agents/theory/analysis_stages.py)
 
 Raise this when:
 - the pipeline picks poor proof templates
@@ -152,8 +152,8 @@ Raise this when:
 Used by decomposition-style stages, including `KeyLemmaExtractor`.
 
 Relevant code:
-- [key_lemma_extractor.py](eurekaclaw/agents/theory/key_lemma_extractor.py)
-- [decomposer.py](eurekaclaw/agents/theory/decomposer.py)
+- [key_lemma_extractor.py](eurekalab/agents/theory/key_lemma_extractor.py)
+- [decomposer.py](eurekalab/agents/theory/decomposer.py)
 
 Raise this when:
 - key lemmas are missing
@@ -164,7 +164,7 @@ Raise this when:
 Used to produce `state.assembled_proof`.
 
 Relevant code:
-- [assembler.py](eurekaclaw/agents/theory/assembler.py)
+- [assembler.py](eurekalab/agents/theory/assembler.py)
 
 Raise this when:
 - the proof body ends mid-sentence
@@ -176,7 +176,7 @@ Raise this when:
 Used to produce `state.formal_statement`.
 
 Relevant code:
-- [theorem_crystallizer.py](eurekaclaw/agents/theory/theorem_crystallizer.py)
+- [theorem_crystallizer.py](eurekalab/agents/theory/theorem_crystallizer.py)
 
 Raise this when:
 - the theorem statement is truncated
@@ -190,8 +190,8 @@ Used for:
 - consistency checking
 
 Relevant code:
-- [verifier.py](eurekaclaw/agents/theory/verifier.py)
-- [consistency_checker.py](eurekaclaw/agents/theory/consistency_checker.py)
+- [verifier.py](eurekalab/agents/theory/verifier.py)
+- [consistency_checker.py](eurekalab/agents/theory/consistency_checker.py)
 
 Raise this when:
 - reviewer outputs are too terse
@@ -207,11 +207,11 @@ Shared budget for several theorem-support stages:
 - `PaperReader`
 
 Relevant code:
-- [formalizer.py](eurekaclaw/agents/theory/formalizer.py)
-- [refiner.py](eurekaclaw/agents/theory/refiner.py)
-- [counterexample.py](eurekaclaw/agents/theory/counterexample.py)
-- [resource_analyst.py](eurekaclaw/agents/theory/resource_analyst.py)
-- [paper_reader.py](eurekaclaw/agents/theory/paper_reader.py)
+- [formalizer.py](eurekalab/agents/theory/formalizer.py)
+- [refiner.py](eurekalab/agents/theory/refiner.py)
+- [counterexample.py](eurekalab/agents/theory/counterexample.py)
+- [resource_analyst.py](eurekalab/agents/theory/resource_analyst.py)
+- [paper_reader.py](eurekalab/agents/theory/paper_reader.py)
 
 Raise this when:
 - paper extraction is too shallow
@@ -275,6 +275,6 @@ The UI now exposes the major token-limit controls used by both theory pipelines,
 - `Sketch`
 
 If you add new `max_tokens_*` fields in the backend later, remember to update:
-- [server.py](eurekaclaw/ui/server.py)
+- [server.py](eurekalab/ui/server.py)
 - [frontend/index.html](frontend/index.html)
-- [index.html](eurekaclaw/ui/static/index.html)
+- [index.html](eurekalab/ui/static/index.html)

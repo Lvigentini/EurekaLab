@@ -1,6 +1,6 @@
 # N-Model Ensemble Research Architecture
 
-**Goal:** Enable EurekaClaw to run multiple LLM models concurrently across pipeline stages, with per-stage merge strategies and dynamic runtime configuration, to improve research breadth, creativity, and rigour through cross-model pollination.
+**Goal:** Enable EurekaLab to run multiple LLM models concurrently across pipeline stages, with per-stage merge strategies and dynamic runtime configuration, to improve research breadth, creativity, and rigour through cross-model pollination.
 
 **Core Insight:** Different LLMs have different training biases, knowledge coverage, and reasoning patterns. Running them in parallel and merging results — similar to genetic algorithm crossover — increases the probability of novel, well-validated research output.
 
@@ -43,7 +43,7 @@ Singleton registry of named LLM clients, initialized from config at session star
 ### Interface
 
 ```python
-# eurekaclaw/ensemble/model_pool.py
+# eurekalab/ensemble/model_pool.py
 
 class ModelPool:
     _clients: dict[str, LLMClient]       # "claude" -> adapter instance
@@ -104,7 +104,7 @@ Three-layer config: env defaults -> session overrides -> runtime decisions.
 ### Data Structures
 
 ```python
-# eurekaclaw/ensemble/config.py
+# eurekalab/ensemble/config.py
 
 @dataclass
 class StageEnsembleConfig:
@@ -188,7 +188,7 @@ Sits between MetaOrchestrator and agents. Only component that knows about multi-
 ### Interface
 
 ```python
-# eurekaclaw/ensemble/orchestrator.py
+# eurekalab/ensemble/orchestrator.py
 
 class EnsembleOrchestrator:
     def __init__(
@@ -310,7 +310,7 @@ async def _run_review(
     task: Task,
 ) -> dict:
     """Ask a reviewer model to critique the primary model's output."""
-    from eurekaclaw.config import settings
+    from eurekalab.config import settings
 
     review_prompt = (
         "You are an independent reviewer. Examine the following proof/analysis output "
@@ -345,7 +345,7 @@ async def _run_review(
 All implement `BaseMerger`:
 
 ```python
-# eurekaclaw/ensemble/mergers/base.py
+# eurekalab/ensemble/mergers/base.py
 
 class BaseMerger(ABC):
     @abstractmethod
@@ -480,7 +480,7 @@ The `asymmetric` strategy is handled by the orchestrator directly, not via a mer
 Heuristic-based suggestions for ensemble adjustments after each stage.
 
 ```python
-# eurekaclaw/ensemble/recommender.py
+# eurekalab/ensemble/recommender.py
 
 class EnsembleRecommender:
     def recommend(
@@ -621,7 +621,7 @@ _BACKEND_ALIASES = {
 A thin wrapper around KnowledgeBus that namespaces writes during parallel execution:
 
 ```python
-# eurekaclaw/ensemble/scoped_bus.py
+# eurekalab/ensemble/scoped_bus.py
 
 class ScopedBus:
     """Wraps KnowledgeBus to namespace writes by model name during parallel dispatch."""
@@ -675,7 +675,7 @@ The ensemble layer wraps agents — it doesn't modify them.
 ## 9. File Structure
 
 ```
-eurekaclaw/ensemble/
+eurekalab/ensemble/
     __init__.py
     model_pool.py              # ModelPool: named LLM client registry
     config.py                  # EnsembleConfig: per-stage config with dynamic overrides
@@ -700,9 +700,9 @@ tests/
 ```
 
 **Modified existing files:**
-- `eurekaclaw/config.py` — add ENSEMBLE_* settings
-- `eurekaclaw/orchestrator/meta_orchestrator.py` — instantiate ensemble, use in task loop
-- `eurekaclaw/orchestrator/router.py` — add `resolve_with_client()`
+- `eurekalab/config.py` — add ENSEMBLE_* settings
+- `eurekalab/orchestrator/meta_orchestrator.py` — instantiate ensemble, use in task loop
+- `eurekalab/orchestrator/router.py` — add `resolve_with_client()`
 - `.env.example` — add ensemble config section
 
 ---

@@ -13,7 +13,7 @@
 ## File Structure
 
 ```
-eurekaclaw/versioning/
+eurekalab/versioning/
   __init__.py              # Public API: VersionStore, ResearchVersion
   store.py                 # VersionStore: commit, checkout, diff, log, head
   snapshot.py              # BusSnapshot: serialize/deserialize full bus state
@@ -25,9 +25,9 @@ tests/
   test_version_diff.py     # Diff between versions
   test_version_integration.py  # Integration with KnowledgeBus.persist_incremental
 
-eurekaclaw/knowledge_bus/bus.py       # Modify: wire version commits into persist_incremental
-eurekaclaw/orchestrator/meta_orchestrator.py  # Modify: pass trigger strings to persist_incremental
-eurekaclaw/cli.py                     # Modify: add history, diff, checkout commands
+eurekalab/knowledge_bus/bus.py       # Modify: wire version commits into persist_incremental
+eurekalab/orchestrator/meta_orchestrator.py  # Modify: pass trigger strings to persist_incremental
+eurekalab/cli.py                     # Modify: add history, diff, checkout commands
 ```
 
 ---
@@ -35,8 +35,8 @@ eurekaclaw/cli.py                     # Modify: add history, diff, checkout comm
 ### Task 1: BusSnapshot — Serialize/Deserialize Bus State
 
 **Files:**
-- Create: `eurekaclaw/versioning/__init__.py`
-- Create: `eurekaclaw/versioning/snapshot.py`
+- Create: `eurekalab/versioning/__init__.py`
+- Create: `eurekalab/versioning/snapshot.py`
 - Test: `tests/test_version_snapshot.py`
 
 - [ ] **Step 1: Write the failing test for snapshot round-trip**
@@ -46,9 +46,9 @@ eurekaclaw/cli.py                     # Modify: add history, diff, checkout comm
 """Tests for BusSnapshot serialization."""
 import json
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief, Bibliography, Paper, TheoryState
-from eurekaclaw.versioning.snapshot import BusSnapshot
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief, Bibliography, Paper, TheoryState
+from eurekalab.versioning.snapshot import BusSnapshot
 
 
 @pytest.fixture
@@ -112,21 +112,21 @@ def test_snapshot_handles_empty_bus():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_version_snapshot.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'eurekaclaw.versioning'`
+Expected: FAIL — `ModuleNotFoundError: No module named 'eurekalab.versioning'`
 
 - [ ] **Step 3: Implement BusSnapshot**
 
 ```python
-# eurekaclaw/versioning/__init__.py
-"""Version management for EurekaClaw research sessions."""
-from eurekaclaw.versioning.snapshot import BusSnapshot
-from eurekaclaw.versioning.store import VersionStore, ResearchVersion
+# eurekalab/versioning/__init__.py
+"""Version management for EurekaLab research sessions."""
+from eurekalab.versioning.snapshot import BusSnapshot
+from eurekalab.versioning.store import VersionStore, ResearchVersion
 
 __all__ = ["BusSnapshot", "VersionStore", "ResearchVersion"]
 ```
 
 ```python
-# eurekaclaw/versioning/snapshot.py
+# eurekalab/versioning/snapshot.py
 """BusSnapshot — serialize/deserialize full KnowledgeBus state.
 
 NOTE: This module uses lazy imports for KnowledgeBus to avoid circular
@@ -138,18 +138,18 @@ import json
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+    from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _model_map() -> dict[str, type]:
     """Lazy-load the model map to avoid import-time circular deps."""
-    from eurekaclaw.types.artifacts import (
+    from eurekalab.types.artifacts import (
         Bibliography,
         ExperimentResult,
         ResearchBrief,
         TheoryState,
     )
-    from eurekaclaw.types.tasks import TaskPipeline
+    from eurekalab.types.tasks import TaskPipeline
     return {
         "research_brief": ResearchBrief,
         "theory_state": TheoryState,
@@ -177,7 +177,7 @@ class BusSnapshot:
         return cls(session_id=bus.session_id, artifacts=artifacts)
 
     def to_bus(self) -> KnowledgeBus:
-        from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+        from eurekalab.knowledge_bus.bus import KnowledgeBus
         bus = KnowledgeBus(self.session_id)
         models = _model_map()
         for key, raw_json in self.artifacts.items():
@@ -211,7 +211,7 @@ Expected: All 5 PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/versioning/ tests/test_version_snapshot.py
+git add eurekalab/versioning/ tests/test_version_snapshot.py
 git commit -m "feat(versioning): add BusSnapshot for serializing full bus state"
 ```
 
@@ -220,7 +220,7 @@ git commit -m "feat(versioning): add BusSnapshot for serializing full bus state"
 ### Task 2: VersionStore — Commit, Log, Head
 
 **Files:**
-- Create: `eurekaclaw/versioning/store.py`
+- Create: `eurekalab/versioning/store.py`
 - Test: `tests/test_version_store.py`
 
 - [ ] **Step 1: Write the failing tests**
@@ -229,9 +229,9 @@ git commit -m "feat(versioning): add BusSnapshot for serializing full bus state"
 # tests/test_version_store.py
 """Tests for VersionStore: commit, log, head, checkout."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief
-from eurekaclaw.versioning.store import VersionStore, ResearchVersion
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief
+from eurekalab.versioning.store import VersionStore, ResearchVersion
 
 
 @pytest.fixture
@@ -329,7 +329,7 @@ Expected: FAIL — `ImportError: cannot import name 'VersionStore'`
 - [ ] **Step 3: Implement VersionStore and ResearchVersion**
 
 ```python
-# eurekaclaw/versioning/store.py
+# eurekalab/versioning/store.py
 """VersionStore — git-like version management for research sessions."""
 from __future__ import annotations
 
@@ -341,8 +341,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.versioning.snapshot import BusSnapshot
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.versioning.snapshot import BusSnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -436,7 +436,7 @@ Expected: All 9 PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add eurekaclaw/versioning/store.py tests/test_version_store.py
+git add eurekalab/versioning/store.py tests/test_version_store.py
 git commit -m "feat(versioning): add VersionStore with commit, log, head, checkout"
 ```
 
@@ -445,7 +445,7 @@ git commit -m "feat(versioning): add VersionStore with commit, log, head, checko
 ### Task 3: Version Diff
 
 **Files:**
-- Create: `eurekaclaw/versioning/diff.py`
+- Create: `eurekalab/versioning/diff.py`
 - Test: `tests/test_version_diff.py`
 
 - [ ] **Step 1: Write the failing tests**
@@ -454,12 +454,12 @@ git commit -m "feat(versioning): add VersionStore with commit, log, head, checko
 # tests/test_version_diff.py
 """Tests for version diff logic."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import (
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import (
     Bibliography, Paper, ProofRecord, ResearchBrief, TheoryState,
 )
-from eurekaclaw.versioning.diff import diff_versions
-from eurekaclaw.versioning.store import VersionStore
+from eurekalab.versioning.diff import diff_versions
+from eurekalab.versioning.store import VersionStore
 
 
 @pytest.fixture
@@ -534,22 +534,22 @@ def test_diff_identical_versions(store):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_version_diff.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'eurekaclaw.versioning.diff'`
+Expected: FAIL — `ModuleNotFoundError: No module named 'eurekalab.versioning.diff'`
 
 - [ ] **Step 3: Implement diff logic**
 
 ```python
-# eurekaclaw/versioning/diff.py
+# eurekalab/versioning/diff.py
 """Diff logic — compare two version snapshots and produce human-readable changes."""
 from __future__ import annotations
 
 import json
 from typing import Any, TYPE_CHECKING
 
-from eurekaclaw.versioning.snapshot import BusSnapshot
+from eurekalab.versioning.snapshot import BusSnapshot
 
 if TYPE_CHECKING:
-    from eurekaclaw.versioning.store import VersionStore
+    from eurekalab.versioning.store import VersionStore
 
 
 def diff_versions(store: VersionStore, v1_num: int, v2_num: int) -> list[str]:
@@ -672,7 +672,7 @@ Expected: All 4 PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/versioning/diff.py tests/test_version_diff.py
+git add eurekalab/versioning/diff.py tests/test_version_diff.py
 git commit -m "feat(versioning): add diff logic for comparing version snapshots"
 ```
 
@@ -681,7 +681,7 @@ git commit -m "feat(versioning): add diff logic for comparing version snapshots"
 ### Task 4: Wire VersionStore into KnowledgeBus
 
 **Files:**
-- Modify: `eurekaclaw/knowledge_bus/bus.py` (lines 147-175 — `persist_incremental`)
+- Modify: `eurekalab/knowledge_bus/bus.py` (lines 147-175 — `persist_incremental`)
 - Test: `tests/test_version_integration.py`
 
 - [ ] **Step 1: Write the failing integration test**
@@ -691,9 +691,9 @@ git commit -m "feat(versioning): add diff logic for comparing version snapshots"
 """Integration tests — VersionStore wired into KnowledgeBus."""
 import json
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.artifacts import ResearchBrief, Bibliography, Paper
-from eurekaclaw.versioning.store import VersionStore
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.artifacts import ResearchBrief, Bibliography, Paper
+from eurekalab.versioning.store import VersionStore
 
 
 @pytest.fixture
@@ -766,7 +766,7 @@ Expected: FAIL — `AttributeError: 'KnowledgeBus' object has no attribute 'vers
 
 - [ ] **Step 3: Modify KnowledgeBus to wire in VersionStore**
 
-In `eurekaclaw/knowledge_bus/bus.py`, make these changes:
+In `eurekalab/knowledge_bus/bus.py`, make these changes:
 
 **Add `version_store` property to `__init__`:**
 After `self._completed_stages: list[str] = []` add:
@@ -783,7 +783,7 @@ After the existing stage progress write, add version commit logic:
 ```python
 # Version store: auto-commit on every incremental persist
 if self._session_dir is not None:
-    from eurekaclaw.versioning.store import VersionStore  # lazy to avoid circular import
+    from eurekalab.versioning.store import VersionStore  # lazy to avoid circular import
     if self.version_store is None:
         self.version_store = VersionStore(self.session_id, self._session_dir)
     trigger = f"stage:{completed_stage}:completed" if completed_stage else "persist"
@@ -800,7 +800,7 @@ if self._session_dir is not None:
 After the model_map restoration loop, add:
 ```python
 bus._session_dir = session_dir  # fix: was missing, needed for subsequent persist_incremental calls
-from eurekaclaw.versioning.store import VersionStore  # lazy to avoid circular import
+from eurekalab.versioning.store import VersionStore  # lazy to avoid circular import
 bus.version_store = VersionStore(session_id, session_dir)
 ```
 
@@ -812,7 +812,7 @@ Expected: All PASS (including old incremental persist tests — backward compati
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/knowledge_bus/bus.py tests/test_version_integration.py
+git add eurekalab/knowledge_bus/bus.py tests/test_version_integration.py
 git commit -m "feat(versioning): wire VersionStore into KnowledgeBus.persist_incremental"
 ```
 
@@ -821,7 +821,7 @@ git commit -m "feat(versioning): wire VersionStore into KnowledgeBus.persist_inc
 ### Task 5: CLI Commands — history, diff, checkout
 
 **Files:**
-- Modify: `eurekaclaw/cli.py`
+- Modify: `eurekalab/cli.py`
 - No automated tests for CLI commands (they use console I/O) — manual verification steps provided
 
 - [ ] **Step 1: Add `history` command to cli.py**
@@ -834,11 +834,11 @@ Add after the `resume` command:
 def history(session_id: str) -> None:
     """Show version history for a session.
 
-    Example: eurekaclaw history abc12345-...
+    Example: eurekalab history abc12345-...
     """
     from datetime import datetime, timezone
     from rich.table import Table
-    from eurekaclaw.versioning.store import VersionStore
+    from eurekalab.versioning.store import VersionStore
 
     session_dir = settings.runs_dir / session_id
     if not session_dir.exists():
@@ -888,10 +888,10 @@ def history(session_id: str) -> None:
 def version_diff(session_id: str, v1: int, v2: int) -> None:
     """Show changes between two versions.
 
-    Example: eurekaclaw diff abc12345-... 1 3
+    Example: eurekalab diff abc12345-... 1 3
     """
-    from eurekaclaw.versioning.store import VersionStore
-    from eurekaclaw.versioning.diff import diff_versions
+    from eurekalab.versioning.store import VersionStore
+    from eurekalab.versioning.diff import diff_versions
 
     session_dir = settings.runs_dir / session_id
     if not session_dir.exists():
@@ -928,9 +928,9 @@ def version_diff(session_id: str, v1: int, v2: int) -> None:
 def checkout(session_id: str, version_number: int) -> None:
     """Restore session state to a specific version.
 
-    Example: eurekaclaw checkout abc12345-... 3
+    Example: eurekalab checkout abc12345-... 3
     """
-    from eurekaclaw.versioning.store import VersionStore
+    from eurekalab.versioning.store import VersionStore
 
     session_dir = settings.runs_dir / session_id
     if not session_dir.exists():
@@ -967,18 +967,18 @@ def checkout(session_id: str, version_number: int) -> None:
     head = store.head
     console.print(f"\n[green]Restored to v{version_number:03d}. New HEAD is v{head.version_number:03d}.[/green]")
     console.print(f"  Completed stages: {', '.join(target.completed_stages) or '(none)'}")
-    console.print(f"  Resume with: [bold]eurekaclaw resume {session_id}[/bold]")
+    console.print(f"  Resume with: [bold]eurekalab resume {session_id}[/bold]")
 ```
 
 - [ ] **Step 4: Verify CLI commands register**
 
-Run: `python -m eurekaclaw.cli --help`
+Run: `python -m eurekalab.cli --help`
 Expected: `history`, `diff`, `checkout` appear in the command list
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add eurekaclaw/cli.py
+git add eurekalab/cli.py
 git commit -m "feat(versioning): add history, diff, checkout CLI commands"
 ```
 
@@ -987,7 +987,7 @@ git commit -m "feat(versioning): add history, diff, checkout CLI commands"
 ### Task 6: Enrich MetaOrchestrator Trigger Strings
 
 **Files:**
-- Modify: `eurekaclaw/orchestrator/meta_orchestrator.py` (lines 233-236)
+- Modify: `eurekalab/orchestrator/meta_orchestrator.py` (lines 233-236)
 
 Currently `persist_incremental` is called with just the stage name. We should pass richer trigger context so the version log is informative.
 
@@ -1020,7 +1020,7 @@ git commit -m "chore(versioning): verify trigger strings in MetaOrchestrator"
 - [ ] **Step 1: Bump version to 0.2.0**
 
 In `pyproject.toml`: change `version = "0.1.1"` to `version = "0.2.0"`
-In `eurekaclaw/__init__.py`: change `__version__ = "0.1.1"` to `__version__ = "0.2.0"`
+In `eurekalab/__init__.py`: change `__version__ = "0.1.1"` to `__version__ = "0.2.0"`
 
 - [ ] **Step 2: Run full test suite one final time**
 
@@ -1030,7 +1030,7 @@ Expected: ALL PASS
 - [ ] **Step 3: Commit and push**
 
 ```bash
-git add eurekaclaw/__init__.py pyproject.toml
+git add eurekalab/__init__.py pyproject.toml
 git commit -m "feat(versioning): add git-like version history for research sessions
 
 Phase 0 of the non-linear pipeline redesign:

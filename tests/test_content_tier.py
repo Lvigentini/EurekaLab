@@ -1,6 +1,6 @@
 """Tests for Paper content tier tracking."""
 import pytest
-from eurekaclaw.types.artifacts import Paper
+from eurekalab.types.artifacts import Paper
 
 
 def test_paper_default_content_tier():
@@ -49,8 +49,8 @@ def test_paper_backward_compatible():
     assert p.source == "search"
 
 
-from eurekaclaw.types.artifacts import Bibliography
-from eurekaclaw.analyzers.content_gap import ContentGapAnalyzer, ContentGapReport
+from eurekalab.types.artifacts import Bibliography
+from eurekalab.analyzers.content_gap import ContentGapAnalyzer, ContentGapReport
 
 
 def test_gap_report_categorizes_tiers():

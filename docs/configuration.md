@@ -151,7 +151,7 @@ All 12 values are adjustable from the Settings tab in the web UI.
 
 | Variable | Default | Description |
 |---|---|---|
-| `EUREKACLAW_DIR` | `~/.eurekaclaw` | Base directory for skills, memory, and run artifacts |
+| `EUREKACLAW_DIR` | `~/.eurekalab` | Base directory for skills, memory, and run artifacts |
 | `LEAN4_BIN` | `lean` | Path to the Lean4 binary |
 | `LATEX_BIN` | `pdflatex` | Path to the pdflatex binary |
 | `USE_DOCKER_SANDBOX` | `false` | Use Docker container for Python code execution *(future work — sandbox not fully integrated)* |

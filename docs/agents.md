@@ -1,10 +1,10 @@
 # Agents
 
-EurekaClaw has five specialized agents coordinated by the `MetaOrchestrator`. Each agent runs a tool-use loop with periodic context compression.
+EurekaLab has five specialized agents coordinated by the `MetaOrchestrator`. Each agent runs a tool-use loop with periodic context compression.
 
 ## BaseAgent
 
-All agents inherit from `eurekaclaw/agents/base.py`:
+All agents inherit from `eurekalab/agents/base.py`:
 
 **Key Methods:**
 
@@ -24,7 +24,7 @@ All agents inherit from `eurekaclaw/agents/base.py`:
 ## SurveyAgent
 
 **Role:** `SURVEY`
-**File:** `eurekaclaw/agents/survey/agent.py`
+**File:** `eurekalab/agents/survey/agent.py`
 **Max Turns:** `SURVEY_MAX_TURNS` (default 8)
 
 **Purpose:** Search the literature and populate the KnowledgeBus with papers, open problems, and key mathematical objects.
@@ -53,7 +53,7 @@ All agents inherit from `eurekaclaw/agents/base.py`:
 ## IdeationAgent
 
 **Role:** `IDEATION`
-**File:** `eurekaclaw/agents/ideation/agent.py`
+**File:** `eurekalab/agents/ideation/agent.py`
 **Max Turns:** 3
 
 **Purpose:** Generate 5 novel research hypotheses from survey findings. Each direction is scored on `novelty_score`, `feasibility_score`, and `impact_score` (mapped internally to the `ResearchDirection` fields `novelty_score`, `soundness_score`, `transformative_score`).
@@ -72,7 +72,7 @@ Direction *selection* does **not** happen inside IdeationAgent. After IdeationAg
 ## TheoryAgent
 
 **Role:** `THEORY`
-**File:** `eurekaclaw/agents/theory/agent.py`
+**File:** `eurekalab/agents/theory/agent.py`
 **Max Iterations:** `THEORY_MAX_ITERATIONS` (default 10)
 **Inner Stage Max Turns:** `THEORY_STAGE_MAX_TURNS` (default 6)
 
@@ -137,7 +137,7 @@ If the LLM does not return a severity field, it is inferred heuristically: failu
 > **Note:** The ExperimentAgent and the `execute_python` tool are **future work**. Automated code execution against LLM-generated Python is not yet safely sandboxed for general use. The agent exists in the codebase but its output is not yet integrated into the final paper. Set `EXPERIMENT_MODE=false` (or leave it at `auto`, which skips structural theorems) until proper sandboxing lands.
 
 **Role:** `EXPERIMENT`
-**File:** `eurekaclaw/agents/experiment/agent.py`
+**File:** `eurekalab/agents/experiment/agent.py`
 **Max Turns:** 5
 
 **Purpose:** Empirically validate theoretical bounds via numerical experiments, particularly for low-confidence lemmas.
@@ -167,7 +167,7 @@ If the LLM does not return a severity field, it is inferred heuristically: failu
 ## WriterAgent
 
 **Role:** `WRITER`
-**File:** `eurekaclaw/agents/writer/agent.py`
+**File:** `eurekalab/agents/writer/agent.py`
 **Max Turns:** `WRITER_MAX_TURNS` (default 4)
 
 **Purpose:** Produce a complete academic paper in LaTeX (or Markdown) from all pipeline artifacts.

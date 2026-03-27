@@ -7,8 +7,8 @@ export interface AppConfig {
   llm_backend?: string;
   anthropic_auth_mode?: string;
   ccproxy_port?: string | number;
-  eurekaclaw_model?: string;
-  eurekaclaw_fast_model?: string;
+  eurekalab_model?: string;
+  eurekalab_fast_model?: string;
   theory_pipeline?: string;
   theory_max_iterations?: number;
   auto_verify_confidence?: number;
@@ -23,10 +23,10 @@ export interface AppConfig {
   openai_compat_model?: string;
   minimax_api_key?: string;
   minimax_model?: string;
-  eurekaclaw_mode?: string;
+  eurekalab_mode?: string;
   gate_mode?: string;
   experiment_mode?: string;
-  eurekaclaw_dir?: string;
+  eurekalab_dir?: string;
   max_tokens_agent?: number;
   max_tokens_prover?: number;
   max_tokens_planner?: number;

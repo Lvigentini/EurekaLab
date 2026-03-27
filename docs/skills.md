@@ -3,7 +3,7 @@
 Skills are reusable, domain-specific pieces of knowledge injected into agent prompts before each task. They encode successful proof strategies, domain conventions, and common pitfalls learned from previous runs.
 
 ```
-eurekaclaw/skills/
+eurekalab/skills/
 ├── registry.py      SkillRegistry (load + store skills)
 ├── injector.py      SkillInjector (retrieve + format for prompts)
 ├── install.py       SkillInstaller (install seed skills or skills from ClawHub)
@@ -45,7 +45,7 @@ Skills are stored in one of three locations depending on their origin (see [Skil
 
 ## SkillRegistry
 
-**File:** `eurekaclaw/skills/registry.py`
+**File:** `eurekalab/skills/registry.py`
 
 ```python
 class SkillRegistry:
@@ -58,9 +58,9 @@ class SkillRegistry:
 def load_all() -> list[SkillRecord]
 ```
 Load all skills from registered directories. Load order (later overrides earlier):
-1. Seed skills in `eurekaclaw/skills/seed_skills/`
+1. Seed skills in `eurekalab/skills/seed_skills/`
 2. Domain plugin skills (extra directories from `get_skills_dirs()`)
-3. User skills in `~/.eurekaclaw/skills/` (highest priority)
+3. User skills in `~/.eurekalab/skills/` (highest priority)
 
 ```python
 def add_skills_dir(path: Path) -> None
@@ -99,13 +99,13 @@ Return all skills for a given pipeline stage.
 ```python
 def upsert(skill: SkillRecord) -> None
 ```
-Write skill to disk and register in memory. Creates or overwrites the `.md` file in `~/.eurekaclaw/skills/`.
+Write skill to disk and register in memory. Creates or overwrites the `.md` file in `~/.eurekalab/skills/`.
 
 ---
 
 ## SkillInjector
 
-**File:** `eurekaclaw/skills/injector.py`
+**File:** `eurekalab/skills/injector.py`
 
 Retrieves the most relevant skills for a task and formats them for injection into agent system prompts.
 
@@ -168,7 +168,7 @@ Returns an XML block injected into the agent system prompt:
 
 ## Data Models
 
-**File:** `eurekaclaw/types/skills.py`
+**File:** `eurekalab/types/skills.py`
 
 ```python
 class SkillMeta(BaseModel):
@@ -205,7 +205,7 @@ ContinualLearningLoop.post_run()
     ├── deduplicate — only unique failure patterns (skip low-novelty)
     ├── compress successes — proof text trimmed to 300 chars
     ├── SkillEvolver.distill_from_session()
-    │       → new SkillRecord .md files in ~/.eurekaclaw/skills/
+    │       → new SkillRecord .md files in ~/.eurekalab/skills/
     └── (rl/madmax modes) ProcessRewardModel scoring
 ```
 
@@ -234,15 +234,15 @@ The MAB domain plugin ships four seed skills:
 ## Installing Seed Skills
 
 ```bash
-eurekaclaw install-skills                      # copy seeds to ~/.eurekaclaw/skills/
-eurekaclaw install-skills --force              # overwrite existing copies
-eurekaclaw install-skills <skillname>          # install a skill from ClawHub
+eurekalab install-skills                      # copy seeds to ~/.eurekalab/skills/
+eurekalab install-skills --force              # overwrite existing copies
+eurekalab install-skills <skillname>          # install a skill from ClawHub
 ```
 
 The `<skillname>` form fetches a skill from the [ClawHub](https://clawhub.ai/) registry using the `clawhub` CLI (must be installed separately). Example:
 
 ```bash
-eurekaclaw install-skills steipete/github
+eurekalab install-skills steipete/github
 ```
 
 This command is a convenience for inspection and manual editing only. Agents do **not** require it — seed skills are always available directly from the package.
@@ -251,27 +251,27 @@ This command is a convenience for inspection and manual editing only. Agents do 
 
 ## Skill Lifecycle
 
-Understanding where skills physically live prevents confusion about why `~/.eurekaclaw/skills/` may not contain every skill an agent can see.
+Understanding where skills physically live prevents confusion about why `~/.eurekalab/skills/` may not contain every skill an agent can see.
 
 ### Three storage locations
 
 | Location | Who writes there | When |
 |---|---|---|
-| `eurekaclaw/skills/seed_skills/` | Package developers (you) | Committed to the repo; bundled with `pip install` |
-| `eurekaclaw/domains/<domain>/skills/` | Domain plugin authors | Registered via `add_skills_dir()` at plugin load time |
-| `~/.eurekaclaw/skills/` | `install-skills` CLI + `SkillEvolver` + ClawHub | On demand; user-editable |
+| `eurekalab/skills/seed_skills/` | Package developers (you) | Committed to the repo; bundled with `pip install` |
+| `eurekalab/domains/<domain>/skills/` | Domain plugin authors | Registered via `add_skills_dir()` at plugin load time |
+| `~/.eurekalab/skills/` | `install-skills` CLI + `SkillEvolver` + ClawHub | On demand; user-editable |
 
 ### Load order at runtime
 
 Every time `SkillRegistry._load()` runs, it reads all three sources in this order. A skill with the same `name` in a later source **overrides** the earlier one:
 
 ```
-1. eurekaclaw/skills/seed_skills/**/*.md        (lowest priority)
+1. eurekalab/skills/seed_skills/**/*.md        (lowest priority)
 2. domain plugin skill dirs (extra_dirs)        (medium priority)
-3. ~/.eurekaclaw/skills/**/*.md                 (highest priority — overrides seeds)
+3. ~/.eurekalab/skills/**/*.md                 (highest priority — overrides seeds)
 ```
 
-**Consequence:** adding a file to `seed_skills/` makes it immediately visible to agents on the next run, without copying anything to `~/.eurekaclaw/skills/`. The absence of a seed skill from `~/.eurekaclaw/skills/` does not reduce agent capability.
+**Consequence:** adding a file to `seed_skills/` makes it immediately visible to agents on the next run, without copying anything to `~/.eurekalab/skills/`. The absence of a seed skill from `~/.eurekalab/skills/` does not reduce agent capability.
 
 ### How new skills are generated
 
@@ -279,11 +279,11 @@ Skills enter the system through three paths:
 
 #### 1. Seed skills (developer-authored)
 
-Create a `.md` file in `eurekaclaw/skills/seed_skills/<category>/`:
+Create a `.md` file in `eurekalab/skills/seed_skills/<category>/`:
 
 ```bash
 # e.g. for a new theory skill
-touch eurekaclaw/skills/seed_skills/theory/my_new_skill.md
+touch eurekalab/skills/seed_skills/theory/my_new_skill.md
 ```
 
 Set `source: seed` in frontmatter. The skill is available to all agents immediately after the file is saved — no CLI step required.
@@ -292,7 +292,7 @@ Set `source: seed` in frontmatter. The skill is available to all agents immediat
 
 After each successful session, `SkillEvolver.distill_from_session()` is called with up to 5 `FailedAttempt` records and 5 `ProofRecord` successes from the session. It calls the fast model with a distillation prompt and parses the response into a new `SkillRecord`.
 
-The new skill is written to `~/.eurekaclaw/skills/<name>.md` via `SkillRegistry.upsert()` with:
+The new skill is written to `~/.eurekalab/skills/<name>.md` via `SkillRegistry.upsert()` with:
 - `source: distilled`
 - `name: distilled_<session_id[:8]>_<random_hex>`
 - Tags, roles, and stages extracted from the LLM response
@@ -304,29 +304,29 @@ Session completes
     └── SkillEvolver.distill_from_session(failures, successes)
             └── LLM call (fast model, max_tokens=1024)
                     └── _parse_skill_response()
-                            └── SkillRegistry.upsert()  →  ~/.eurekaclaw/skills/<name>.md
+                            └── SkillRegistry.upsert()  →  ~/.eurekalab/skills/<name>.md
 ```
 
 #### 3. ClawHub skills
 
 ```bash
-eurekaclaw install-skills <author>/<skillname>
+eurekalab install-skills <author>/<skillname>
 ```
 
-Downloads the skill from the [ClawHub](https://clawhub.ai/) registry via the `clawhub` CLI and places it in `~/.eurekaclaw/skills/`. Requires `clawhub` to be installed (`pip install clawhub` or equivalent).
+Downloads the skill from the [ClawHub](https://clawhub.ai/) registry via the `clawhub` CLI and places it in `~/.eurekalab/skills/`. Requires `clawhub` to be installed (`pip install clawhub` or equivalent).
 
 #### 4. Manual user skills
 
-Place any `.md` file with valid YAML frontmatter directly in `~/.eurekaclaw/skills/`. It will be loaded on the next session. Use `source: manual` in the frontmatter to distinguish from distilled skills.
+Place any `.md` file with valid YAML frontmatter directly in `~/.eurekalab/skills/`. It will be loaded on the next session. Use `source: manual` in the frontmatter to distinguish from distilled skills.
 
 ### Skill stats update
 
-After each session, `SkillRegistry.update_stats(name, success)` rewrites the skill file with updated `usage_count` and `success_rate` (exponential moving average, α=0.3). This only affects skills that already exist in `~/.eurekaclaw/skills/` — seed skills in the package are never modified on disk by running sessions.
+After each session, `SkillRegistry.update_stats(name, success)` rewrites the skill file with updated `usage_count` and `success_rate` (exponential moving average, α=0.3). This only affects skills that already exist in `~/.eurekalab/skills/` — seed skills in the package are never modified on disk by running sessions.
 
-### Why `~/.eurekaclaw/skills/` may look empty
+### Why `~/.eurekalab/skills/` may look empty
 
-A fresh installation with no sessions run yet will have an empty `~/.eurekaclaw/skills/` directory. This is normal. The agents are not "missing" any skills — they read seed skills and domain plugin skills directly at runtime. `~/.eurekaclaw/skills/` fills up over time through:
+A fresh installation with no sessions run yet will have an empty `~/.eurekalab/skills/` directory. This is normal. The agents are not "missing" any skills — they read seed skills and domain plugin skills directly at runtime. `~/.eurekalab/skills/` fills up over time through:
 
-- `eurekaclaw install-skills` (one-time copy for inspection/editing)
+- `eurekalab install-skills` (one-time copy for inspection/editing)
 - Completed sessions (automatic distillation)
 - Manual placement of custom `.md` files

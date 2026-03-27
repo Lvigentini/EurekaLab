@@ -16,21 +16,21 @@
 
 | File | Action | Responsibility |
 |------|--------|----------------|
-| `eurekaclaw/ensemble/__init__.py` | Create | Package init |
-| `eurekaclaw/ensemble/model_pool.py` | Create | Named LLM client registry |
-| `eurekaclaw/ensemble/config.py` | Create | Per-stage ensemble config with dynamic overrides |
-| `eurekaclaw/ensemble/scoped_bus.py` | Create | Namespaced bus wrapper for parallel isolation |
-| `eurekaclaw/ensemble/mergers/__init__.py` | Create | Merger package init + registry |
-| `eurekaclaw/ensemble/mergers/base.py` | Create | BaseMerger ABC |
-| `eurekaclaw/ensemble/mergers/union.py` | Create | UnionMerger for survey |
-| `eurekaclaw/ensemble/mergers/adversarial.py` | Create | AdversarialMerger for ideation |
-| `eurekaclaw/ensemble/mergers/consensus.py` | Create | ConsensusMerger for experiment |
-| `eurekaclaw/ensemble/orchestrator.py` | Create | Parallel dispatch + merge coordination |
-| `eurekaclaw/ensemble/recommender.py` | Create | Heuristic suggestions |
-| `eurekaclaw/llm/factory.py` | Modify | Add `google` backend alias |
-| `eurekaclaw/config.py` | Modify | Add ENSEMBLE_* settings |
-| `eurekaclaw/orchestrator/router.py` | Modify | Add `create_agent()` factory method |
-| `eurekaclaw/orchestrator/meta_orchestrator.py` | Modify | Wire ensemble into task loop |
+| `eurekalab/ensemble/__init__.py` | Create | Package init |
+| `eurekalab/ensemble/model_pool.py` | Create | Named LLM client registry |
+| `eurekalab/ensemble/config.py` | Create | Per-stage ensemble config with dynamic overrides |
+| `eurekalab/ensemble/scoped_bus.py` | Create | Namespaced bus wrapper for parallel isolation |
+| `eurekalab/ensemble/mergers/__init__.py` | Create | Merger package init + registry |
+| `eurekalab/ensemble/mergers/base.py` | Create | BaseMerger ABC |
+| `eurekalab/ensemble/mergers/union.py` | Create | UnionMerger for survey |
+| `eurekalab/ensemble/mergers/adversarial.py` | Create | AdversarialMerger for ideation |
+| `eurekalab/ensemble/mergers/consensus.py` | Create | ConsensusMerger for experiment |
+| `eurekalab/ensemble/orchestrator.py` | Create | Parallel dispatch + merge coordination |
+| `eurekalab/ensemble/recommender.py` | Create | Heuristic suggestions |
+| `eurekalab/llm/factory.py` | Modify | Add `google` backend alias |
+| `eurekalab/config.py` | Modify | Add ENSEMBLE_* settings |
+| `eurekalab/orchestrator/router.py` | Modify | Add `create_agent()` factory method |
+| `eurekalab/orchestrator/meta_orchestrator.py` | Modify | Wire ensemble into task loop |
 | `.env.example` | Modify | Add ensemble config section |
 | `README.md` | Modify | Fork notice + contribution summary |
 | `tests/test_model_pool.py` | Create | ModelPool tests |
@@ -47,10 +47,10 @@
 ### Task 1: ModelPool — Named LLM Client Registry
 
 **Files:**
-- Create: `eurekaclaw/ensemble/__init__.py`
-- Create: `eurekaclaw/ensemble/model_pool.py`
-- Modify: `eurekaclaw/llm/factory.py`
-- Modify: `eurekaclaw/config.py`
+- Create: `eurekalab/ensemble/__init__.py`
+- Create: `eurekalab/ensemble/model_pool.py`
+- Modify: `eurekalab/llm/factory.py`
+- Modify: `eurekalab/config.py`
 - Test: `tests/test_model_pool.py`
 
 - [ ] **Step 1: Write tests**
@@ -60,7 +60,7 @@
 """Tests for ModelPool — named LLM client registry."""
 import pytest
 from unittest.mock import MagicMock
-from eurekaclaw.ensemble.model_pool import ModelPool
+from eurekalab.ensemble.model_pool import ModelPool
 
 
 def test_register_and_get():
@@ -100,16 +100,16 @@ def test_create_from_config_no_ensemble(monkeypatch):
 
 - [ ] **Step 2: Run tests — verify they fail**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_model_pool.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_model_pool.py -v`
 
-- [ ] **Step 3: Add `google` backend alias to `eurekaclaw/llm/factory.py`**
+- [ ] **Step 3: Add `google` backend alias to `eurekalab/llm/factory.py`**
 
 Add to `_BACKEND_ALIASES` dict:
 ```python
     "google": ("openai_compat", "https://generativelanguage.googleapis.com/v1beta/openai/"),
 ```
 
-- [ ] **Step 4: Add ensemble settings to `eurekaclaw/config.py`**
+- [ ] **Step 4: Add ensemble settings to `eurekalab/config.py`**
 
 After the existing `gemini_api_key` field, add:
 ```python
@@ -117,13 +117,13 @@ After the existing `gemini_api_key` field, add:
     ensemble_models: str = Field(default="", alias="ENSEMBLE_MODELS")
 ```
 
-- [ ] **Step 5: Create `eurekaclaw/ensemble/__init__.py`**
+- [ ] **Step 5: Create `eurekalab/ensemble/__init__.py`**
 
 ```python
-"""N-model ensemble execution for EurekaClaw pipeline stages."""
+"""N-model ensemble execution for EurekaLab pipeline stages."""
 ```
 
-- [ ] **Step 6: Create `eurekaclaw/ensemble/model_pool.py`**
+- [ ] **Step 6: Create `eurekalab/ensemble/model_pool.py`**
 
 ```python
 """ModelPool — registry of named LLM clients for ensemble execution."""
@@ -133,7 +133,7 @@ from __future__ import annotations
 import logging
 import os
 
-from eurekaclaw.llm.base import LLMClient
+from eurekalab.llm.base import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -174,8 +174,8 @@ class ModelPool:
         For each model, reads MODEL_{NAME}_BACKEND, MODEL_{NAME}_API_KEY, MODEL_{NAME}_MODEL.
         Falls back to a single 'default' model from the standard LLM_BACKEND config.
         """
-        from eurekaclaw.config import settings
-        from eurekaclaw.llm.factory import create_client
+        from eurekalab.config import settings
+        from eurekalab.llm.factory import create_client
 
         pool = cls()
         model_names_str = settings.ensemble_models.strip()
@@ -219,12 +219,12 @@ class ModelPool:
 
 - [ ] **Step 7: Run tests — verify they pass**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_model_pool.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_model_pool.py -v`
 
 - [ ] **Step 8: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/ eurekaclaw/llm/factory.py eurekaclaw/config.py tests/test_model_pool.py && git commit -m "feat: add ModelPool and google backend alias for ensemble support"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/ eurekalab/llm/factory.py eurekalab/config.py tests/test_model_pool.py && git commit -m "feat: add ModelPool and google backend alias for ensemble support"
 ```
 
 ---
@@ -232,7 +232,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/ eurekaclaw/llm/
 ### Task 2: Ensemble Config — Per-Stage Configuration
 
 **Files:**
-- Create: `eurekaclaw/ensemble/config.py`
+- Create: `eurekalab/ensemble/config.py`
 - Test: `tests/test_ensemble_config.py`
 
 - [ ] **Step 1: Write tests**
@@ -241,7 +241,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/ eurekaclaw/llm/
 # tests/test_ensemble_config.py
 """Tests for EnsembleConfig — per-stage ensemble configuration."""
 import pytest
-from eurekaclaw.ensemble.config import EnsembleConfig, StageEnsembleConfig
+from eurekalab.ensemble.config import EnsembleConfig, StageEnsembleConfig
 
 
 def test_default_config_is_single():
@@ -290,7 +290,7 @@ def test_missing_stage_returns_default():
     assert stage.strategy == "single"
 ```
 
-- [ ] **Step 2: Create `eurekaclaw/ensemble/config.py`**
+- [ ] **Step 2: Create `eurekalab/ensemble/config.py`**
 
 ```python
 """EnsembleConfig — per-stage ensemble configuration with dynamic overrides."""
@@ -381,12 +381,12 @@ class EnsembleConfig:
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_ensemble_config.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_ensemble_config.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/config.py tests/test_ensemble_config.py && git commit -m "feat: add per-stage ensemble configuration"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/config.py tests/test_ensemble_config.py && git commit -m "feat: add per-stage ensemble configuration"
 ```
 
 ---
@@ -394,7 +394,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/config.py tests/
 ### Task 3: ScopedBus — Bus Isolation for Parallel Execution
 
 **Files:**
-- Create: `eurekaclaw/ensemble/scoped_bus.py`
+- Create: `eurekalab/ensemble/scoped_bus.py`
 - Test: `tests/test_scoped_bus.py`
 
 - [ ] **Step 1: Write tests**
@@ -403,8 +403,8 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/config.py tests/
 # tests/test_scoped_bus.py
 """Tests for ScopedBus — namespaced bus wrapper for parallel isolation."""
 import pytest
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.ensemble.scoped_bus import ScopedBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.scoped_bus import ScopedBus
 
 
 @pytest.fixture
@@ -441,7 +441,7 @@ def test_two_scopes_dont_collide(bus):
 
 
 def test_read_only_methods_delegate(bus):
-    from eurekaclaw.types.artifacts import ResearchBrief
+    from eurekalab.types.artifacts import ResearchBrief
     brief = ResearchBrief(session_id="test", domain="test", query="test")
     bus.put_research_brief(brief)
     scoped = ScopedBus(bus, namespace="claude")
@@ -449,7 +449,7 @@ def test_read_only_methods_delegate(bus):
     assert scoped.get_research_brief().domain == "test"
 ```
 
-- [ ] **Step 2: Create `eurekaclaw/ensemble/scoped_bus.py`**
+- [ ] **Step 2: Create `eurekalab/ensemble/scoped_bus.py`**
 
 ```python
 """ScopedBus — namespaced bus wrapper for parallel ensemble isolation."""
@@ -458,7 +458,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 class ScopedBus:
@@ -515,7 +515,7 @@ class ScopedBus:
 
     def append_citations(self, papers):
         # Append to a namespaced bibliography
-        from eurekaclaw.types.artifacts import Bibliography
+        from eurekalab.types.artifacts import Bibliography
         bib = self._bus.get(f"bibliography__{self._ns}")
         if bib is None:
             bib = self._bus.get_bibliography() or Bibliography(session_id=self._bus.session_id)
@@ -536,12 +536,12 @@ class ScopedBus:
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_scoped_bus.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_scoped_bus.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/scoped_bus.py tests/test_scoped_bus.py && git commit -m "feat: add ScopedBus for parallel ensemble isolation"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/scoped_bus.py tests/test_scoped_bus.py && git commit -m "feat: add ScopedBus for parallel ensemble isolation"
 ```
 
 ---
@@ -549,9 +549,9 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/scoped_bus.py te
 ### Task 4: Merger Base + UnionMerger (Survey)
 
 **Files:**
-- Create: `eurekaclaw/ensemble/mergers/__init__.py`
-- Create: `eurekaclaw/ensemble/mergers/base.py`
-- Create: `eurekaclaw/ensemble/mergers/union.py`
+- Create: `eurekalab/ensemble/mergers/__init__.py`
+- Create: `eurekalab/ensemble/mergers/base.py`
+- Create: `eurekalab/ensemble/mergers/union.py`
 - Test: `tests/test_union_merger.py`
 
 - [ ] **Step 1: Write tests**
@@ -560,9 +560,9 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/scoped_bus.py te
 # tests/test_union_merger.py
 """Tests for UnionMerger — combines survey results with deduplication."""
 import pytest
-from eurekaclaw.ensemble.mergers.union import UnionMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.union import UnionMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_result(papers, open_problems=None):
@@ -652,10 +652,10 @@ async def test_union_handles_partial_failure(bus):
 - [ ] **Step 2: Create merger package and base**
 
 ```python
-# eurekaclaw/ensemble/mergers/__init__.py
+# eurekalab/ensemble/mergers/__init__.py
 """Pluggable merge strategies for ensemble pipeline stages."""
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
+from eurekalab.ensemble.mergers.base import BaseMerger
 
 MERGER_REGISTRY: dict[str, type[BaseMerger] | None] = {}
 
@@ -663,9 +663,9 @@ MERGER_REGISTRY: dict[str, type[BaseMerger] | None] = {}
 def _register_mergers() -> None:
     """Lazy-load merger classes to avoid circular imports."""
     global MERGER_REGISTRY
-    from eurekaclaw.ensemble.mergers.union import UnionMerger
-    from eurekaclaw.ensemble.mergers.adversarial import AdversarialMerger
-    from eurekaclaw.ensemble.mergers.consensus import ConsensusMerger
+    from eurekalab.ensemble.mergers.union import UnionMerger
+    from eurekalab.ensemble.mergers.adversarial import AdversarialMerger
+    from eurekalab.ensemble.mergers.consensus import ConsensusMerger
 
     MERGER_REGISTRY.update({
         "union": UnionMerger,
@@ -684,7 +684,7 @@ def get_merger(strategy: str) -> BaseMerger | None:
 ```
 
 ```python
-# eurekaclaw/ensemble/mergers/base.py
+# eurekalab/ensemble/mergers/base.py
 """BaseMerger — abstract interface for ensemble merge strategies."""
 
 from __future__ import annotations
@@ -693,9 +693,9 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 logger = logging.getLogger(__name__)
 
@@ -721,7 +721,7 @@ class BaseMerger(ABC):
         return valid
 ```
 
-- [ ] **Step 3: Create `eurekaclaw/ensemble/mergers/union.py`**
+- [ ] **Step 3: Create `eurekalab/ensemble/mergers/union.py`**
 
 ```python
 """UnionMerger — combines survey results with deduplication."""
@@ -731,10 +731,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.mergers.base import BaseMerger
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 logger = logging.getLogger(__name__)
 
@@ -839,13 +839,13 @@ class UnionMerger(BaseMerger):
 - [ ] **Step 4: Create stub files for adversarial and consensus** (to avoid import errors in `__init__.py`)
 
 ```python
-# eurekaclaw/ensemble/mergers/adversarial.py
+# eurekalab/ensemble/mergers/adversarial.py
 """AdversarialMerger — cross-review ideation directions. Implemented in Task 5."""
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.mergers.base import BaseMerger
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult
+from eurekalab.types.tasks import Task
 
 
 class AdversarialMerger(BaseMerger):
@@ -854,13 +854,13 @@ class AdversarialMerger(BaseMerger):
 ```
 
 ```python
-# eurekaclaw/ensemble/mergers/consensus.py
+# eurekalab/ensemble/mergers/consensus.py
 """ConsensusMerger — independent experiment validation. Implemented in Task 6."""
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.mergers.base import BaseMerger
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult
+from eurekalab.types.tasks import Task
 
 
 class ConsensusMerger(BaseMerger):
@@ -870,12 +870,12 @@ class ConsensusMerger(BaseMerger):
 
 - [ ] **Step 5: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_union_merger.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_union_merger.py -v`
 
 - [ ] **Step 6: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/ tests/test_union_merger.py && git commit -m "feat: add merger base, UnionMerger, and merger registry"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/mergers/ tests/test_union_merger.py && git commit -m "feat: add merger base, UnionMerger, and merger registry"
 ```
 
 ---
@@ -883,7 +883,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/ tests/t
 ### Task 5: AdversarialMerger (Ideation)
 
 **Files:**
-- Modify: `eurekaclaw/ensemble/mergers/adversarial.py`
+- Modify: `eurekalab/ensemble/mergers/adversarial.py`
 - Test: `tests/test_adversarial_merger.py`
 
 - [ ] **Step 1: Write tests**
@@ -893,9 +893,9 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/ tests/t
 """Tests for AdversarialMerger — cross-review ideation directions."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from eurekaclaw.ensemble.mergers.adversarial import AdversarialMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.adversarial import AdversarialMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_ideation_result(directions):
@@ -962,7 +962,7 @@ async def test_handles_single_model(bus):
     assert len(merged.output["directions"]) == 1
 ```
 
-- [ ] **Step 2: Implement `eurekaclaw/ensemble/mergers/adversarial.py`**
+- [ ] **Step 2: Implement `eurekalab/ensemble/mergers/adversarial.py`**
 
 ```python
 """AdversarialMerger — cross-review and rank ideation directions from multiple models."""
@@ -973,10 +973,10 @@ import json
 import logging
 from typing import Any
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.mergers.base import BaseMerger
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 logger = logging.getLogger(__name__)
 
@@ -1045,7 +1045,7 @@ class AdversarialMerger(BaseMerger):
 
     async def _cross_review(self, directions: list[dict], results: dict[str, AgentResult]) -> list[dict]:
         """Each model reviews the other models' directions."""
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
 
         model_names = list(results.keys())
 
@@ -1134,12 +1134,12 @@ class AdversarialMerger(BaseMerger):
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_adversarial_merger.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_adversarial_merger.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/adversarial.py tests/test_adversarial_merger.py && git commit -m "feat: add AdversarialMerger for cross-model ideation"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/mergers/adversarial.py tests/test_adversarial_merger.py && git commit -m "feat: add AdversarialMerger for cross-model ideation"
 ```
 
 ---
@@ -1147,7 +1147,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/adversar
 ### Task 6: ConsensusMerger (Experiment)
 
 **Files:**
-- Modify: `eurekaclaw/ensemble/mergers/consensus.py`
+- Modify: `eurekalab/ensemble/mergers/consensus.py`
 - Test: `tests/test_consensus_merger.py`
 
 - [ ] **Step 1: Write tests**
@@ -1156,9 +1156,9 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/adversar
 # tests/test_consensus_merger.py
 """Tests for ConsensusMerger — independent experiment validation."""
 import pytest
-from eurekaclaw.ensemble.mergers.consensus import ConsensusMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.consensus import ConsensusMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_experiment_result(bounds, alignment_score):
@@ -1225,7 +1225,7 @@ async def test_consensus_single_model_passthrough(bus):
     assert merged.output["alignment_score"] == 0.85
 ```
 
-- [ ] **Step 2: Implement `eurekaclaw/ensemble/mergers/consensus.py`**
+- [ ] **Step 2: Implement `eurekalab/ensemble/mergers/consensus.py`**
 
 ```python
 """ConsensusMerger — independent experiment validation with agreement scoring."""
@@ -1235,10 +1235,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from eurekaclaw.ensemble.mergers.base import BaseMerger
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.mergers.base import BaseMerger
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 logger = logging.getLogger(__name__)
 
@@ -1349,12 +1349,12 @@ class ConsensusMerger(BaseMerger):
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_consensus_merger.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_consensus_merger.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/consensus.py tests/test_consensus_merger.py && git commit -m "feat: add ConsensusMerger for independent experiment validation"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/mergers/consensus.py tests/test_consensus_merger.py && git commit -m "feat: add ConsensusMerger for independent experiment validation"
 ```
 
 ---
@@ -1362,7 +1362,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/consensu
 ### Task 7: Recommender — Heuristic Suggestions
 
 **Files:**
-- Create: `eurekaclaw/ensemble/recommender.py`
+- Create: `eurekalab/ensemble/recommender.py`
 - Test: `tests/test_recommender.py`
 
 - [ ] **Step 1: Write tests**
@@ -1371,9 +1371,9 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/mergers/consensu
 # tests/test_recommender.py
 """Tests for EnsembleRecommender — heuristic suggestions."""
 import pytest
-from eurekaclaw.ensemble.recommender import EnsembleRecommender
-from eurekaclaw.ensemble.config import EnsembleConfig
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.recommender import EnsembleRecommender
+from eurekalab.ensemble.config import EnsembleConfig
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 @pytest.fixture
@@ -1424,7 +1424,7 @@ def test_no_recommendation_when_normal(bus):
     assert result is None  # 25% overlap is normal, no recommendation
 ```
 
-- [ ] **Step 2: Create `eurekaclaw/ensemble/recommender.py`**
+- [ ] **Step 2: Create `eurekalab/ensemble/recommender.py`**
 
 ```python
 """EnsembleRecommender — heuristic suggestions for ensemble adjustments."""
@@ -1434,8 +1434,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from eurekaclaw.ensemble.config import EnsembleConfig, EnsembleRecommendation
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.config import EnsembleConfig, EnsembleRecommendation
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 logger = logging.getLogger(__name__)
 
@@ -1536,12 +1536,12 @@ class EnsembleRecommender:
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_recommender.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_recommender.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/recommender.py tests/test_recommender.py && git commit -m "feat: add ensemble recommender with heuristic suggestions"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/recommender.py tests/test_recommender.py && git commit -m "feat: add ensemble recommender with heuristic suggestions"
 ```
 
 ---
@@ -1549,7 +1549,7 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/recommender.py t
 ### Task 8: Ensemble Orchestrator
 
 **Files:**
-- Create: `eurekaclaw/ensemble/orchestrator.py`
+- Create: `eurekalab/ensemble/orchestrator.py`
 - Test: `tests/test_ensemble_orchestrator.py`
 
 - [ ] **Step 1: Write tests**
@@ -1559,12 +1559,12 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/recommender.py t
 """Tests for EnsembleOrchestrator — dispatch + merge coordination."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from eurekaclaw.ensemble.orchestrator import EnsembleOrchestrator
-from eurekaclaw.ensemble.model_pool import ModelPool
-from eurekaclaw.ensemble.config import EnsembleConfig
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.types.tasks import Task
+from eurekalab.ensemble.orchestrator import EnsembleOrchestrator
+from eurekalab.ensemble.model_pool import ModelPool
+from eurekalab.ensemble.config import EnsembleConfig
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.types.tasks import Task
 
 
 @pytest.fixture
@@ -1611,7 +1611,7 @@ async def test_single_model_fast_path(pool, bus):
     assert result is expected
 ```
 
-- [ ] **Step 2: Create `eurekaclaw/ensemble/orchestrator.py`**
+- [ ] **Step 2: Create `eurekalab/ensemble/orchestrator.py`**
 
 ```python
 """EnsembleOrchestrator — dispatches agents to multiple models and merges results."""
@@ -1623,15 +1623,15 @@ import json
 import logging
 from typing import Any, Callable
 
-from eurekaclaw.agents.base import BaseAgent
-from eurekaclaw.ensemble.config import EnsembleConfig, EnsembleRecommendation
-from eurekaclaw.ensemble.model_pool import ModelPool
-from eurekaclaw.ensemble.recommender import EnsembleRecommender
-from eurekaclaw.ensemble.scoped_bus import ScopedBus
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
-from eurekaclaw.llm.base import LLMClient
-from eurekaclaw.types.agents import AgentResult
-from eurekaclaw.types.tasks import Task
+from eurekalab.agents.base import BaseAgent
+from eurekalab.ensemble.config import EnsembleConfig, EnsembleRecommendation
+from eurekalab.ensemble.model_pool import ModelPool
+from eurekalab.ensemble.recommender import EnsembleRecommender
+from eurekalab.ensemble.scoped_bus import ScopedBus
+from eurekalab.knowledge_bus.bus import KnowledgeBus
+from eurekalab.llm.base import LLMClient
+from eurekalab.types.agents import AgentResult
+from eurekalab.types.tasks import Task
 
 logger = logging.getLogger(__name__)
 
@@ -1682,7 +1682,7 @@ class EnsembleOrchestrator:
         results = await self._run_parallel(task, agent_factory, stage_config)
 
         # Merge
-        from eurekaclaw.ensemble.mergers import get_merger
+        from eurekalab.ensemble.mergers import get_merger
         merger = get_merger(stage_config.strategy)
         if merger is None:
             # Unknown strategy — return first successful result
@@ -1788,7 +1788,7 @@ class EnsembleOrchestrator:
         task: Task,
     ) -> dict:
         """Ask a reviewer model to critique the primary model's output."""
-        from eurekaclaw.config import settings
+        from eurekalab.config import settings
 
         review_prompt = (
             "You are an independent reviewer. Examine the following proof/analysis output "
@@ -1816,12 +1816,12 @@ class EnsembleOrchestrator:
 
 - [ ] **Step 3: Run tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/test_ensemble_orchestrator.py -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/test_ensemble_orchestrator.py -v`
 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/orchestrator.py tests/test_ensemble_orchestrator.py && git commit -m "feat: add EnsembleOrchestrator with parallel dispatch and merge"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/ensemble/orchestrator.py tests/test_ensemble_orchestrator.py && git commit -m "feat: add EnsembleOrchestrator with parallel dispatch and merge"
 ```
 
 ---
@@ -1829,11 +1829,11 @@ cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/ensemble/orchestrator.py 
 ### Task 9: Wire Ensemble into MetaOrchestrator + TaskRouter
 
 **Files:**
-- Modify: `eurekaclaw/orchestrator/router.py`
-- Modify: `eurekaclaw/orchestrator/meta_orchestrator.py`
+- Modify: `eurekalab/orchestrator/router.py`
+- Modify: `eurekalab/orchestrator/meta_orchestrator.py`
 - Modify: `.env.example`
 
-- [ ] **Step 1: Add `create_agent()` to `eurekaclaw/orchestrator/router.py`**
+- [ ] **Step 1: Add `create_agent()` to `eurekalab/orchestrator/router.py`**
 
 Read the file first. Add after the `resolve` method:
 ```python
@@ -1843,11 +1843,11 @@ Read the file first. Add after the `resolve` method:
         Unlike resolve() which returns shared singletons, this creates
         independent instances safe for concurrent use.
         """
-        from eurekaclaw.agents.survey.agent import SurveyAgent
-        from eurekaclaw.agents.ideation.agent import IdeationAgent
-        from eurekaclaw.agents.theory.agent import TheoryAgent
-        from eurekaclaw.agents.experiment.agent import ExperimentAgent
-        from eurekaclaw.agents.writer.agent import WriterAgent
+        from eurekalab.agents.survey.agent import SurveyAgent
+        from eurekalab.agents.ideation.agent import IdeationAgent
+        from eurekalab.agents.theory.agent import TheoryAgent
+        from eurekalab.agents.experiment.agent import ExperimentAgent
+        from eurekalab.agents.writer.agent import WriterAgent
 
         _AGENT_CLASSES = {
             AgentRole.SURVEY: SurveyAgent,
@@ -1872,16 +1872,16 @@ Read the file first. Add after the `resolve` method:
         )
 ```
 
-Also add the import: `from eurekaclaw.llm.base import LLMClient` (use string annotation to avoid circular import if needed).
+Also add the import: `from eurekalab.llm.base import LLMClient` (use string annotation to avoid circular import if needed).
 
-- [ ] **Step 2: Modify `eurekaclaw/orchestrator/meta_orchestrator.py`**
+- [ ] **Step 2: Modify `eurekalab/orchestrator/meta_orchestrator.py`**
 
 In `__init__`, after `self.learning_loop = ...`, add:
 ```python
         # Ensemble (opt-in via ENSEMBLE_MODELS env var)
-        from eurekaclaw.ensemble.model_pool import ModelPool
-        from eurekaclaw.ensemble.config import EnsembleConfig
-        from eurekaclaw.ensemble.orchestrator import EnsembleOrchestrator
+        from eurekalab.ensemble.model_pool import ModelPool
+        from eurekalab.ensemble.config import EnsembleConfig
+        from eurekalab.ensemble.orchestrator import EnsembleOrchestrator
 
         self.model_pool = ModelPool.create_from_config()
         self.ensemble_config = EnsembleConfig.from_env()
@@ -1950,12 +1950,12 @@ Add at the end:
 
 - [ ] **Step 4: Run all tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v`
 
 - [ ] **Step 5: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add eurekaclaw/orchestrator/router.py eurekaclaw/orchestrator/meta_orchestrator.py .env.example && git commit -m "feat: wire ensemble orchestrator into pipeline"
+cd /Users/lor/_coding/EurekaLab && git add eurekalab/orchestrator/router.py eurekalab/orchestrator/meta_orchestrator.py .env.example && git commit -m "feat: wire ensemble orchestrator into pipeline"
 ```
 
 ---
@@ -1971,20 +1971,20 @@ Read `README.md` to understand the full structure.
 
 - [ ] **Step 2: Add fork notice at the top**
 
-After the existing header/badges block, BEFORE the `---` and "What EurekaClaw Does" section, add:
+After the existing header/badges block, BEFORE the `---` and "What EurekaLab Does" section, add:
 
 ```markdown
-> **Fork Notice:** This is a fork of [EurekaClaw/EurekaClaw](https://github.com/EurekaClaw/EurekaClaw) with significant improvements to resilience, multi-model support, and research quality. See [What's New in This Fork](#whats-new-in-this-fork) below.
+> **Fork Notice:** This is a fork of [EurekaLab/EurekaLab](https://github.com/EurekaLab/EurekaLab) with significant improvements to resilience, multi-model support, and research quality. See [What's New in This Fork](#whats-new-in-this-fork) below.
 ```
 
 - [ ] **Step 3: Add "What's New in This Fork" section**
 
-After the "What EurekaClaw Does" table, add a new section:
+After the "What EurekaLab Does" table, add a new section:
 
 ```markdown
 ## What's New in This Fork
 
-This fork ([Lvigentini/EurekaClaw](https://github.com/Lvigentini/EurekaClaw)) adds three major contributions over the upstream project:
+This fork ([Lvigentini/EurekaLab](https://github.com/Lvigentini/EurekaLab)) adds three major contributions over the upstream project:
 
 ### 1. N-Model Ensemble Architecture
 Run multiple LLMs (Claude, Gemini, GPT, Kimi, etc.) concurrently across pipeline stages with per-stage merge strategies:
@@ -2000,7 +2000,7 @@ Configure via environment variables — add `ENSEMBLE_MODELS=claude,gemini` and 
 
 ### 2. Crash Resilience
 - **Incremental checkpointing** — state saved after each pipeline stage, not just at session end
-- **Full-pipeline resume** — `eurekaclaw resume <session_id>` detects progress from any stage
+- **Full-pipeline resume** — `eurekalab resume <session_id>` detects progress from any stage
 - **Circuit breaker** — fails fast after 3 consecutive API failures instead of burning tokens
 - **Error classification** — auth errors (401/403) fail immediately, server errors retry with backoff
 - **ccproxy health monitoring** — auto-restarts OAuth proxy if it crashes mid-session
@@ -2015,7 +2015,7 @@ Configure via environment variables — add `ENSEMBLE_MODELS=claude,gemini` and 
 - [ ] **Step 4: Commit**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git add README.md && git commit -m "docs: add fork notice and contribution summary to README"
+cd /Users/lor/_coding/EurekaLab && git add README.md && git commit -m "docs: add fork notice and contribution summary to README"
 ```
 
 ---
@@ -2024,20 +2024,20 @@ cd /Users/lor/_coding/EurekaClaw && git add README.md && git commit -m "docs: ad
 
 - [ ] **Step 1: Run all tests**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/pytest tests/ -v`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/pytest tests/ -v`
 Expected: All pass (except pre-existing skips)
 
 - [ ] **Step 2: Verify CLI imports**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/python -c "from eurekaclaw.ensemble.orchestrator import EnsembleOrchestrator; from eurekaclaw.ensemble.model_pool import ModelPool; print('Ensemble OK')"`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/python -c "from eurekalab.ensemble.orchestrator import EnsembleOrchestrator; from eurekalab.ensemble.model_pool import ModelPool; print('Ensemble OK')"`
 
 - [ ] **Step 3: Verify backward compatibility**
 
-Run: `cd /Users/lor/_coding/EurekaClaw && .venv/bin/python -c "from eurekaclaw.cli import main; print('CLI OK')"`
+Run: `cd /Users/lor/_coding/EurekaLab && .venv/bin/python -c "from eurekalab.cli import main; print('CLI OK')"`
 This should work WITHOUT any ENSEMBLE_* env vars set.
 
 - [ ] **Step 4: Push to remote**
 
 ```bash
-cd /Users/lor/_coding/EurekaClaw && git push origin main
+cd /Users/lor/_coding/EurekaLab && git push origin main
 ```

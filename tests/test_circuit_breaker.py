@@ -1,7 +1,7 @@
 """Tests for circuit breaker and retry logic in LLMClient."""
 import time
 import pytest
-from eurekaclaw.llm.base import CircuitBreaker
+from eurekalab.llm.base import CircuitBreaker
 
 
 @pytest.fixture

@@ -22,7 +22,7 @@ Tools are stored in a `ToolRegistry`. The default registry (`build_default_regis
 
 ### `arxiv_search`
 
-**File:** `eurekaclaw/tools/arxiv.py`
+**File:** `eurekalab/tools/arxiv.py`
 
 **Purpose:** Search arXiv for academic papers.
 
@@ -53,7 +53,7 @@ Tools are stored in a `ToolRegistry`. The default registry (`build_default_regis
 
 ### `semantic_scholar_search`
 
-**File:** `eurekaclaw/tools/semantic_scholar.py`
+**File:** `eurekalab/tools/semantic_scholar.py`
 
 **Purpose:** Search Semantic Scholar for papers with citation counts and venue information.
 
@@ -86,7 +86,7 @@ Tools are stored in a `ToolRegistry`. The default registry (`build_default_regis
 
 ### `web_search`
 
-**File:** `eurekaclaw/tools/web_search.py`
+**File:** `eurekalab/tools/web_search.py`
 
 **Purpose:** General web search for supplementary research context.
 
@@ -108,7 +108,7 @@ Tools are stored in a `ToolRegistry`. The default registry (`build_default_regis
 
 ### `lean4_verify`
 
-**File:** `eurekaclaw/tools/lean4.py`
+**File:** `eurekalab/tools/lean4.py`
 
 **Purpose:** Formally verify a proof using the Lean4 theorem prover.
 
@@ -144,7 +144,7 @@ Or on failure:
 
 > **Note:** Safe sandboxed code execution is **future work**. Without Docker properly configured, the tool runs LLM-generated Python directly in a host subprocess. The Docker path (`USE_DOCKER_SANDBOX=true`) provides isolation but requires Docker to be installed and running; otherwise it falls back silently to the host subprocess. Full sandbox support is planned for a future release.
 
-**File:** `eurekaclaw/tools/code_exec.py`
+**File:** `eurekalab/tools/code_exec.py`
 
 **Purpose:** Execute Python code for numerical experiments and sanity checks.
 
@@ -170,7 +170,7 @@ Or on error:
 
 ### `wolfram_alpha`
 
-**File:** `eurekaclaw/tools/wolfram.py`
+**File:** `eurekalab/tools/wolfram.py`
 
 **Purpose:** Symbolic computation, formula simplification, and bound verification.
 
@@ -191,7 +191,7 @@ Or on error:
 
 ### `citation_manager`
 
-**File:** `eurekaclaw/tools/citation.py`
+**File:** `eurekalab/tools/citation.py`
 
 **Purpose:** Generate BibTeX entries and format citation keys consistently.
 
@@ -211,7 +211,7 @@ Or on error:
 
 ## ToolRegistry
 
-**File:** `eurekaclaw/tools/registry.py`
+**File:** `eurekalab/tools/registry.py`
 
 ```python
 class ToolRegistry:
@@ -234,7 +234,7 @@ Domain plugins can register additional tools via `DomainPlugin.register_tools(re
 
 ### MAB Domain: `run_bandit_experiment`
 
-**File:** `eurekaclaw/domains/mab/tools/bandit_tool.py`
+**File:** `eurekalab/domains/mab/tools/bandit_tool.py`
 
 **Purpose:** Run multi-armed bandit simulations to empirically validate regret bounds.
 

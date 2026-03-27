@@ -11,13 +11,13 @@ from pathlib import Path
 @pytest.fixture
 def server_url(tmp_path, monkeypatch):
     """Start a test UI server on a random port with temp storage."""
-    monkeypatch.setattr("eurekaclaw.config.settings.eurekaclaw_dir", tmp_path)
+    monkeypatch.setattr("eurekalab.config.settings.eurekalab_dir", tmp_path)
 
     # Create runs dir
     runs_dir = tmp_path / "runs"
     runs_dir.mkdir()
 
-    from eurekaclaw.ui.server import bind_ui_server
+    from eurekalab.ui.server import bind_ui_server
     server = bind_ui_server("127.0.0.1", 0)  # port 0 = random
     port = server.server_address[1]
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -61,8 +61,8 @@ def test_get_sessions_empty(server_url):
 
 
 def test_get_sessions_with_data(server_url, tmp_path):
-    from eurekaclaw.storage.db import SessionDB
-    db = SessionDB(tmp_path / "eurekaclaw.db")
+    from eurekalab.storage.db import SessionDB
+    db = SessionDB(tmp_path / "eurekalab.db")
     db.create_session("test-001", domain="ML theory", query="test q", mode="exploration")
     result = _get(server_url, "/api/sessions")
     assert len(result["sessions"]) == 1
@@ -85,8 +85,8 @@ def test_get_versions_with_data(server_url, tmp_path):
     session_dir = tmp_path / "runs" / session_id
     session_dir.mkdir(parents=True)
 
-    from eurekaclaw.storage.db import SessionDB
-    db = SessionDB(tmp_path / "eurekaclaw.db")
+    from eurekalab.storage.db import SessionDB
+    db = SessionDB(tmp_path / "eurekalab.db")
     db.create_session(session_id, domain="test", query="q", mode="detailed")
     db.add_version(session_id, 1, "stage:survey:completed", ["survey"], '{"test": true}', ["Added survey"])
 
@@ -109,7 +109,7 @@ def test_get_content_gap_with_bib(server_url, tmp_path):
     session_id = "test-gap-001"
     session_dir = tmp_path / "runs" / session_id
     session_dir.mkdir(parents=True)
-    from eurekaclaw.types.artifacts import Bibliography, Paper
+    from eurekalab.types.artifacts import Bibliography, Paper
     bib = Bibliography(
         session_id=session_id,
         papers=[
@@ -137,7 +137,7 @@ def test_get_ideation_pool_with_data(server_url, tmp_path):
     session_id = "test-pool-001"
     session_dir = tmp_path / "runs" / session_id
     session_dir.mkdir(parents=True)
-    from eurekaclaw.orchestrator.ideation_pool import IdeationPool
+    from eurekalab.orchestrator.ideation_pool import IdeationPool
     pool = IdeationPool()
     pool.inject_idea("Test idea", source="user")
     (session_dir / "ideation_pool.json").write_text(pool.model_dump_json())
@@ -161,12 +161,12 @@ def test_inject_idea(server_url, tmp_path):
     session_dir = tmp_path / "runs" / session_id
     session_dir.mkdir(parents=True)
     # Create minimal session artifacts so bus.load works
-    from eurekaclaw.types.artifacts import ResearchBrief
+    from eurekalab.types.artifacts import ResearchBrief
     brief = ResearchBrief(session_id=session_id, input_mode="exploration", domain="test", query="q")
     (session_dir / "research_brief.json").write_text(brief.model_dump_json())
     # Create session in DB
-    from eurekaclaw.storage.db import SessionDB
-    db = SessionDB(tmp_path / "eurekaclaw.db")
+    from eurekalab.storage.db import SessionDB
+    db = SessionDB(tmp_path / "eurekalab.db")
     db.create_session(session_id, domain="test", query="q", mode="exploration")
 
     result = _post(server_url, f"/api/runs/{session_id}/ideation-pool/inject", {

@@ -8,7 +8,7 @@
 
 ## 1. The Problem With the Current Pipeline
 
-EurekaClaw's pipeline is a **linear waterfall**:
+EurekaLab's pipeline is a **linear waterfall**:
 
 ```
 survey → ideation → direction_gate → theory → review → experiment → writer
@@ -25,7 +25,7 @@ The survey stage searches arXiv and Semantic Scholar, finds citations, and build
 - Falls back to abstract-only extraction (loses 90%+ of the actual content)
 - Proceeds as if this thin signal is sufficient
 
-Meanwhile, the researcher using EurekaClaw likely has **institutional access** — they can download any paper via their university library, Sci-Hub, or direct author contact. They use Zotero's browser connector to save papers with full PDFs as a matter of routine.
+Meanwhile, the researcher using EurekaLab likely has **institutional access** — they can download any paper via their university library, Sci-Hub, or direct author contact. They use Zotero's browser connector to save papers with full PDFs as a matter of routine.
 
 **The fix is not better automated downloading. The fix is leveraging what the user already has, and prompting them to get what's missing.**
 
@@ -83,7 +83,7 @@ When the system can't access a paper, can't resolve a citation, or hits a dead e
 
 Zotero is not just a metadata store. It's the researcher's **knowledge management system**:
 
-| What Zotero has | What EurekaClaw currently does | The gap |
+| What Zotero has | What EurekaLab currently does | The gap |
 |---|---|---|
 | Full PDFs (via institutional access) | Tries to fetch from arXiv (often fails) | Massive content loss |
 | User annotations & highlights | Ignores them | Loses the user's existing analysis |
@@ -125,7 +125,7 @@ Zotero is not just a metadata store. It's the researcher's **knowledge managemen
 
 ### 3.3 The "Request Paper" Flow
 
-When EurekaClaw identifies a paper it needs but doesn't have:
+When EurekaLab identifies a paper it needs but doesn't have:
 
 ```
 1. System identifies: "Smith et al. 2024 is cited 12 times in your
@@ -149,12 +149,12 @@ When EurekaClaw identifies a paper it needs but doesn't have:
 3. If user chooses [1]:
    - User opens DOI link, downloads via institutional access
    - Saves to Zotero via browser connector
-   - EurekaClaw detects the new item (via polling or manual "done" signal)
+   - EurekaLab detects the new item (via polling or manual "done" signal)
    - Extracts full text and continues
 
 4. If user chooses [3]:
    - User provides path to PDF
-   - EurekaClaw extracts text via pdfplumber
+   - EurekaLab extracts text via pdfplumber
    - Optionally pushes to Zotero for future reference
 ```
 
@@ -262,7 +262,7 @@ class VersionStore:
 Versions are stored as JSON files in the session directory:
 
 ```
-~/.eurekaclaw/runs/<session-id>/
+~/.eurekalab/runs/<session-id>/
   versions/
     v001_stage_survey_completed.json
     v002_stage_ideation_completed.json
@@ -281,7 +281,7 @@ Each version file contains the full state (not just the delta). This makes check
 
 ```bash
 # Show version history
-eurekaclaw history <session-id>
+eurekalab history <session-id>
   v006  2h ago   theory:lemma:proven:L1      "Proved concentration inequality lemma"
   v005  3h ago   rerun:ideation:v2           "Re-ran ideation with 3 new papers"
   v004  3h ago   inject:paper:2403.12345     "Added Smith et al. 2024"
@@ -290,19 +290,19 @@ eurekaclaw history <session-id>
   v001  5h ago   stage:survey:completed      "Found 23 papers"
 
 # Show what changed between versions
-eurekaclaw diff <session-id> v002 v005
+eurekalab diff <session-id> v002 v005
   Bibliography: +3 papers (Smith 2024, Jones 2023, Lee 2024)
   Directions: +2 new, 1 revised, 4 unchanged
   Selected direction: unchanged
 
 # Roll back to a specific version
-eurekaclaw checkout <session-id> v003
+eurekalab checkout <session-id> v003
   Restored state to v003 (direction:selected)
   Current pipeline: survey ✓, ideation ✓, direction_gate ✓
   Next stage: theory
 
 # Continue from current version
-eurekaclaw resume <session-id>
+eurekalab resume <session-id>
 ```
 
 ---
@@ -445,14 +445,14 @@ These are captured as `emerged_insights` on the `IdeationPool` and trigger a re-
 
 A draft paper is not a single signal — it's a **rich, multi-layered input**:
 
-| Layer | What it contains | How EurekaClaw uses it |
+| Layer | What it contains | How EurekaLab uses it |
 |---|---|---|
 | **Metadata** | Title, abstract, authors | Domain detection, query seeding |
 | **References** | \cite{} keys, bibliography | Seed the bibliography (if user has PDFs) |
 | **Claims** | Theorems, lemmas, conjectures | Theory stage: verify, strengthen, prove |
 | **Structure** | Sections, outline, TODOs | Writer stage: preserve structure, fill gaps |
 | **Direction** | The overall research question | One input to ideation (not the only one) |
-| **Gaps** | Empty sections, \todo{}, TBD | Guide where EurekaClaw should focus effort |
+| **Gaps** | Empty sections, \todo{}, TBD | Guide where EurekaLab should focus effort |
 | **Voice** | Writing style, notation choices | Writer stage: match the user's style |
 
 ### 6.2 Draft Injection Modes
@@ -483,9 +483,9 @@ The user's intent varies. The draft could be:
 Rather than explicit `--intent` flags, **let the LLM infer intent** from a brief user prompt:
 
 ```bash
-eurekaclaw from-draft paper.tex "This is my WIP. Help me strengthen the theory section."
-eurekaclaw from-draft competing.pdf "This is a competing approach. Find its weaknesses."
-eurekaclaw from-draft previous.tex "Extend this to the non-stationary setting."
+eurekalab from-draft paper.tex "This is my WIP. Help me strengthen the theory section."
+eurekalab from-draft competing.pdf "This is a competing approach. Find its weaknesses."
+eurekalab from-draft previous.tex "Extend this to the non-stationary setting."
 ```
 
 The free-text instruction becomes `ResearchBrief.additional_context` and guides all downstream stages.
@@ -606,7 +606,7 @@ The system pauses for the user, doesn't silently degrade.
 ### 8.1 New Components
 
 ```
-eurekaclaw/
+eurekalab/
   integrations/
     zotero/
       __init__.py
@@ -676,51 +676,51 @@ class ResearchBrief(BaseModel):
 # ──── Entry points ────
 
 # From Zotero collection (PDFs already downloaded)
-eurekaclaw from-zotero <collection-id> --domain "ML theory"
+eurekalab from-zotero <collection-id> --domain "ML theory"
 
 # From .bib file + local PDF directory
-eurekaclaw from-bib references.bib --pdfs ./papers/ --domain "ML theory"
+eurekalab from-bib references.bib --pdfs ./papers/ --domain "ML theory"
 
 # From draft paper (with intent instruction)
-eurekaclaw from-draft paper.tex "This is my WIP, strengthen the theory"
+eurekalab from-draft paper.tex "This is my WIP, strengthen the theory"
 
 # From draft + Zotero (draft's \cite{} resolved against Zotero library)
-eurekaclaw from-draft paper.tex --zotero-collection <id> "Extend this work"
+eurekalab from-draft paper.tex --zotero-collection <id> "Extend this work"
 
 # ──── Mid-session injection ────
 
 # Inject a paper (from Zotero, arXiv, or local path)
-eurekaclaw inject <session-id> paper 2403.12345
-eurekaclaw inject <session-id> paper ./smith2024.pdf
-eurekaclaw inject <session-id> paper --zotero-key ABC123
+eurekalab inject <session-id> paper 2403.12345
+eurekalab inject <session-id> paper ./smith2024.pdf
+eurekalab inject <session-id> paper --zotero-key ABC123
 
 # Inject an idea
-eurekaclaw inject <session-id> idea "What if we use spectral methods instead?"
+eurekalab inject <session-id> idea "What if we use spectral methods instead?"
 
 # Inject a draft
-eurekaclaw inject <session-id> draft paper.tex "Consider these results too"
+eurekalab inject <session-id> draft paper.tex "Consider these results too"
 
 # ──── Version management ────
 
 # Show session history
-eurekaclaw history <session-id>
+eurekalab history <session-id>
 
 # Show diff between versions
-eurekaclaw diff <session-id> v3 v7
+eurekalab diff <session-id> v3 v7
 
 # Roll back to a version
-eurekaclaw checkout <session-id> v3
+eurekalab checkout <session-id> v3
 
 # Resume from current HEAD
-eurekaclaw resume <session-id>
+eurekalab resume <session-id>
 
 # ──── Zotero sync ────
 
 # Push results back to Zotero
-eurekaclaw push-to-zotero <session-id> --collection "EurekaClaw Results"
+eurekalab push-to-zotero <session-id> --collection "EurekaLab Results"
 
 # Sync: pull new items from Zotero collection since last sync
-eurekaclaw sync-zotero <session-id> <collection-id>
+eurekalab sync-zotero <session-id> <collection-id>
 ```
 
 ---
@@ -732,7 +732,7 @@ eurekaclaw sync-zotero <session-id> <collection-id>
 - `VersionStore`: create, checkout, diff, log, branch
 - `BusSnapshot`: serialize/deserialize full bus state
 - Auto-commit after every stage completion
-- `eurekaclaw history`, `eurekaclaw diff`, `eurekaclaw checkout`
+- `eurekalab history`, `eurekalab diff`, `eurekalab checkout`
 - Integrate with existing `persist_incremental()` — versions replace raw stage progress tracking
 - **Scope:** ~500 lines
 
@@ -777,7 +777,7 @@ eurekaclaw sync-zotero <session-id> <collection-id>
 - Push discovered papers to Zotero collection
 - Push proof notes as child notes on relevant papers
 - Push final paper as Zotero item with PDF
-- Session tagging (`eurekaclaw:session:<id>`)
+- Session tagging (`eurekalab:session:<id>`)
 - `push-to-zotero`, `sync-zotero` CLI commands
 - **Scope:** ~350 lines
 

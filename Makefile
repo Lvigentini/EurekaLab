@@ -1,4 +1,4 @@
-# ── EurekaClaw — top-level shortcuts ────────────────────────────────────────
+# ── EurekaLab — top-level shortcuts ────────────────────────────────────────
 #
 # Production (serves built assets via the Python backend):
 #   make start            → build frontend → launch UI at http://localhost:8080
@@ -8,7 +8,7 @@
 #   make dev              → Vite on :5173 (proxies /api → :7860) + Python on :7860
 #
 # Frontend only:
-#   make build            → tsc + vite build → eurekaclaw/ui/static/
+#   make build            → tsc + vite build → eurekalab/ui/static/
 #   make typecheck        → tsc --noEmit (no output files)
 #
 # Install:
@@ -19,10 +19,10 @@
 
 # ── Production: build then serve ─────────────────────────────────────────────
 start: build
-	eurekaclaw ui
+	eurekalab ui
 
 open: build
-	eurekaclaw ui --open-browser
+	eurekalab ui --open-browser
 
 # ── Development: Python backend on :7860 + Vite dev server on :5173 ─────────
 dev:

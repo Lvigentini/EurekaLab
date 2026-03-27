@@ -1,7 +1,7 @@
 """Tests for ModelPool — named LLM client registry."""
 import pytest
 from unittest.mock import MagicMock
-from eurekaclaw.ensemble.model_pool import ModelPool
+from eurekalab.ensemble.model_pool import ModelPool
 
 
 def test_register_and_get():

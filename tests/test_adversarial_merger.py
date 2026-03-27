@@ -2,9 +2,9 @@
 """Tests for AdversarialMerger — cross-review ideation directions."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from eurekaclaw.ensemble.mergers.adversarial import AdversarialMerger
-from eurekaclaw.types.agents import AgentResult, AgentRole
-from eurekaclaw.knowledge_bus.bus import KnowledgeBus
+from eurekalab.ensemble.mergers.adversarial import AdversarialMerger
+from eurekalab.types.agents import AgentResult, AgentRole
+from eurekalab.knowledge_bus.bus import KnowledgeBus
 
 
 def _make_ideation_result(directions):
