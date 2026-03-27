@@ -233,41 +233,99 @@ class UIServerState:
             logger.warning("Failed to persist run %s", run.run_id, exc_info=True)
 
     def _load_persisted_runs(self) -> None:
-        """Load previously persisted sessions from disk on startup."""
+        """Load previously persisted sessions from disk on startup.
+
+        Sources (merged, UI sessions take priority):
+        1. UI session files (~/.eurekaclaw/ui_sessions/*.json)
+        2. CLI sessions discovered from runs/ directory artifacts
+        3. SQLite DB sessions (for metadata like domain/query)
+        """
+        # 1. UI sessions (existing behavior)
         sessions_dir = settings.eurekaclaw_dir / "ui_sessions"
-        if not sessions_dir.exists():
-            return
-        for path in sorted(sessions_dir.glob("*.json")):
-            try:
-                data = json.loads(path.read_text())
-                input_spec = InputSpec.model_validate(data.get("input_spec", {}))
-                run = SessionRun(
-                    run_id=data["run_id"],
-                    input_spec=input_spec,
-                    name=data.get("name", ""),
-                    status=data.get("status", "failed"),
-                    error=data.get("error", ""),
-                    eureka_session_id=data.get("eureka_session_id", ""),
-                    paused_stage=data.get("paused_stage", ""),
-                    theory_feedback=data.get("theory_feedback", ""),
-                    output_dir=data.get("output_dir", ""),
-                    output_summary=data.get("output_summary", {}),
-                )
-                for ts_field in ("created_at", "updated_at", "started_at", "completed_at",
-                                 "paused_at", "pause_requested_at"):
-                    raw = data.get(ts_field)
-                    if raw:
-                        try:
-                            setattr(run, ts_field, datetime.fromisoformat(raw))
-                        except ValueError:
-                            pass
-                # Transient statuses that cannot survive a server restart
-                if run.status in ("running", "queued", "pausing", "resuming"):
-                    run.status = "failed"
-                    run.error = "Session interrupted by a server restart."
-                self.runs[run.run_id] = run
-            except Exception:
-                logger.warning("Failed to load persisted run from %s", path, exc_info=True)
+        if sessions_dir.exists():
+            for path in sorted(sessions_dir.glob("*.json")):
+                try:
+                    data = json.loads(path.read_text())
+                    input_spec = InputSpec.model_validate(data.get("input_spec", {}))
+                    run = SessionRun(
+                        run_id=data["run_id"],
+                        input_spec=input_spec,
+                        name=data.get("name", ""),
+                        status=data.get("status", "failed"),
+                        error=data.get("error", ""),
+                        eureka_session_id=data.get("eureka_session_id", ""),
+                        paused_stage=data.get("paused_stage", ""),
+                        theory_feedback=data.get("theory_feedback", ""),
+                        output_dir=data.get("output_dir", ""),
+                        output_summary=data.get("output_summary", {}),
+                    )
+                    for ts_field in ("created_at", "updated_at", "started_at", "completed_at",
+                                     "paused_at", "pause_requested_at"):
+                        raw = data.get(ts_field)
+                        if raw:
+                            try:
+                                setattr(run, ts_field, datetime.fromisoformat(raw))
+                            except ValueError:
+                                pass
+                    if run.status in ("running", "queued", "pausing", "resuming"):
+                        run.status = "failed"
+                        run.error = "Session interrupted by a server restart."
+                    self.runs[run.run_id] = run
+                except Exception:
+                    logger.warning("Failed to load persisted run from %s", path, exc_info=True)
+
+        # 2. CLI sessions from runs/ directory (not already loaded from UI sessions)
+        runs_dir = settings.runs_dir
+        if runs_dir.exists():
+            for run_dir in sorted(runs_dir.iterdir()):
+                if not run_dir.is_dir():
+                    continue
+                session_id = run_dir.name
+                # Skip if already loaded from UI sessions
+                if any(r.eureka_session_id == session_id or r.run_id == session_id for r in self.runs.values()):
+                    continue
+                # Must have at least a research_brief or stage progress to be a valid session
+                brief_path = run_dir / "research_brief.json"
+                progress_path = run_dir / "_stage_progress.json"
+                if not brief_path.exists() and not progress_path.exists():
+                    continue
+                try:
+                    # Read brief for metadata
+                    domain = ""
+                    query = ""
+                    mode = "exploration"
+                    if brief_path.exists():
+                        brief_data = json.loads(brief_path.read_text())
+                        domain = brief_data.get("domain", "")
+                        query = brief_data.get("query", "")
+                        mode = brief_data.get("input_mode", "exploration")
+
+                    # Read stage progress for status
+                    status = "completed"
+                    completed_stages: list[str] = []
+                    if progress_path.exists():
+                        prog_data = json.loads(progress_path.read_text())
+                        completed_stages = prog_data.get("completed_stages", [])
+                        if any("FAILED" in s for s in completed_stages):
+                            status = "failed"
+                        elif "writer" not in completed_stages:
+                            status = "paused"
+
+                    input_spec = InputSpec(mode=mode, domain=domain, query=query)
+                    run = SessionRun(
+                        run_id=session_id,
+                        input_spec=input_spec,
+                        name=domain[:40] if domain else session_id[:12],
+                        status=status,
+                        eureka_session_id=session_id,
+                        output_dir=str(run_dir),
+                    )
+                    # Use directory mtime as created_at
+                    run.created_at = datetime.fromtimestamp(run_dir.stat().st_mtime)
+                    self.runs[session_id] = run
+                    logger.info("Discovered CLI session: %s (%s) — %s", session_id[:12], domain[:30], status)
+                except Exception:
+                    logger.warning("Failed to load CLI session from %s", run_dir, exc_info=True)
 
     # ── CRUD ─────────────────────────────────────────────────────────────────
 
