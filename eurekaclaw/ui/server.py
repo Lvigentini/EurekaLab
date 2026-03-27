@@ -909,9 +909,9 @@ class UIRequestHandler(SimpleHTTPRequestHandler):
                 from eurekaclaw.orchestrator.ideation_pool import IdeationPool
                 pool = IdeationPool.model_validate_json(pool_path.read_text())
                 self._send_json({
-                    "directions": [d.model_dump() for d in pool.directions],
-                    "selected_direction": pool.selected_direction.model_dump() if pool.selected_direction else None,
-                    "injected_ideas": [i.model_dump() for i in pool.injected_ideas],
+                    "directions": [d.model_dump(mode="json") for d in pool.directions],
+                    "selected_direction": pool.selected_direction.model_dump(mode="json") if pool.selected_direction else None,
+                    "injected_ideas": [i.model_dump(mode="json") for i in pool.injected_ideas],
                     "emerged_insights": pool.emerged_insights,
                     "has_new_input": pool.has_new_input,
                     "version": pool.version,
