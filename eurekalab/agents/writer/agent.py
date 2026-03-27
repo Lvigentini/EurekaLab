@@ -234,6 +234,67 @@ _PROOF_STYLE_RULES_MARKDOWN = _PROOF_STYLE_RULES.replace(
     "**⚠ [Unverified step — see discussion]**",
 )
 
+_SURVEY_SYSTEM_PROMPT = """\
+You are the Writer Agent of EurekaLab. You generate complete, publication-quality papers.
+
+You are writing a **SURVEY PAPER**. Structure:
+1. Abstract (200 words): scope, methodology, key findings
+2. Introduction: motivation, scope, contribution of this survey
+3. Background: foundational concepts readers need
+4. Taxonomy: the organizational framework (with diagram description)
+5. Detailed Analysis: one subsection per category, covering methods, results, strengths, limitations
+6. Comparison: comparison tables across key dimensions
+7. Trends and Open Problems: temporal trends, emerging directions, unsolved challenges
+8. Conclusion: summary of the field's state, recommendations for practitioners and researchers
+
+Use comparison tables, bullet lists, and clear section headings. Cite papers extensively using the bibliography provided.
+"""
+
+_REVIEW_SYSTEM_PROMPT = """\
+You are the Writer Agent of EurekaLab. You generate complete, publication-quality papers.
+
+You are writing a **SYSTEMATIC REVIEW** following PRISMA guidelines. Structure:
+1. Abstract: objective, methods, results, conclusions (structured)
+2. Introduction: rationale, objectives, research questions
+3. Methods: search strategy, inclusion/exclusion criteria, quality assessment, data extraction, synthesis approach
+4. Results: PRISMA flow (describe the numbers), study characteristics, quality assessment summary, synthesis of findings by theme
+5. Discussion: summary of evidence, limitations, comparison with prior reviews
+6. Conclusion: key findings, implications for practice, implications for research
+
+Include: PRISMA flow diagram description, summary of findings tables, quality assessment table. Be rigorous and transparent about methodology.
+"""
+
+_EXPERIMENTAL_SYSTEM_PROMPT = """\
+You are the Writer Agent of EurekaLab. You generate complete, publication-quality papers.
+
+You are writing an **EXPERIMENTAL STUDY**. Structure:
+1. Abstract (200 words): objective, methods, results, conclusions
+2. Introduction: problem statement, motivation, research questions, contributions
+3. Related Work: prior approaches, how this work differs
+4. Methodology: experimental setup, datasets, baselines, metrics, implementation details
+5. Results: main results (tables/figures descriptions), statistical significance, ablation studies
+6. Discussion: interpretation, limitations, unexpected findings
+7. Conclusion: summary, implications, future work
+
+Present results clearly with statistical rigor. Report confidence intervals, p-values, and effect sizes where applicable.
+"""
+
+_DISCUSSION_SYSTEM_PROMPT = """\
+You are the Writer Agent of EurekaLab. You generate complete, publication-quality papers.
+
+You are writing a **DISCUSSION/POSITION PAPER**. Structure:
+1. Abstract (200 words): thesis, key arguments, implications
+2. Introduction: context, thesis statement, roadmap
+3. Background: necessary context and definitions
+4. [Thesis Development]: 2-3 sections building the main argument, each with evidence and analysis
+5. Counterarguments: the strongest objections, fairly presented
+6. Response to Counterarguments: rebuttals with evidence
+7. Implications: practical and theoretical implications if the thesis holds
+8. Conclusion: summary, call to action, open questions
+
+Build a compelling argument. Use evidence from the bibliography. Present counterarguments fairly (steel-man them) before responding.
+"""
+
 
 class WriterAgent(BaseAgent):
     """Generates a complete paper (LaTeX or Markdown) from all knowledge bus artifacts."""
@@ -244,6 +305,19 @@ class WriterAgent(BaseAgent):
         return ["citation_manager"]
 
     def _role_system_prompt(self, task: Task) -> str:
+        brief = self.bus.get_research_brief()
+        paper_type = getattr(brief, "paper_type", "proof") if brief else "proof"
+
+        if paper_type == "survey":
+            return _SURVEY_SYSTEM_PROMPT
+        if paper_type == "review":
+            return _REVIEW_SYSTEM_PROMPT
+        if paper_type == "experimental":
+            return _EXPERIMENTAL_SYSTEM_PROMPT
+        if paper_type == "discussion":
+            return _DISCUSSION_SYSTEM_PROMPT
+
+        # proof (default) — use format-specific prompt
         if settings.output_format == "markdown":
             base = _MARKDOWN_SYSTEM_PROMPT
             return base + _PROOF_STYLE_RULES_MARKDOWN if settings.enforce_proof_style else base
@@ -256,12 +330,19 @@ class WriterAgent(BaseAgent):
         exp_result = self.bus.get_experiment_result()
         bib = self.bus.get_bibliography()
 
-        if not brief or not theory_state:
-            return self._make_result(task, False, {}, error="Missing required artifacts on bus")
+        if not brief:
+            return self._make_result(task, False, {}, error="Missing ResearchBrief on bus")
+        if brief.paper_type == "proof" and not theory_state:
+            return self._make_result(task, False, {}, error="Missing TheoryState for proof paper")
 
         direction = brief.selected_direction
         title = direction.title if direction else f"Results in {brief.domain}"
         fmt = settings.output_format
+
+        # For non-proof paper types, use a simplified path that reads the
+        # analysis artifact from the bus instead of theory_state.
+        if brief.paper_type != "proof":
+            return await self._execute_non_proof(task, brief, title, fmt, bib)
 
         # Build context for the writer, tagging low-confidence lemmas explicitly
         lemma_entries = [
@@ -494,6 +575,89 @@ If a section has little content, write at least two sentences rather than omitti
                 success=True,
                 output={output_key: paper_content, "word_count": len(text.split()), "output_format": fmt},
                 text_summary=f"Paper generated ({fmt}): {len(text.split())} words",
+                token_usage=tokens,
+            )
+
+        except Exception as e:
+            logger.exception("Writer agent failed")
+            return self._make_result(task, False, {}, error=str(e))
+
+    async def _execute_non_proof(self, task: Task, brief, title: str, fmt: str, bib) -> AgentResult:
+        """Execute the writer for non-proof paper types (survey, review, experimental, discussion)."""
+        # Get analysis artifact from the bus
+        analysis_text = ""
+        for key in ("analysis_survey_analysis", "analysis_systematic_review",
+                    "analysis_experiment_design", "analysis_argument_analysis"):
+            val = self.bus.get(key)
+            if val:
+                analysis_text = val if isinstance(val, str) else str(val)
+                break
+
+        # Build citation context
+        cite_keys: list[str] = []
+        citekey_to_num: dict[str, int] = {}
+        md_references: str = ""
+        md_cite_list = "(no references)"
+        if bib and bib.papers:
+            cite_keys = _compute_cite_keys([p for p in bib.papers[:15]])
+            for idx, (key, p) in enumerate(zip(cite_keys, bib.papers[:15]), start=1):
+                citekey_to_num[key] = idx
+            md_references = "\n".join(
+                f"[{idx}] {', '.join(p.authors[:3])}{'et al.' if len(p.authors) > 3 else ''}."
+                f" {p.title}. {p.year}."
+                + (f" arXiv:{p.arxiv_id}." if getattr(p, 'arxiv_id', None) else "")
+                for idx, p in enumerate(bib.papers[:15], start=1)
+            )
+            md_cite_list = "\n".join(
+                f"- [{num}] {p.title} ({p.year}), {', '.join(p.authors[:2])}"
+                for num, p in zip(range(1, len(cite_keys) + 1), bib.papers[:15])
+            )
+
+        user_message = f"""\
+Write a complete research paper based on these artifacts:
+
+Title: {title}
+Domain: {brief.domain}
+Paper type: {brief.paper_type}
+
+Analysis and research findings:
+{analysis_text or "(no analysis available — write based on your knowledge of the domain)"}
+
+Key references (cite as [1], [2], ...):
+{md_cite_list}
+
+Start with a YAML front matter block:
+---
+title: "{title}"
+author: EurekaLab Autonomous Research System
+---
+
+Then write the full paper body using Markdown headings. Follow the structure specified in your system prompt for this paper type.
+Use $...$ for inline math and $$...$$ for display math.
+CITATION RULE: use only [1], [2], ... style inline citations.
+End the paper with a ## References section listing all cited works numerically.
+"""
+
+        try:
+            text, tokens = await self.run_agent_loop(
+                task, user_message, max_turns=settings.writer_max_turns
+            )
+
+            paper_content = self._extract_markdown(text, citekey_to_num, md_references)
+            if not self._looks_like_paper_markdown(paper_content):
+                logger.warning("WriterAgent: loop produced no Markdown body — requesting paper now")
+                text, extra = await self._request_paper_body(task, user_message, fmt)
+                tokens["input"] += extra.get("input", 0)
+                tokens["output"] += extra.get("output", 0)
+                paper_content = self._extract_markdown(text, citekey_to_num, md_references)
+
+            self.memory.log_event(self.role.value, f"Paper written (markdown/{brief.paper_type}): {len(paper_content)} characters")
+
+            return self._make_result(
+                task,
+                success=True,
+                output={"latex_paper": paper_content, "word_count": len(text.split()), "output_format": fmt},
+                text_summary=f"Paper generated (markdown/{brief.paper_type}): {len(text.split())} words",
                 token_usage=tokens,
             )
 
