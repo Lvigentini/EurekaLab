@@ -48,7 +48,10 @@ def main(verbose: bool) -> None:
 @click.option("--skills", default=None, help="The skills to use for this session (default: all skills available in the skills bank)", multiple=True)
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory for artifacts (default: ./results)")
-def prove(conjecture: str, domain: str, mode: str, skills: list[str], gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="proof",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def prove(conjecture: str, domain: str, mode: str, skills: list[str], gate: str, output: str, paper_type: str) -> None:
     """Level 1: Prove a specific conjecture.
 
     Example: eurekalab prove "The sample complexity of transformers is O(L*d*log(d)/eps^2)"
@@ -66,6 +69,7 @@ def prove(conjecture: str, domain: str, mode: str, skills: list[str], gate: str,
         gate=gate,
         output_dir=output,
         skills=skills,
+        paper_type=paper_type,
     )
 
 
@@ -75,12 +79,15 @@ def prove(conjecture: str, domain: str, mode: str, skills: list[str], gate: str,
 @click.option("--mode", default="skills_only", type=click.Choice(["skills_only", "rl", "madmax"]))
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory for artifacts (default: ./results)")
-def explore(domain: str, query: str, mode: str, gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="survey",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def explore(domain: str, query: str, mode: str, gate: str, output: str, paper_type: str) -> None:
     """Level 3: Open exploration of a research domain.
 
     Example: eurekalab explore "sample complexity of transformers"
     """
-    _run_session(mode="exploration", query=query or domain, domain=domain, learn_mode=mode, gate=gate, output_dir=output)
+    _run_session(mode="exploration", query=query or domain, domain=domain, learn_mode=mode, gate=gate, output_dir=output, paper_type=paper_type)
 
 
 @main.command()
@@ -91,7 +98,10 @@ def explore(domain: str, query: str, mode: str, gate: str, output: str) -> None:
 @click.option("--skills", default=None, help="The skills to use for this session (default: all skills available in the skills bank)", multiple=True)
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory for artifacts (default: ./results)")
-def from_papers(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, skills: list[str], gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="survey",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def from_papers(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, skills: list[str], gate: str, output: str, paper_type: str) -> None:
     """Level 2: Generate hypotheses from reference papers.
 
     Example: eurekalab from-papers 2301.12345 2302.67890 --domain "ML theory"
@@ -117,6 +127,7 @@ def from_papers(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, 
         gate=gate,
         output_dir=output,
         skills=skills,
+        paper_type=paper_type,
     )
 
 
@@ -129,7 +140,10 @@ def from_papers(paper_ids: tuple[str, ...], query: str, domain: str, mode: str, 
 @click.option("--mode", default="skills_only", type=click.Choice(["skills_only", "rl", "madmax"]))
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory")
-def from_bib(bib_file: str, pdfs: str | None, domain: str, query: str, mode: str, gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="survey",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def from_bib(bib_file: str, pdfs: str | None, domain: str, query: str, mode: str, gate: str, output: str, paper_type: str) -> None:
     """Start research from a .bib file and optional local PDFs.
 
     Example: eurekalab from-bib refs.bib --pdfs ./papers/ --domain "ML theory"
@@ -194,6 +208,7 @@ def from_bib(bib_file: str, pdfs: str | None, domain: str, query: str, mode: str
         gate=gate,
         output_dir=output,
         _preloaded_papers=papers,
+        paper_type=paper_type,
     )
 
 
@@ -204,7 +219,10 @@ def from_bib(bib_file: str, pdfs: str | None, domain: str, query: str, mode: str
 @click.option("--mode", default="skills_only", type=click.Choice(["skills_only", "rl", "madmax"]))
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory")
-def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="survey",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: str, output: str, paper_type: str) -> None:
     """Start research from a Zotero collection.
 
     Requires ZOTERO_API_KEY and ZOTERO_LIBRARY_ID environment variables.
@@ -275,6 +293,7 @@ def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: st
         gate=gate,
         output_dir=output,
         _preloaded_papers=papers,
+        paper_type=paper_type,
     )
 
 
@@ -286,7 +305,10 @@ def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: st
 @click.option("--mode", default="skills_only", type=click.Choice(["skills_only", "rl", "madmax"]))
 @click.option("--gate", default="none", type=click.Choice(["human", "auto", "none"]))
 @click.option("--output", "-o", default="./results", help="Output directory")
-def from_draft(draft_file: str, instruction: str, domain: str, query: str, mode: str, gate: str, output: str) -> None:
+@click.option("--paper-type", "-t", default="proof",
+              type=click.Choice(["proof", "survey", "review", "experimental", "discussion"]),
+              help="Type of paper to produce")
+def from_draft(draft_file: str, instruction: str, domain: str, query: str, mode: str, gate: str, output: str, paper_type: str) -> None:
     """Start research from a draft paper with optional instruction.
 
     Examples:
@@ -347,6 +369,7 @@ def from_draft(draft_file: str, instruction: str, domain: str, query: str, mode:
         output_dir=output,
         _additional_context=draft_context,
         _draft_path=str(draft_path),
+        paper_type=paper_type,
     )
 
 
@@ -1578,6 +1601,7 @@ def _run_session(
     _preloaded_papers: list | None = None,
     _additional_context: str = "",
     _draft_path: str = "",
+    paper_type: str = "proof",
 ) -> None:
     """Common session runner."""
     import os
@@ -1612,6 +1636,7 @@ def _run_session(
         domain=domain,
         paper_ids=paper_ids or [],
         selected_skills=list(skills or []),
+        paper_type=paper_type,  # type: ignore[arg-type]
     )
 
     session = EurekaSession()
@@ -1627,6 +1652,7 @@ def _run_session(
 
     console.print(
         f"[dim]Session ID: [cyan]{session.session_id}[/cyan]"
+        f"  paper-type: [yellow]{paper_type}[/yellow]"
         "  (use this to resume if paused)[/dim]"
     )
 
