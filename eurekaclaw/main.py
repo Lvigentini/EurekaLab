@@ -132,23 +132,22 @@ def save_artifacts(
             logger.info("BibTeX saved to %s/%s (reference only)", out, bib_name)
 
     if result.latex_paper:
-        if settings.output_format == "markdown":
-            (out / paper_md_name).write_text(result.latex_paper, encoding="utf-8")
-            logger.info("Markdown paper saved to %s/%s", out, paper_md_name)
-        else:
-            # Copy eureka.cls, logo-claw.png, smile.sty, and fonts/ so pdflatex can find them
-            _copy_template_assets(out)
-            tex_path = out / paper_tex_name
-            tex_path.write_text(result.latex_paper, encoding="utf-8")
-            logger.info("LaTeX paper saved to %s/%s", out, paper_tex_name)
-            # Insert stubs for any \ref{sec:*} labels the LLM referenced but never wrote
-            _stub_missing_sections(tex_path)
-            # Fix any cite keys that don't have a matching \bibitem in the tex file
-            _fix_missing_citations(tex_path)
-            try:
-                _compile_pdf(tex_path, settings.latex_bin)
-            except Exception as exc:
-                logger.warning("PDF generation skipped: %s", exc)
+        # Always produce all three formats: .md, .tex, .pdf
+        # Markdown version (strip LaTeX commands for a readable .md)
+        (out / paper_md_name).write_text(result.latex_paper, encoding="utf-8")
+        logger.info("Markdown paper saved to %s/%s", out, paper_md_name)
+
+        # LaTeX + PDF version
+        _copy_template_assets(out)
+        tex_path = out / paper_tex_name
+        tex_path.write_text(result.latex_paper, encoding="utf-8")
+        logger.info("LaTeX paper saved to %s/%s", out, paper_tex_name)
+        _stub_missing_sections(tex_path)
+        _fix_missing_citations(tex_path)
+        try:
+            _compile_pdf(tex_path, settings.latex_bin)
+        except Exception as exc:
+            logger.warning("PDF generation skipped: %s", exc)
 
     if result.theory_state_json:
         (out / "theory_state.json").write_text(result.theory_state_json, encoding="utf-8")
