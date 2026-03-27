@@ -38,7 +38,7 @@ class ProofCheckpoint:
 
     Directory layout::
 
-        ~/.eurekaclaw/sessions/<session_id>/
+        ~/.eurekaclaw/runs/<session_id>/
             pause.flag       — touch this file to request a pause
             checkpoint.json  — written on pause, deleted on resume
     """

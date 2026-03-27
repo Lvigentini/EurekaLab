@@ -201,7 +201,7 @@ class TheoryState(BaseModel):
 
 
 class NumericalBound(BaseModel):
-    name: str
+    name: str = ""
     # Accept float, int, symbolic string (e.g. "Ω(k·d)", "O(n log n)"), or None.
     theoretical: float | str | None = None
     empirical: float | str | None = None

@@ -43,7 +43,7 @@ export function WorkspaceTabs({ run }: WorkspaceTabsProps) {
       </div>
 
       <div className={`ws-panel${activeWsTab === 'live' ? ' is-visible' : ''}`} id="ws-panel-live" role="tabpanel">
-        <LivePanel run={run} />
+        <LivePanel run={run} isVisible={activeWsTab === 'live'} />
       </div>
       <div className={`ws-panel${activeWsTab === 'proof' ? ' is-visible' : ''}`} id="ws-panel-proof" role="tabpanel">
         <ProofPanel run={run} />
@@ -55,7 +55,7 @@ export function WorkspaceTabs({ run }: WorkspaceTabsProps) {
         <LogsPanel run={run} />
       </div>
       <div className={`ws-panel${activeWsTab === 'history' ? ' is-visible' : ''}`} id="ws-panel-history" role="tabpanel">
-        <VersionPanel run={run} />
+        <VersionPanel run={run} isVisible={activeWsTab === 'history'} />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import type { SessionRun, VersionEntry } from '@/types';
 
 interface VersionPanelProps {
   run: SessionRun | null;
+  isVisible?: boolean;
 }
 
 function formatAge(timestamp: string): string {
@@ -29,7 +30,7 @@ function triggerIcon(trigger: string): string {
   return '●';
 }
 
-export function VersionPanel({ run }: VersionPanelProps) {
+export function VersionPanel({ run, isVisible = true }: VersionPanelProps) {
   const [versions, setVersions] = useState<VersionEntry[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [diffResult, setDiffResult] = useState<string[]>([]);
@@ -49,10 +50,11 @@ export function VersionPanel({ run }: VersionPanelProps) {
   }, [runId]);
 
   useEffect(() => {
+    if (!isVisible) return;
     fetchVersions();
     const interval = setInterval(fetchVersions, 5000);
     return () => clearInterval(interval);
-  }, [fetchVersions]);
+  }, [fetchVersions, isVisible]);
 
   const handleDiff = async () => {
     if (selected.length !== 2 || !runId) return;

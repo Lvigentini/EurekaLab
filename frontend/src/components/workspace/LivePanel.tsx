@@ -11,6 +11,7 @@ import { IdeationPanel } from './IdeationPanel';
 
 interface LivePanelProps {
   run: SessionRun | null;
+  isVisible?: boolean;
 }
 
 function SurveyGateForm({ run }: { run: SessionRun }) {
@@ -140,7 +141,7 @@ function DirectionGateForm({ run }: { run: SessionRun }) {
   );
 }
 
-export function LivePanel({ run }: LivePanelProps) {
+export function LivePanel({ run, isVisible: _isVisible = true }: LivePanelProps) {
   if (!run) {
     return (
       <div className="live-activity-area">
