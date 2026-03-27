@@ -94,6 +94,7 @@ class InputSpec(BaseModel):
     """
 
     mode: Literal["detailed", "reference", "exploration", "from_bib", "from_draft", "from_zotero"]
+    paper_type: Literal["proof", "survey", "review", "experimental", "discussion"] = "proof"
     # Level 1: detailed conjecture
     conjecture: str | None = None
     # Level 2: reference-based (paper IDs or raw texts)

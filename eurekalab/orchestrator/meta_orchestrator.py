@@ -276,9 +276,10 @@ class MetaOrchestrator:
     def _init_brief(self, spec: InputSpec) -> ResearchBrief:
         from eurekalab.types.artifacts import ResearchBrief
         return ResearchBrief(
-            session_id=self.bus.session_id,  # reuse the outer session ID so pause/resume flags align
+            session_id=self.bus.session_id,
             input_mode=spec.mode,
-            domain=spec.domain,  # always set by EurekaSession.run() before reaching here
+            paper_type=spec.paper_type,
+            domain=spec.domain,
             query=spec.query or spec.conjecture or spec.domain,
             conjecture=spec.conjecture,
             selected_skills=spec.selected_skills,
