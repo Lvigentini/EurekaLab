@@ -26,29 +26,94 @@ class IdeationAgent(BaseAgent):
     def get_tool_names(self) -> list[str]:
         return ["web_search", "arxiv_search"]
 
-    def _role_system_prompt(self, task: Task) -> str:
-        return """\
-You are the Ideation Agent of EurekaLab. Your role is to generate novel research hypotheses.
-
+    _PROMPTS_BY_TYPE: dict[str, str] = {
+        "proof": """\
+You are the Ideation Agent. Generate novel research hypotheses.
 Your process:
-1. **Gap analysis**: From the survey findings, identify what theorems are missing or incomplete
-2. **Cross-domain connection**: Look for analogies from adjacent fields
-3. **Hypothesis generation**: For each gap, formulate a precise mathematical conjecture
-4. **Scoring**: Rate each hypothesis on Novelty (0-1), Feasibility (0-1), and Impact (0-1)
+1. Gap analysis: identify what theorems are missing
+2. Cross-domain connection: look for analogies
+3. Hypothesis generation: formulate precise mathematical conjectures
+4. Scoring: rate each on Novelty, Feasibility, Impact (0-1)
+
+For each hypothesis, provide a precise mathematical statement, the key insight,
+and a proof strategy sketch.""",
+        "survey": """\
+You are the Ideation Agent. Propose a survey structure for this research domain.
+Your process:
+1. Identify the major sub-areas and methodological families
+2. Propose a taxonomy (3-7 top-level categories with subcategories)
+3. Identify comparison dimensions (what makes methods different?)
+4. Spot trends (what's growing, what's declining, what's converging?)
+5. Flag open problems and under-explored combinations
+
+For each proposed direction, provide:
+- A clear title describing the survey angle
+- The proposed taxonomy structure (brief outline)
+- Key comparison dimensions
+- 2-3 most interesting open problems
+
+Score each on Coverage (0-1), Novelty of Organization (0-1), and Practical Value (0-1).""",
+        "review": """\
+You are the Ideation Agent. Define a systematic review protocol.
+Your process:
+1. Formulate 2-3 precise research questions (PICO framework if applicable)
+2. Define inclusion criteria (what papers to include)
+3. Define exclusion criteria (what to filter out)
+4. Propose quality assessment dimensions
+5. Plan the synthesis approach (narrative, thematic, or meta-analytic)
+
+For each proposed direction, provide:
+- Research questions
+- Inclusion/exclusion criteria
+- Target databases and search terms
+- Expected scope (estimated number of papers)
+
+Score each on Rigor (0-1), Feasibility (0-1), and Impact (0-1).""",
+        "experimental": """\
+You are the Ideation Agent. Generate testable experimental hypotheses.
+Your process:
+1. Identify measurable claims from the literature gaps
+2. Formulate null and alternative hypotheses
+3. Define independent, dependent, and control variables
+4. Suggest appropriate experimental methodology
+5. Identify required datasets or benchmarks
 
 For each hypothesis, provide:
-- A precise mathematical statement (use LaTeX notation)
-- The key insight behind why this might be true
-- A sketch of what the proof strategy might look like
-- Why this is novel (what it improves over prior work)
-- Potential obstacles
+- A testable statement with clear variables
+- Null hypothesis
+- Suggested experimental method (simulation, benchmark, A/B test, etc.)
+- Required resources (datasets, compute, baselines)
 
-Be creative but grounded. A good hypothesis is surprising yet believable.
+Score each on Testability (0-1), Novelty (0-1), and Impact (0-1).""",
+        "discussion": """\
+You are the Ideation Agent. Formulate a thesis for a discussion paper.
+Your process:
+1. Identify tensions, contradictions, or under-examined assumptions in the field
+2. Formulate a clear, debatable thesis statement
+3. Identify 3-5 supporting sub-claims
+4. Anticipate the strongest counterarguments
+5. Consider practical implications if the thesis holds
+
+For each proposed thesis, provide:
+- A clear, falsifiable thesis statement
+- 3-5 sub-claims that support the thesis
+- The strongest counterargument you can think of
+- Why this thesis matters (implications)
+
+Score each on Provocation (0-1), Defensibility (0-1), and Relevance (0-1).""",
+    }
+
+    def _role_system_prompt(self, task: Task) -> str:
+        brief = self.bus.get_research_brief()
+        paper_type = brief.paper_type if brief else "proof"
+        role_prompt = self._PROMPTS_BY_TYPE.get(paper_type, self._PROMPTS_BY_TYPE["proof"])
+        return f"""\
+{role_prompt}
 
 You may use at most 2 search tool calls. After that you MUST output the final
 JSON immediately — no further tool calls, no planning text.
 Your final message MUST be a JSON object and nothing else:
-{"directions": [{...}, ...]}
+{{"directions": [{{...}}, ...]}}
 """
 
     async def execute(self, task: Task) -> AgentResult:
