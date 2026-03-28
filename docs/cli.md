@@ -508,6 +508,177 @@ eurekalab push-to-zotero abc12345 --collection "Bandit Theory Survey"
 
 ---
 
+### Global Option: `--paper-type`
+
+Available on all research entry commands (`prove`, `explore`, `from-papers`, `from-bib`, `from-draft`, `from-zotero`):
+
+| Option | Default | Description |
+|---|---|---|
+| `--paper-type`, `-t` | varies | Type of paper to produce: `proof`, `survey`, `review`, `experimental`, `discussion` |
+
+**Defaults by command:**
+| Command | Default |
+|---|---|
+| `prove` | `proof` |
+| `explore` | `survey` |
+| `from-papers` | `survey` |
+| `from-bib` | `survey` |
+| `from-draft` | `proof` |
+| `from-zotero` | `survey` |
+
+**Example:**
+```bash
+eurekalab explore "transformer architectures" --paper-type survey
+eurekalab explore "AI alignment" --paper-type discussion
+eurekalab from-bib refs.bib --domain "ML" --paper-type review
+```
+
+---
+
+### `sessions` — List all sessions
+
+```bash
+eurekalab sessions
+```
+
+Shows a Rich table of all sessions from the SQLite database: session ID, domain, mode, status, completed stages, and age.
+
+---
+
+### `clean` — Remove old sessions
+
+```bash
+eurekalab clean [OPTIONS]
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--older-than` | `30` | Remove sessions older than N days |
+| `--status` | *(all)* | Only remove sessions with this status: `failed`, `completed`, `all` |
+| `--dry-run` | off | Show what would be removed without removing |
+
+**Example:**
+```bash
+eurekalab clean --older-than 30 --status failed
+eurekalab clean --dry-run
+```
+
+---
+
+### `housekeep` — Global maintenance
+
+```bash
+eurekalab housekeep [OPTIONS]
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--push-papers/--no-push-papers` | off | Push unfiled papers from all sessions to Zotero |
+| `--collection`, `-c` | `EurekaLab Library` | Zotero collection name |
+
+**Example:**
+```bash
+eurekalab housekeep --push-papers --collection "My Research"
+```
+
+---
+
+### `library-auth` — University library proxy configuration
+
+`library-auth` is a command group for configuring institutional library access to download paywalled PDFs.
+
+---
+
+### `library-auth set-proxy` — Set the proxy URL
+
+```bash
+eurekalab library-auth set-proxy <proxy_url> [OPTIONS]
+```
+
+**Arguments:**
+- `proxy_url` — The university library proxy URL (e.g. `https://ezproxy.library.edu/login?url=`)
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--mode`, `-m` | `prefix` | Proxy rewriting mode: `prefix`, `suffix`, `vpn` |
+
+**Example:**
+```bash
+eurekalab library-auth set-proxy "https://ezproxy.library.edu/login?url="
+eurekalab library-auth set-proxy "https://ezproxy.library.edu/login?url=" --mode suffix
+```
+
+---
+
+### `library-auth set-cookie` — Add authentication cookie
+
+```bash
+eurekalab library-auth set-cookie <cookie_string>
+```
+
+**Arguments:**
+- `cookie_string` — Cookie header value copied from browser DevTools on a proxied page (e.g. `ezproxy=ABC123; EZproxySID=xyz`)
+
+Parses the cookie string and merges it into the stored library session, preserving any existing proxy settings.
+
+**Example:**
+```bash
+eurekalab library-auth set-cookie "ezproxy=ABC123; EZproxySID=xyz"
+```
+
+---
+
+### `library-auth import-cookies` — Import cookies from a file
+
+```bash
+eurekalab library-auth import-cookies <cookie_file>
+```
+
+**Arguments:**
+- `cookie_file` — Path to a Netscape-format `cookies.txt` file (must exist). Many browser extensions can export cookies in this format.
+
+**Example:**
+```bash
+eurekalab library-auth import-cookies ~/Downloads/cookies.txt
+```
+
+---
+
+### `library-auth status` — Show authentication status
+
+```bash
+eurekalab library-auth status
+```
+
+Prints a panel showing whether a library session is configured and, if so, the proxy URL, proxy mode, number of stored cookies, and last-updated timestamp.
+
+**Example:**
+```bash
+eurekalab library-auth status
+```
+
+---
+
+### `library-auth test` — Test PDF download access
+
+```bash
+eurekalab library-auth test <doi>
+```
+
+**Arguments:**
+- `doi` — DOI of the paper to test (e.g. `10.1109/TIT.2023.1234567`)
+
+Runs the full `PdfDownloader` cascade (Unpaywall → CrossRef → library proxy) for the given DOI and reports success or failure. If no library session is configured, it falls back to open-access sources only.
+
+**Example:**
+```bash
+eurekalab library-auth test "10.1109/TIT.2023.1234567"
+```
+
+---
+
 ## Output Artifacts
 
 All three research commands (`prove`, `explore`, `from-papers`) write artifacts to `<output>/<session_id>/`:

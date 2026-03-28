@@ -49,6 +49,15 @@ All settings are read from environment variables (or a `.env` file in the projec
 | `SERPAPI_KEY` | `""` | SerpAPI key (web search fallback) |
 | `WOLFRAM_APP_ID` | `""` | Wolfram Alpha app ID (symbolic computation) |
 
+## Ensemble Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENSEMBLE_MODELS` | `""` | Comma-separated list of models for ensemble mode (e.g. `claude,gemini`) |
+| `GEMINI_API_KEY` | `""` | Gemini API key (required when `ENSEMBLE_MODELS` includes `gemini`) |
+
+When set, the EnsembleOrchestrator dispatches stages to multiple models in parallel and merges results using per-stage strategies (union, adversarial, consensus).
+
 ## Pipeline Modes
 
 | Variable | Default | Options | Description |
@@ -56,7 +65,6 @@ All settings are read from environment variables (or a `.env` file in the projec
 | `EUREKACLAW_MODE` | `skills_only` | `skills_only`, `rl`, `madmax` | Post-run learning mode |
 | `GATE_MODE` | `auto` | `auto`, `human`, `none` | Stage gate behavior |
 | `THEORY_PIPELINE` | `default` | `default`, `memory_guided` | Which theory proof pipeline to use |
-| `OUTPUT_FORMAT` | `latex` | `latex`, `markdown` | Paper output format |
 | `EXPERIMENT_MODE` | `auto` | `auto`, `true`, `false` | Experiment stage: auto-detect / force run / force skip *(future work — recommend `false`)* |
 
 **Gate modes:**
@@ -104,15 +112,36 @@ All 12 values are adjustable from the Settings tab in the web UI.
 
 | Variable | Default | Description |
 |---|---|---|
-| `PAPER_READER_USE_PDF` | `true` | Download and extract from full PDF in addition to abstract |
-| `PAPER_READER_ABSTRACT_PAPERS` | `10` | Max papers to extract from abstract |
-| `PAPER_READER_PDF_PAPERS` | `3` | Max papers to extract from full PDF |
+| `PAPER_READER_USE_PDF` | `true` | Enable/disable full-text PDF extraction |
+| `PAPER_READER_ABSTRACT_PAPERS` | `10` | Max papers to read abstracts from |
+| `PAPER_READER_PDF_PAPERS` | `3` | Max papers to extract full text from per session |
+| `PAPER_READER_PDF_BACKEND` | `pdfplumber` | PDF extraction backend: `pdfplumber` (lightweight) or `docling` (ML-powered) |
 
-## PDF Extraction
+## Output Format
 
 | Variable | Default | Description |
 |---|---|---|
-| `PAPER_READER_PDF_BACKEND` | `pdfplumber` | PDF extraction backend: `pdfplumber` (lightweight) or `docling` (ML-powered) |
+| `OUTPUT_FORMAT` | `all` | Output format: `all` (.md + .tex + .pdf), `latex` (.tex + .pdf), `markdown` (.md only) |
+
+## Institutional Library Access
+
+Configures a university library proxy so EurekaLab can download paywalled PDFs. Use the `library-auth` CLI commands to set these values interactively; they are stored in `~/.eurekalab/library_session.json`. The environment variables below serve as fallback defaults.
+
+| Variable | Default | Description |
+|---|---|---|
+| `LIBRARY_PROXY_URL` | `""` | University library proxy URL (e.g. `https://ezproxy.library.edu/login?url=`) |
+| `LIBRARY_PROXY_MODE` | `none` | Proxy rewriting mode: `prefix`, `suffix`, `vpn`, `none` |
+| `LIBRARY_CONTACT_EMAIL` | `""` | Contact email sent in HTTP User-Agent for polite crawling |
+| `PDF_CACHE_DIR` | `""` | Directory to cache downloaded PDFs (empty = no persistent cache) |
+| `PDF_DOWNLOAD_TIMEOUT` | `60` | Timeout in seconds for PDF download requests |
+| `PDF_AUTO_DOWNLOAD` | `true` | Automatically attempt to download PDFs when searching papers |
+
+**Quick setup:**
+```bash
+eurekalab library-auth set-proxy "https://ezproxy.library.edu/login?url="
+eurekalab library-auth set-cookie "ezproxy=ABC123; EZproxySID=xyz"
+eurekalab library-auth test "10.1109/TIT.2023.1234567"
+```
 
 ## Zotero Integration
 
