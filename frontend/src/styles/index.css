@@ -16,11 +16,16 @@
   --ok: #547765;
   --warn: #9b6b30;
   --idle: #6e7784;
-  --shadow: 0 22px 48px rgba(18, 37, 66, 0.08);
+  --shadow: 0 2px 8px rgba(18, 37, 66, 0.06), 0 12px 32px rgba(18, 37, 66, 0.04);
+  --shadow-sm: 0 1px 3px rgba(18, 37, 66, 0.06), 0 1px 2px rgba(18, 37, 66, 0.04);
+  --shadow-hover: 0 4px 16px rgba(18, 37, 66, 0.1), 0 2px 4px rgba(18, 37, 66, 0.06);
   --radius-xl: 28px;
-  --radius-lg: 20px;
-  --radius-md: 14px;
-  --sidebar-width: 290px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --header-height: 50px;
+  --transition-fast: 0.15s ease;
+  --transition-med: 0.2s ease;
 }
 
 * {
@@ -231,22 +236,25 @@ img {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 6px;
-  padding: 10px 10px 10px 12px;
+  gap: 8px;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background 0.15s, border-color 0.15s;
+  transition: all var(--transition-fast);
   flex-shrink: 0;
+  background: transparent;
 }
 
 .session-item:hover {
-  background: var(--primary-soft);
+  background: var(--surface-cool);
+  box-shadow: var(--shadow-sm);
 }
 
 .session-item.is-active {
   background: var(--primary-soft);
-  border-color: var(--line-strong);
+  border-color: rgba(15, 106, 184, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .session-item-main {
@@ -675,10 +683,10 @@ img {
 }
 
 .skill-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: rgba(15, 106, 184, 0.22);
   background: rgba(248, 252, 255, 0.92);
-  box-shadow: 0 4px 16px rgba(15, 106, 184, 0.06);
+  box-shadow: var(--shadow-hover);
 }
 
 .skill-card-wrap.is-selected .skill-card {
@@ -3748,23 +3756,25 @@ textarea {
   align-items: center;
   gap: 4px;
   padding: 14px 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   border: 1.5px solid var(--line);
-  background: #fff;
+  background: rgba(255,255,255,0.8);
   cursor: pointer;
   text-align: center;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: all var(--transition-fast);
 }
 
 .canvas-mode-card:hover {
-  border-color: var(--primary-soft);
+  border-color: rgba(15, 106, 184, 0.2);
   background: rgba(15, 106, 184, 0.03);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .canvas-mode-card.is-active {
   border-color: var(--primary);
-  background: rgba(15, 106, 184, 0.05);
-  box-shadow: 0 0 0 2px rgba(15, 106, 184, 0.1);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 2px rgba(15, 106, 184, 0.12);
 }
 
 .canvas-mode-icon {
@@ -4246,32 +4256,32 @@ textarea {
 
 .ws-tab-bar {
   display: flex;
-  gap: 0;
-  border-bottom: 1.5px solid var(--line);
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
   background: rgba(247, 245, 239, 0.70);
-  padding: 0 14px;
+  padding: 6px 14px 6px;
   flex-shrink: 0;
 }
 
 .ws-tab {
-  padding: 10px 18px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
   border: none;
   background: none;
   cursor: pointer;
-  border-bottom: 2.5px solid transparent;
-  margin-bottom: -1.5px;
-  transition: color 0.15s, border-color 0.15s;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
   letter-spacing: 0.01em;
 }
 
-.ws-tab:hover { color: var(--text); }
+.ws-tab:hover { background: rgba(0,0,0,0.04); color: var(--text); }
 
 .ws-tab.is-active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: var(--primary-strong);
+  background: var(--primary-soft);
+  font-weight: 600;
 }
 
 /* ── Tab panels ──────────────────────────────────────────────────────────── */
@@ -5138,13 +5148,13 @@ textarea {
 .gate-problem-list li { margin-bottom: 2px; }
 
 .btn {
-  padding: 9px 18px;
+  padding: 8px 16px;
   border-radius: var(--radius-sm);
-  font-size: 0.88rem;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: opacity 0.15s;
+  transition: all var(--transition-fast);
 }
 
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -5152,17 +5162,18 @@ textarea {
 .btn-primary {
   background: var(--primary);
   color: #fff;
+  box-shadow: 0 1px 3px rgba(15, 106, 184, 0.2);
 }
 
-.btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-strong); box-shadow: 0 2px 6px rgba(15, 106, 184, 0.3); }
 
 .btn-secondary {
   background: var(--surface-strong);
   color: var(--text);
-  border: 1.5px solid var(--line);
+  border: 1px solid var(--line);
 }
 
-.btn-secondary:hover:not(:disabled) { background: var(--surface-cool); }
+.btn-secondary:hover:not(:disabled) { background: var(--surface-cool); border-color: var(--line-strong); }
 
 .btn-ghost {
   background: transparent;
