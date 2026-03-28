@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUiStore } from '@/store/uiStore';
 import { useSkillStore } from '@/store/skillStore';
 import { usePolling } from '@/hooks/usePolling';
 import { apiGet } from '@/api/client';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { SessionTray } from '@/components/layout/SessionTray';
 import { FlashOverlay } from '@/components/layout/FlashOverlay';
 import { NewSessionForm } from '@/components/session/NewSessionForm';
 import { SessionDetailPane } from '@/components/session/SessionDetailPane';
@@ -19,6 +20,8 @@ interface SkillsResponse {
   skills: Skill[];
 }
 
+const TRAY_KEY = 'eurekalab_tray_open';
+
 export function App() {
   const activeView = useUiStore((s) => s.activeView);
   const setActiveView = useUiStore((s) => s.setActiveView);
@@ -26,9 +29,20 @@ export function App() {
   const currentRun = useSessionStore((s) => s.currentRun());
   const setAvailableSkills = useSkillStore((s) => s.setAvailableSkills);
 
+  const [trayOpen, setTrayOpen] = useState(() => {
+    try { return localStorage.getItem(TRAY_KEY) !== 'false'; } catch { return true; }
+  });
+
+  const toggleTray = () => {
+    setTrayOpen((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(TRAY_KEY, String(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
   const { restartFast } = usePolling();
 
-  // On first visit (no persisted view), show onboarding unless tutorial was skipped
   useEffect(() => {
     const hasPersistedView = localStorage.getItem('eurekalab_ui');
     if (!hasPersistedView) {
@@ -40,15 +54,12 @@ export function App() {
     }
   }, [setActiveView]);
 
-  // Load skills on mount
   useEffect(() => {
     void (async () => {
       try {
         const data = await apiGet<SkillsResponse>('/api/skills');
         setAvailableSkills(data.skills ?? []);
-      } catch {
-        // silently ignore
-      }
+      } catch { /* silently ignore */ }
     })();
   }, [setAvailableSkills]);
 
@@ -62,13 +73,12 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Header trayOpen={trayOpen} onToggleTray={toggleTray} />
+
+      <SessionTray open={trayOpen} />
 
       <main className="main-shell">
-        <section
-          className={`view${activeView === 'workspace' ? ' is-visible' : ''}`}
-          data-view="workspace"
-        >
+        <section className={`view${activeView === 'workspace' ? ' is-visible' : ''}`} data-view="workspace">
           {isWorkspaceView && (
             currentRun
               ? <SessionDetailPane run={currentRun} onRestartFast={restartFast} />
@@ -76,33 +86,22 @@ export function App() {
           )}
         </section>
 
-        <section
-          className={`view${activeView === 'skills' ? ' is-visible' : ''}`}
-          data-view="skills"
-        >
+        <section className={`view${activeView === 'skills' ? ' is-visible' : ''}`} data-view="skills">
           {activeView === 'skills' && <SkillsView />}
         </section>
 
-        <section
-          className={`view${activeView === 'onboarding' ? ' is-visible' : ''}`}
-          data-view="onboarding"
-        >
+        <section className={`view${activeView === 'onboarding' ? ' is-visible' : ''}`} data-view="onboarding">
           {activeView === 'onboarding' && <OnboardingView />}
         </section>
 
-        <section
-          className={`view${activeView === 'systems' ? ' is-visible' : ''}`}
-          data-view="systems"
-        >
+        <section className={`view${activeView === 'systems' ? ' is-visible' : ''}`} data-view="systems">
           {activeView === 'systems' && <ConfigView />}
         </section>
 
-        <section
-          className={`view${activeView === 'docs' ? ' is-visible' : ''}`}
-          data-view="docs"
-        >
+        <section className={`view${activeView === 'docs' ? ' is-visible' : ''}`} data-view="docs">
           {activeView === 'docs' && <DocsView />}
         </section>
+
         <button
           className="tutorial-btn"
           title="Setup guide &amp; tutorials"
