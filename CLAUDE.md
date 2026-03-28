@@ -4,12 +4,12 @@ Multi-agent system for theoretical research — proof-heavy, formalism-rich, mat
 
 ## Quick Reference
 
-- **Version:** 0.4.0
+- **Version:** 0.6.1
 - **Python:** 3.11+
 - **Entry:** `eurekalab/cli.py` (Click CLI), `eurekalab/main.py` (EurekaSession)
-- **Tests:** `pytest tests/ -v` (193 tests, ~6s)
+- **Tests:** `pytest tests/ -v` (311 tests, ~6s)
 - **Database:** `~/.eurekalab/eurekalab.db` (SQLite — session metadata + version history)
-- **Package:** `pip install -e "."` (or `pip install -e ".[all]"` for all extras)
+- **Package:** `pip install -e "."` (or `pip install -e ".[all]"` for all extras — includes zotero, pdf)
 
 ## Architecture
 
@@ -30,6 +30,7 @@ Pipeline is defined in `eurekalab/orchestrator/pipelines/default_pipeline.yaml` 
 | IdeationPool | `eurekalab/orchestrator/ideation_pool.py` | Continuous ideation, injected ideas |
 | GateController | `eurekalab/orchestrator/gate.py` | Human/auto gates, content status |
 | Config | `eurekalab/config.py` | Pydantic Settings, all env vars |
+| AnalystAgent | `eurekalab/agents/analyst/agent.py` | Flexible agent for non-proof core work |
 
 ### Data Models
 All in `eurekalab/types/artifacts.py` and `eurekalab/types/tasks.py`:
@@ -55,6 +56,19 @@ All in `eurekalab/types/artifacts.py` and `eurekalab/types/tasks.py`:
 | `clean` | Remove old sessions |
 | `housekeep` | Global maintenance (push papers to Zotero) |
 | `push-to-zotero` | Sync session results back to Zotero |
+| `library-auth` | Institutional library access |
+
+## Paper Types
+
+`--paper-type/-t` option on all entry commands selects the output type:
+
+| Type | Pipeline | Default For |
+|------|----------|-------------|
+| `proof` | survey → ideation → theory → experiment → writer | `prove` |
+| `survey` | survey → ideation → analyst → writer | `explore`, `from-bib`, `from-zotero` |
+| `review` | survey → ideation → analyst → writer | — |
+| `experimental` | survey → ideation → analyst → experiment → writer | — |
+| `discussion` | survey → ideation → analyst → writer | — |
 
 ## Conventions
 

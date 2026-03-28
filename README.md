@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-cropped.svg" width="700" alt="EurekaLab  — The Research Claw">
+  <img src="assets/logo-cropped.svg" width="700" alt="EurekaLab">
 </p>
 
 <p align="center">
@@ -230,7 +230,9 @@ cp .env.example .env
 | `EUREKALAB_MODEL` | `claude-sonnet-4-6` | Main reasoning model |
 | `GATE_MODE` | `auto` | `none` · `auto` · `human` |
 | `THEORY_PIPELINE` | `default` | `default` or `memory_guided` |
-| `OUTPUT_FORMAT` | `latex` | `latex` or `markdown` |
+| `OUTPUT_FORMAT` | `all` | `all`, `latex`, or `markdown` |
+| `PAPER_READER_PDF_BACKEND` | `pdfplumber` | `pdfplumber` or `docling` |
+| `ENSEMBLE_MODELS` | `""` | Comma-separated model list for ensemble |
 | `EXPERIMENT_MODE` | `auto` | `auto` · `true` · `false` |
 | `THEORY_MAX_ITERATIONS` | `10` | Max proof loop iterations |
 

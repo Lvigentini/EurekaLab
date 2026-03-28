@@ -4,6 +4,36 @@ Summary of all updates from `UPDATES.md`.
 
 ---
 
+## v0.6.1 — 2026-03-28
+
+- Merged library-auth feature branch (DOI field, CrossRef/Unpaywall, PdfDownloader, university proxy auth, Zotero PDF sync, OpenAlex search)
+- 311 tests
+
+---
+
+## v0.6.0 — 2026-03-28
+
+- Multi-paper-type architecture: proof, survey, review, experimental, discussion
+- `--paper-type/-t` option on all entry commands
+- 5 pipeline YAMLs (one per paper type)
+- AnalystAgent for non-proof core work
+- IdeationAgent paper-type-aware prompts
+- WriterAgent polymorphic templates
+- `explore` defaults to survey paper type
+
+---
+
+## v0.5.0 — 2026-03-28
+
+- Full project rename: EurekaClaw → EurekaLab
+- Package: eurekaclaw → eurekalab
+- CLI: eurekaclaw → eurekalab
+- Env vars: EUREKACLAW_* → EUREKALAB_*
+- Config dir: ~/.eurekaclaw → ~/.eurekalab
+- 205 tests, all frontend rebuilt
+
+---
+
 ## v0.4.0 — 2026-03-27 (SQLite Storage Refactor)
 
 ### SQLite Session Database
