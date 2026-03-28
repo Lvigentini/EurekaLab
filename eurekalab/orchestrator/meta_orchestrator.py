@@ -745,14 +745,40 @@ class MetaOrchestrator:
             console.print(f"[dim]  ↳ Captured {added} theory insight(s) into ideation pool[/dim]")
 
     def _handle_content_gaps(self) -> None:
-        """Show content status and optionally match local PDFs."""
+        """Auto-download PDFs where possible, then show content status."""
+        import asyncio
+        from eurekalab.analyzers.content_gap import ContentGapAnalyzer
+
+        bib = self.bus.get_bibliography()
+
+        # Phase 1: Attempt automatic downloads via PdfDownloader
+        if bib and settings.pdf_auto_download:
+            from eurekalab.services.pdf_downloader import PdfDownloader
+            downloader = PdfDownloader()
+            gap_papers = [
+                p for p in bib.papers
+                if p.content_tier != "full_text" and (p.doi or p.arxiv_id)
+            ]
+            if gap_papers:
+                console.print(f"[dim]Attempting auto-download for {len(gap_papers)} papers...[/dim]")
+                downloaded = 0
+                for paper in gap_papers:
+                    result = asyncio.get_event_loop().run_until_complete(
+                        downloader.download_and_extract(paper)
+                    )
+                    if result:
+                        downloaded += 1
+                if downloaded:
+                    console.print(f"[green]Auto-downloaded {downloaded}/{len(gap_papers)} papers.[/green]")
+                    self.bus.put_bibliography(bib)
+
+        # Phase 2: Show remaining gaps and offer manual PDF directory
         response = self.gate.print_content_status()
         if response and response.lower() != "skip":
             from pathlib import Path
             pdf_dir = Path(response).expanduser()
             if pdf_dir.is_dir():
                 from eurekalab.analyzers.bib_loader import BibLoader
-                bib = self.bus.get_bibliography()
                 if bib:
                     BibLoader.match_pdfs(bib.papers, pdf_dir)
                     self._extract_matched_pdfs(bib)
@@ -763,17 +789,15 @@ class MetaOrchestrator:
                 console.print(f"[red]Directory not found: {pdf_dir}[/red]")
 
     def _extract_matched_pdfs(self, bib) -> None:
-        """Extract text from matched local PDFs using pdfplumber."""
+        """Extract text from matched local PDFs using PdfDownloader."""
+        from eurekalab.services.pdf_downloader import PdfDownloader
+        downloader = PdfDownloader()
         for paper in bib.papers:
             if paper.local_pdf_path and paper.content_tier != "full_text":
-                try:
-                    import pdfplumber
-                    with pdfplumber.open(paper.local_pdf_path) as pdf:
-                        pages = [page.extract_text() or "" for page in pdf.pages]
-                        paper.full_text = "\n\n".join(pages)
-                        paper.content_tier = "full_text"
-                except Exception as e:
-                    logger.warning("PDF extraction failed for '%s': %s", paper.title, e)
+                text = downloader._extract_local(paper.local_pdf_path)
+                if text:
+                    paper.full_text = text
+                    paper.content_tier = "full_text"
 
     def _dependencies_met(self, task: Task, pipeline: TaskPipeline) -> bool:
         for dep_id in task.depends_on:
