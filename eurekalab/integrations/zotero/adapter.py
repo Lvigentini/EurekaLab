@@ -187,6 +187,97 @@ class ZoteroAdapter:
         logger.info("ZoteroAdapter: pushed %d/%d papers", len(keys), len(items))
         return keys
 
+    def upload_pdf_attachment(
+        self,
+        parent_key: str,
+        pdf_path: str,
+        title: str = "",
+    ) -> str | None:
+        """Upload a PDF file as a child attachment to a Zotero item.
+
+        Returns the attachment key on success, or None on failure.
+        """
+        path = Path(pdf_path)
+        if not path.exists():
+            logger.warning("ZoteroAdapter: PDF not found: %s", pdf_path)
+            return None
+
+        filename = title.replace("/", "_")[:80] + ".pdf" if title else path.name
+
+        try:
+            result = self._zot.attachment_simple([str(path)], parent_key)
+            if isinstance(result, dict):
+                successful = result.get("successful", {})
+                for data in successful.values():
+                    if isinstance(data, dict) and "key" in data:
+                        logger.info(
+                            "ZoteroAdapter: uploaded PDF attachment for %s",
+                            parent_key,
+                        )
+                        return data["key"]
+            # pyzotero may return different formats
+            logger.debug("ZoteroAdapter: upload_pdf_attachment result: %s", result)
+            return None
+        except Exception as e:
+            logger.warning(
+                "ZoteroAdapter: PDF upload failed for %s: %s", parent_key, e,
+            )
+            return None
+
+    def download_attachment(
+        self,
+        item_key: str,
+        save_dir: Path,
+    ) -> str | None:
+        """Download the PDF attachment for a Zotero item from cloud storage.
+
+        Looks for child attachments of type 'application/pdf', downloads
+        the first one found, and saves it to *save_dir*.
+
+        Returns the local file path on success, or None.
+        """
+        try:
+            children = self._zot.children(item_key)
+        except Exception as e:
+            logger.debug("ZoteroAdapter: failed to list children for %s: %s", item_key, e)
+            return None
+
+        for child in children:
+            data = child.get("data", {})
+            if data.get("itemType") != "attachment":
+                continue
+            content_type = data.get("contentType", "")
+            if "pdf" not in content_type:
+                continue
+
+            attachment_key = child.get("key", "")
+            if not attachment_key:
+                continue
+
+            try:
+                file_content = self._zot.file(attachment_key)
+                if not file_content:
+                    continue
+
+                save_dir.mkdir(parents=True, exist_ok=True)
+                filename = data.get("filename", f"{attachment_key}.pdf")
+                save_path = save_dir / filename
+                save_path.write_bytes(file_content)
+
+                logger.info(
+                    "ZoteroAdapter: downloaded attachment %s → %s",
+                    attachment_key, save_path,
+                )
+                return str(save_path)
+            except Exception as e:
+                logger.debug(
+                    "ZoteroAdapter: failed to download attachment %s: %s",
+                    attachment_key, e,
+                )
+                continue
+
+        return None
+
     def push_note(self, parent_item_key: str, note_html: str, tags: list[str] | None = None) -> str | None:
         """Create a child note on a Zotero item."""
         item: dict[str, Any] = {

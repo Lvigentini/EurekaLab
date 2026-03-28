@@ -261,17 +261,35 @@ def from_zotero(collection_id: str, domain: str, query: str, mode: str, gate: st
 
     console.print(f"[green]Imported {len(papers)} papers from Zotero[/green]")
 
-    # Extract text from local PDFs if available
+    # Extract text from local PDFs or download from Zotero cloud
+    from eurekalab.services.pdf_downloader import PdfDownloader
+    downloader = PdfDownloader()
+
+    # Try cloud download for papers without local PDFs
+    papers_needing_pdf = [p for p in papers if not p.local_pdf_path and p.zotero_item_key]
+    if papers_needing_pdf:
+        console.print(f"[dim]Attempting cloud PDF download for {len(papers_needing_pdf)} papers...[/dim]")
+        cloud_downloaded = 0
+        cache_dir = downloader._cache_dir
+        for paper in papers_needing_pdf:
+            pdf_path = adapter.download_attachment(paper.zotero_item_key, cache_dir)
+            if pdf_path:
+                paper.local_pdf_path = pdf_path
+                cloud_downloaded += 1
+        if cloud_downloaded:
+            console.print(f"[green]Downloaded {cloud_downloaded} PDF(s) from Zotero cloud.[/green]")
+
+    # Extract text from all available PDFs
+    extracted = 0
     for paper in papers:
-        if paper.local_pdf_path:
-            try:
-                import pdfplumber
-                with pdfplumber.open(paper.local_pdf_path) as pdf:
-                    pages = [page.extract_text() or "" for page in pdf.pages]
-                    paper.full_text = "\n\n".join(pages)
-                    paper.content_tier = "full_text"
-            except Exception as e:
-                console.print(f"[yellow]PDF extraction failed for '{paper.title[:50]}': {e}[/yellow]")
+        if paper.local_pdf_path and paper.content_tier != "full_text":
+            text = downloader._extract_local(paper.local_pdf_path)
+            if text:
+                paper.full_text = text
+                paper.content_tier = "full_text"
+                extracted += 1
+    if extracted:
+        console.print(f"[green]Extracted full text from {extracted} PDF(s).[/green]")
 
     if not query:
         n = len(papers)
@@ -912,11 +930,27 @@ def push_to_zotero(session_id: str, collection: str) -> None:
         if new_papers:
             console.print(f"[blue]Pushing {len(new_papers)} discovered papers...[/blue]")
             keys = adapter.push_papers(new_papers, col_key)
+            # Persist zotero_item_key back to the papers
+            for paper, key in zip(new_papers, keys):
+                paper.zotero_item_key = key
             console.print(f"[green]Pushed {len(keys)} papers to Zotero.[/green]")
+
+            # Upload cached PDFs as attachments for newly pushed papers
+            pdf_uploaded = 0
+            for paper, key in zip(new_papers, keys):
+                if paper.local_pdf_path and key:
+                    att_key = adapter.upload_pdf_attachment(key, paper.local_pdf_path, paper.title)
+                    if att_key:
+                        pdf_uploaded += 1
+            if pdf_uploaded:
+                console.print(f"[green]Uploaded {pdf_uploaded} PDF attachment(s).[/green]")
+
+            # Save updated bibliography with zotero_item_keys
+            bus.put_bibliography(bib)
         else:
             console.print("[dim]No new papers to push (all already from Zotero).[/dim]")
 
-    # Push theory notes onto source papers
+    # Push theory notes onto all source papers (not just the first)
     state = bus.get_theory_state()
     if state and state.assembled_proof and bib:
         zotero_papers = [p for p in bib.papers if p.zotero_item_key]
@@ -927,13 +961,16 @@ def push_to_zotero(session_id: str, collection: str) -> None:
                 f"<p><strong>Status:</strong> {state.status}</p>"
                 f"<p><strong>Proven lemmas:</strong> {len(state.proven_lemmas)}</p>"
             )
-            # Attach note to the first Zotero paper (primary reference)
-            adapter.push_note(
-                zotero_papers[0].zotero_item_key,
-                note_html,
-                tags=["eurekalab", f"session:{session_id[:8]}"],
-            )
-            console.print(f"[green]Pushed session note to '{zotero_papers[0].title[:50]}'[/green]")
+            notes_pushed = 0
+            for paper in zotero_papers:
+                result = adapter.push_note(
+                    paper.zotero_item_key,
+                    note_html,
+                    tags=["eurekalab", f"session:{session_id[:8]}"],
+                )
+                if result:
+                    notes_pushed += 1
+            console.print(f"[green]Pushed session note to {notes_pushed} source paper(s).[/green]")
 
     console.print(f"[bold green]Zotero sync complete for session {session_id[:8]}.[/bold green]")
 
