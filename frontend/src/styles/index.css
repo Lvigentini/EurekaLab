@@ -5484,6 +5484,15 @@ textarea {
 .injection-actions { margin-top: 8px; }
 .injection-result { font-size: 12px; color: var(--ok); margin-top: 6px; }
 
+/* ── New session form: steps, hints, paper type chips ─────────── */
+.canvas-step { margin-bottom: 8px; }
+.canvas-step-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.canvas-hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 8px; padding: 8px 12px; background: var(--surface-cool); border-radius: var(--radius-sm); border-left: 3px solid var(--primary-soft); }
+.canvas-type-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.canvas-type-chip { padding: 5px 12px; border: 1px solid var(--line); border-radius: 20px; background: none; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all var(--transition-fast); }
+.canvas-type-chip:hover { border-color: var(--primary-soft); color: var(--text); }
+.canvas-type-chip.is-active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); font-weight: 600; }
+
 /* ── Button variants ──────────────────────────────────────────── */
 .btn-sm { padding: 4px 10px; font-size: 12px; }
 

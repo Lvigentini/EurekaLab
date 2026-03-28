@@ -10,7 +10,6 @@ import { NewSessionForm } from '@/components/session/NewSessionForm';
 import { SessionDetailPane } from '@/components/session/SessionDetailPane';
 import { SkillsView } from '@/components/skills/SkillsView';
 import { ConfigView } from '@/components/config/ConfigView';
-import { OnboardingView } from '@/components/onboarding/OnboardingView';
 import { DocsView } from '@/components/docs/DocsView';
 import { AgentDrawer } from '@/components/agent/AgentDrawer';
 import { useSessionStore } from '@/store/sessionStore';
@@ -45,11 +44,7 @@ export function App() {
   useEffect(() => {
     const hasPersistedView = localStorage.getItem('eurekalab_ui');
     if (!hasPersistedView) {
-      if (localStorage.getItem('eurekalab_tutorial_skipped') === '1') {
-        setActiveView('workspace');
-      } else {
-        setActiveView('onboarding');
-      }
+      setActiveView('workspace');
     }
   }, [setActiveView]);
 
@@ -81,10 +76,6 @@ export function App() {
 
         <section className={`view${activeView === 'skills' ? ' is-visible' : ''}`} data-view="skills">
           {activeView === 'skills' && <SkillsView />}
-        </section>
-
-        <section className={`view${activeView === 'onboarding' ? ' is-visible' : ''}`} data-view="onboarding">
-          {activeView === 'onboarding' && <OnboardingView />}
         </section>
 
         <section className={`view${activeView === 'systems' ? ' is-visible' : ''}`} data-view="systems">
