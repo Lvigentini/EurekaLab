@@ -5490,3 +5490,10 @@ textarea {
 
 /* ── Button variants ──────────────────────────────────────────── */
 .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* ── Version pill ─────────────────────────────────────────────── */
+.version-pill { font-size: 10px; font-weight: 500; background: var(--primary-soft); color: var(--primary); padding: 1px 6px; border-radius: 4px; vertical-align: middle; margin-left: 4px; letter-spacing: 0.3px; }
+
+/* ── Docs nav link ────────────────────────────────────────────── */
+.nav-item--docs { text-decoration: none; color: var(--muted); font-size: 12px; opacity: 0.7; transition: opacity 0.15s; }
+.nav-item--docs:hover { opacity: 1; color: var(--primary); }

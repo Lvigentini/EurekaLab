@@ -4,6 +4,7 @@ export interface Capability {
 }
 
 export interface AppConfig {
+  version?: string;
   llm_backend?: string;
   anthropic_auth_mode?: string;
   ccproxy_port?: string | number;

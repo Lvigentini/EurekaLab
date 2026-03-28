@@ -765,12 +765,15 @@ class UIServerState:
 
 
 def _config_payload() -> dict[str, Any]:
-    return {
+    from eurekalab import __version__
+    payload = {
         field_name: str(getattr(settings, field_name))
         if isinstance(getattr(settings, field_name), Path)
         else getattr(settings, field_name)
         for field_name in _CONFIG_FIELDS
     }
+    payload["version"] = __version__
+    return payload
 
 
 def _preflight_check(config: dict[str, Any]) -> None:

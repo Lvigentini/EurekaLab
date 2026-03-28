@@ -1,9 +1,18 @@
+import { useState, useEffect } from 'react';
 import { useUiStore } from '@/store/uiStore';
 import { SessionListShell } from '@/components/session/SessionList';
+import { apiGet } from '@/api/client';
 
 export function Sidebar() {
   const activeView = useUiStore((s) => s.activeView);
   const setActiveView = useUiStore((s) => s.setActiveView);
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    apiGet<{ config: { version?: string } }>('/api/config')
+      .then((data) => setVersion(data.config?.version ?? ''))
+      .catch(() => {});
+  }, []);
 
   return (
     <aside className="sidebar">
@@ -11,7 +20,7 @@ export function Sidebar() {
         <div className="brand-mark" aria-hidden="true">
           <img src="/logo-claw.png" alt="" className="brand-mark-image" />
         </div>
-        <h1>EurekaLab</h1>
+        <h1>EurekaLab {version && <span className="version-pill">v{version}</span>}</h1>
       </div>
 
       <nav className="nav-stack" aria-label="Primary">
@@ -41,6 +50,14 @@ export function Sidebar() {
       >
         Settings
       </button>
+      <a
+        className="nav-item nav-item--docs"
+        href="https://github.com/Lvigentini/EurekaLab/tree/main/docs"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Docs ↗
+      </a>
     </aside>
   );
 }
