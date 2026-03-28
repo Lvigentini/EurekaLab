@@ -200,6 +200,34 @@ class Config(BaseSettings):
     def ensure_dirs(self) -> None:
         for d in (self.skills_dir, self.memory_dir, self.runs_dir):
             d.mkdir(parents=True, exist_ok=True)
+        self._migrate_from_old_dir()
+
+    def _migrate_from_old_dir(self) -> None:
+        """Auto-migrate data from ~/.eurekaclaw (old name) to ~/.eurekalab."""
+        import shutil
+        old_dir = Path.home() / ".eurekaclaw"
+        if not old_dir.exists():
+            return
+        migrated = []
+        for name in ("skills", "runs", "memories", "memory", "sessions"):
+            old = old_dir / name
+            new = self.eurekalab_dir / name
+            if old.is_dir() and (not new.exists() or not any(new.iterdir())):
+                if new.exists():
+                    shutil.rmtree(new)
+                shutil.copytree(old, new)
+                migrated.append(name)
+        for name in ("seed_skill_stats.json",):
+            old = old_dir / name
+            new = self.eurekalab_dir / name
+            if old.is_file() and not new.exists():
+                shutil.copy2(old, new)
+                migrated.append(name)
+        if migrated:
+            import logging
+            logging.getLogger(__name__).info(
+                "Migrated from ~/.eurekaclaw: %s", ", ".join(migrated)
+            )
 
 
 # Singleton — import this everywhere
