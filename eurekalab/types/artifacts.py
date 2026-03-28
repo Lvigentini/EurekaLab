@@ -21,6 +21,7 @@ class Paper(BaseModel):
     abstract: str = ""
     venue: str = ""
     arxiv_id: str | None = None
+    doi: str | None = None
     semantic_scholar_id: str | None = None
     citation_count: int = 0
     url: str = ""

@@ -87,6 +87,12 @@ class Config(BaseSettings):
     paper_reader_abstract_papers: int = Field(default=10, alias="PAPER_READER_ABSTRACT_PAPERS")
     paper_reader_pdf_papers: int = Field(default=3, alias="PAPER_READER_PDF_PAPERS")
 
+    # ---- Library / PDF download --------------------------------------------
+    library_contact_email: str = Field(default="", alias="LIBRARY_CONTACT_EMAIL")
+    pdf_cache_dir: str = Field(default="", alias="PDF_CACHE_DIR")
+    pdf_download_timeout: int = Field(default=60, alias="PDF_DOWNLOAD_TIMEOUT")
+    pdf_auto_download: bool = Field(default=True, alias="PDF_AUTO_DOWNLOAD")
+
     # ---- Zotero integration ------------------------------------------------
     zotero_enabled: bool = Field(default=False, alias="ZOTERO_ENABLED")
     zotero_api_key: str = Field(default="", alias="ZOTERO_API_KEY")

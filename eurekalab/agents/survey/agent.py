@@ -57,7 +57,7 @@ class SurveyAgent(BaseAgent):
     role = AgentRole.SURVEY
 
     def get_tool_names(self) -> list[str]:
-        tools = ["arxiv_search", "semantic_scholar_search", "web_search", "citation_manager"]
+        tools = ["arxiv_search", "semantic_scholar_search", "crossref_search", "unpaywall_lookup", "web_search", "citation_manager"]
         from eurekalab.config import settings
         if settings.gemini_api_key:
             tools.append("gemini_search")
@@ -138,13 +138,14 @@ papers (5-8), open_problems (3-5), key_mathematical_objects, research_frontier, 
             # during the loop (e.g. via citation_manager) are preserved.
             papers = [
                 Paper(
-                    paper_id=p.get("arxiv_id") or p.get("s2_id") or p.get("title", "")[:20],
+                    paper_id=p.get("arxiv_id") or p.get("doi") or p.get("s2_id") or p.get("title", "")[:20],
                     title=p.get("title", ""),
                     authors=_coerce_authors(p.get("authors", [])),
                     year=p.get("year"),
                     abstract=p.get("abstract", ""),
                     venue=p.get("venue", ""),
                     arxiv_id=p.get("arxiv_id") or "",
+                    doi=p.get("doi") or None,
                     semantic_scholar_id=p.get("s2_id") or "",
                     citation_count=p.get("citation_count", 0),
                     url=p.get("url", ""),

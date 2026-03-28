@@ -50,7 +50,9 @@ class BibLoader:
                     year = int(year_str.strip())
                 except ValueError:
                     pass
-            paper_id = arxiv_id or fields.get("ID", "") or title[:30]
+            doi_raw = fields.get("doi", "")
+            doi = doi_raw.strip() if doi_raw else None
+            paper_id = arxiv_id or doi or fields.get("ID", "") or title[:30]
             papers.append(Paper(
                 paper_id=paper_id,
                 title=title,
@@ -58,6 +60,7 @@ class BibLoader:
                 year=year,
                 venue=venue.strip("{}"),
                 arxiv_id=arxiv_id,
+                doi=doi,
                 url=url,
                 source="bib_import",
                 content_tier="metadata",

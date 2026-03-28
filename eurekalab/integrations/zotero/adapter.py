@@ -135,6 +135,7 @@ class ZoteroAdapter:
             abstract=abstract,
             venue=venue,
             arxiv_id=arxiv_id,
+            doi=doi or None,
             url=url,
             source="zotero",
             content_tier=content_tier,

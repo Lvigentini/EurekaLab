@@ -69,6 +69,7 @@ class SemanticScholarTool(BaseTool):
                         "citation_count": p.get("citationCount", 0),
                         "venue": p.get("venue", ""),
                         "arxiv_id": (p.get("externalIds") or {}).get("ArXiv", ""),
+                        "doi": (p.get("externalIds") or {}).get("DOI", ""),
                         "url": p.get("url", ""),
                     }
                 )

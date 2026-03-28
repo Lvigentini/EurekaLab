@@ -67,9 +67,11 @@ def build_default_registry() -> ToolRegistry:
     from eurekalab.tools.arxiv import ArxivSearchTool
     from eurekalab.tools.citation import CitationManagerTool
     from eurekalab.tools.code_exec import CodeExecutionTool
+    from eurekalab.tools.crossref import CrossRefTool
     from eurekalab.tools.gemini_search import GeminiSearchTool
     from eurekalab.tools.lean4 import Lean4Tool
     from eurekalab.tools.semantic_scholar import SemanticScholarTool
+    from eurekalab.tools.unpaywall import UnpaywallTool
     from eurekalab.tools.web_search import WebSearchTool
     from eurekalab.tools.wolfram import WolframAlphaTool
 
@@ -77,6 +79,8 @@ def build_default_registry() -> ToolRegistry:
     for tool in [
         ArxivSearchTool(),
         SemanticScholarTool(),
+        CrossRefTool(),
+        UnpaywallTool(),
         WebSearchTool(),
         CodeExecutionTool(),
         Lean4Tool(),
