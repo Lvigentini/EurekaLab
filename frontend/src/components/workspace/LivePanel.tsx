@@ -270,7 +270,7 @@ export function LivePanel({ run, isVisible: _isVisible = true }: LivePanelProps)
     return (
       <div className="live-activity-area">
         <div className="live-thinking-view">
-          <p className="live-stage-label" style={{ color: 'var(--green)' }}>✓ Research complete</p>
+          <p className="live-stage-label" style={{ color: 'var(--green)' }}>✓ Session complete</p>
           {dir && <blockquote className="drawer-direction-quote">{dir}</blockquote>}
           {hypothesis && !dir && <blockquote className="drawer-direction-quote">{hypothesis}</blockquote>}
           <p className="drawer-muted">Switch to the <strong>Paper</strong> tab to read the draft, or <strong>Proof</strong> for the theorem sketch.</p>

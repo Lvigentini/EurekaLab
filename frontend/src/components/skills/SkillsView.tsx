@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { ClawHubPanel } from './ClawHubPanel';
+import { SkillHubPanel } from './SkillHubPanel';
 import { SkillLibrary } from './SkillLibrary';
 import { SelectedSkillsPanel } from './SelectedSkillsPanel';
 import { useSkillStore } from '@/store/skillStore';
 
 export function SkillsView() {
-  const [clawStatus, setClawStatus] = useState('');
-  const [clawStatusError, setClawStatusError] = useState(false);
+  const [hubStatus, setClawStatus] = useState('');
+  const [hubStatusError, setClawStatusError] = useState(false);
   const availableSkills = useSkillStore((s) => s.availableSkills);
   const selectedSkills = useSkillStore((s) => s.selectedSkills);
 
@@ -25,8 +25,8 @@ export function SkillsView() {
         <div className="skills-hero-text">
           <h2 className="skills-hero-title">Proof Strategies &amp; Skills</h2>
           <p className="skills-hero-sub">
-            Skills guide how EurekaLab approaches each proof — from choosing proof techniques
-            to structuring lemma decompositions. The system learns new strategies after every successful session.
+            Skills guide how EurekaLab approaches each research task — from choosing proof techniques
+            to structuring analytical decompositions. The system learns new strategies after every successful session.
           </p>
         </div>
         <div className="skills-hero-stats">
@@ -52,13 +52,13 @@ export function SkillsView() {
       </div>
 
       {/* Add Skills bar */}
-      <ClawHubPanel status={clawStatus} statusError={clawStatusError} onStatus={handleStatus} />
+      <SkillHubPanel status={hubStatus} statusError={hubStatusError} onStatus={handleStatus} />
 
       {/* Selected skills */}
       <SelectedSkillsPanel />
 
       {/* Skill Library */}
-      <SkillLibrary onClawHubStatus={handleStatus} />
+      <SkillLibrary onSkillHubStatus={handleStatus} />
     </div>
   );
 }

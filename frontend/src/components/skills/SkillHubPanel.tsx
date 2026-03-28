@@ -4,7 +4,7 @@ import { useSkillStore } from '@/store/skillStore';
 import { humanize } from '@/lib/formatters';
 import type { Skill } from '@/types';
 
-interface ClawHubPanelProps {
+interface SkillHubPanelProps {
   status: string;
   statusError: boolean;
   onStatus: (msg: string, isError?: boolean) => void;
@@ -20,7 +20,7 @@ interface SkillsResponse {
   skills: Skill[];
 }
 
-export function ClawHubPanel({ status, statusError, onStatus }: ClawHubPanelProps) {
+export function SkillHubPanel({ status, statusError, onStatus }: SkillHubPanelProps) {
   const [inputVal, setInputVal] = useState('');
   const [installing, setInstalling] = useState(false);
   const setAvailableSkills = useSkillStore((s) => s.setAvailableSkills);
@@ -68,7 +68,7 @@ export function ClawHubPanel({ status, statusError, onStatus }: ClawHubPanelProp
       </div>
 
       <div className="skills-hub-bar-right">
-        <span className="skills-hub-bar-label">ClawHub</span>
+        <span className="skills-hub-bar-label">SkillHub</span>
         <input
           type="text"
           className="skills-hub-input"

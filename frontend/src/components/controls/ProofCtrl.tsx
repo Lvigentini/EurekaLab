@@ -18,7 +18,7 @@ interface ProofCtrlProps {
 const RUNNING_LABELS: Record<string, { label: string; sub: string }> = {
   survey:     { label: 'Reading papers', sub: 'Searching the literature — pause will queue for the proof stage' },
   ideation:   { label: 'Generating ideas', sub: 'Exploring hypotheses — pause will queue for the proof stage' },
-  theory:     { label: 'Proving the theorem', sub: 'Pause will stop safely at the next proof checkpoint' },
+  theory:     { label: 'Developing analysis', sub: 'Pause will stop safely at the next checkpoint' },
   experiment: { label: 'Running experiments', sub: 'Validating the theory numerically' },
   writer:     { label: 'Writing the paper', sub: 'Assembling your LaTeX paper' },
 };
@@ -111,10 +111,10 @@ export function ProofCtrl({ run, onRestartFast }: ProofCtrlProps) {
           </div>
           <p className="proof-ctrl-running-hint" id="proof-ctrl-running-hint">
             {pauseDisabled
-              ? 'The theorem proof is complete. Pause is not available at this stage.'
+              ? 'The analysis is complete. Pause is not available at this stage.'
               : activeOuter === 'theory'
-              ? 'Your progress is safe — EurekaLab will stop at the next natural checkpoint.'
-              : 'Pause will take effect when theorem-proving begins.'}
+              ? 'Your progress is safe — will stop at the next checkpoint.'
+              : 'Pause will take effect when analysis begins.'}
           </p>
         </div>
       )}

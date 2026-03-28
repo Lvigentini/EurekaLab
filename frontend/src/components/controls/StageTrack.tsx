@@ -10,7 +10,7 @@ const STAGE_ORDER = ['survey', 'ideation', 'theory', 'experiment', 'writer'] as 
 const STAGE_LABELS: Record<string, { emoji: string; label: string }> = {
   survey:     { emoji: '📚', label: 'Reading' },
   ideation:   { emoji: '💡', label: 'Ideas' },
-  theory:     { emoji: '📐', label: 'Proof' },
+  theory:     { emoji: '🔍', label: 'Proof' },
   experiment: { emoji: '🧪', label: 'Testing' },
   writer:     { emoji: '✍️', label: 'Writing' },
 };

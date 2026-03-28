@@ -21,10 +21,10 @@ function skillSearchText(skill: Skill): string {
 }
 
 interface SkillLibraryProps {
-  onClawHubStatus: (msg: string, isError?: boolean) => void;
+  onSkillHubStatus: (msg: string, isError?: boolean) => void;
 }
 
-export function SkillLibrary({ onClawHubStatus }: SkillLibraryProps) {
+export function SkillLibrary({ onSkillHubStatus }: SkillLibraryProps) {
   const availableSkills = useSkillStore((s) => s.availableSkills);
   const selectedSkills = useSkillStore((s) => s.selectedSkills);
   const setAvailableSkills = useSkillStore((s) => s.setAvailableSkills);
@@ -56,9 +56,9 @@ export function SkillLibrary({ onClawHubStatus }: SkillLibraryProps) {
       await apiDelete(`/api/skills/${encodeURIComponent(name)}`);
       setAvailableSkills(availableSkills.filter((s) => s.name !== name));
       setSelectedSkills(selectedSkills.filter((n) => n !== name));
-      onClawHubStatus(`Removed '${humanize(name)}'.`);
+      onSkillHubStatus(`Removed '${humanize(name)}'.`);
     } catch (err) {
-      onClawHubStatus(`Could not delete: ${(err as Error).message}`, true);
+      onSkillHubStatus(`Could not delete: ${(err as Error).message}`, true);
     }
   };
 
@@ -76,7 +76,7 @@ export function SkillLibrary({ onClawHubStatus }: SkillLibraryProps) {
         <input
           className="skills-search-input"
           type="text"
-          placeholder="Search by name, topic, or proof technique…"
+          placeholder="Search by name, topic, or research approach…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -86,7 +86,7 @@ export function SkillLibrary({ onClawHubStatus }: SkillLibraryProps) {
         {filtered.length === 0 ? (
           <div className="skills-empty">
             <p>No skills match your search.</p>
-            <p>Try a different keyword, or install new skills from ClawHub.</p>
+            <p>Try a different keyword, or install new skills from SkillHub.</p>
           </div>
         ) : (
           visible.map((skill) => (

@@ -11,7 +11,7 @@ const MODES = [
     key: 'detailed',
     icon: '📐',
     label: 'Prove',
-    desc: 'State a conjecture and get a full proof',
+    desc: 'State a claim and build a rigorous argument',
     promptLabel: 'Conjecture / theorem to prove',
     promptPlaceholder: 'e.g. The sample complexity of transformers is O(L·d·log(d)/ε²)',
     requirePrompt: true,
@@ -129,7 +129,7 @@ export function NewSessionForm() {
     if (cfg.requireDomain && !domain.trim()) return `Research domain is required for ${mode} mode.`;
     if (cfg.requirePrompt && !prompt.trim()) {
       return mode === 'detailed'
-        ? 'Please enter the conjecture or theorem you want EurekaLab to prove.'
+        ? 'Please enter the research question or claim you want EurekaLab to investigate.'
         : 'Research prompt is required for this mode.';
     }
     return null;
@@ -187,8 +187,8 @@ export function NewSessionForm() {
     <div className="new-session-pane" id="new-session-pane">
       <div className="new-session-card">
         <div className="canvas-heading">
-          <h2 className="canvas-title">What would you like to prove?</h2>
-          <p className="canvas-sub">EurekaLab surveys the literature, generates theorems, and writes a complete mathematical proof — autonomously.</p>
+          <h2 className="canvas-title">What would you like to research?</h2>
+          <p className="canvas-sub">EurekaLab analyzes the literature, develops insights, and writes a complete paper — autonomously.</p>
         </div>
         <div className="canvas-form-body">
           <div className="canvas-mode-row">

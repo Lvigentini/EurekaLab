@@ -13,7 +13,7 @@ function skillSourceClass(source: string | undefined): string {
 }
 
 function skillSourceLabel(source: string | undefined): string {
-  const map: Record<string, string> = { seed: 'Built-in', distilled: 'Learned', manual: 'Custom', clawhub: 'ClawHub' };
+  const map: Record<string, string> = { seed: 'Built-in', distilled: 'Learned', manual: 'Custom', skillhub: 'SkillHub' };
   return map[source || 'manual'] || source || 'Custom';
 }
 

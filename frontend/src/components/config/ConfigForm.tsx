@@ -349,7 +349,7 @@ export function ConfigForm({ onRefreshHealth }: Props) {
           <span className="settings-section-icon">⚙</span>
           <div>
             <h3 className="settings-section-title">Pipeline</h3>
-            <p className="settings-section-desc">Control how EurekaLab runs proofs</p>
+            <p className="settings-section-desc">Control analysis settings</p>
           </div>
         </div>
 

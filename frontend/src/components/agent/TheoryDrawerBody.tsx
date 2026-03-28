@@ -11,7 +11,7 @@ export function TheoryDrawerBody({ arts }: TheoryDrawerBodyProps) {
     return (
       <div className="drawer-empty-state">
         <span>📐</span>
-        <p>The proof hasn't started yet — the theorem sketch will appear here once the theory agent begins its work.</p>
+        <p>The analysis hasn't started yet — the theorem sketch will appear here once the theory agent begins its work.</p>
       </div>
     );
   }

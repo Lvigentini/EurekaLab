@@ -4,9 +4,9 @@ import type { WizardStep } from '@/types';
 
 const WIZARD_STEPS: WizardStep[] = [
   {
-    icon: '🦞',
+    icon: '🔬',
     title: 'Welcome to EurekaLab',
-    subtitle: 'An AI co-author that takes your mathematical question all the way to a camera-ready paper.',
+    subtitle: 'An AI co-author that takes your research question all the way to a camera-ready paper.',
     visual: `
       <div class="wiz-pipeline">
         <div class="wiz-pipe-step"><span class="wiz-pipe-icon">📚</span><span>Survey</span></div>
@@ -19,11 +19,11 @@ const WIZARD_STEPS: WizardStep[] = [
         <div class="wiz-pipe-arrow">→</div>
         <div class="wiz-pipe-step"><span class="wiz-pipe-icon">✍️</span><span>Paper</span></div>
       </div>
-      <p class="wiz-pipeline-caption">You give a question or domain. EurekaLab does the rest — reading papers, formulating theorems, proving them, and writing a LaTeX paper.</p>
+      <p class="wiz-pipeline-caption">You give a question or domain. EurekaLab does the rest — reading papers, analyzing literature, developing insights, and writing a LaTeX paper.</p>
     `,
     items: [
       { label: 'Reads 100s of papers on arXiv & Semantic Scholar', note: 'Identifies research gaps and related work automatically' },
-      { label: 'Generates theorems and proves them step by step', note: 'Bottom-up proof pipeline with lemma verification — low-confidence steps are flagged' },
+      { label: 'Develops research insights through multi-stage analysis', note: 'Bottom-up proof pipeline with lemma verification — low-confidence steps are flagged' },
       { label: 'Runs numerical experiments to validate theory', note: 'Checks that bounds hold empirically before writing' },
       { label: 'Produces a camera-ready LaTeX paper + PDF', note: 'Theorem environments, bibliography, and figures included' },
       { label: 'Your data stays on your machine — MIT licensed', note: 'No data is sent anywhere except the AI model you configure' },
@@ -100,7 +100,7 @@ const WIZARD_STEPS: WizardStep[] = [
     title: 'Optional Power Tools',
     subtitle: 'None of these are required. Each one unlocks a specific capability.',
     items: [
-      { label: 'Lean 4 — formal proof verification', code: 'curl https://elan.lean-lang.org/elan-init.sh | sh', note: 'Makes EurekaLab mathematically rigorous — proofs are formally checked, not just LLM-evaluated', optional: true },
+      { label: 'Lean 4 — formal verification', code: 'curl https://elan.lean-lang.org/elan-init.sh | sh', note: 'Makes EurekaLab mathematically rigorous — proofs are formally checked, not just LLM-evaluated', optional: true },
       { label: 'LaTeX / MacTeX — PDF compilation', code: 'brew install --cask mactex-no-gui   # macOS\nsudo apt install texlive-full       # Linux', note: 'Needed to compile paper.pdf — the .tex source file is always generated even without this', optional: true, badge: 'macOS / Linux' },
       { label: 'Docker — safe code sandbox', note: 'Install from docker.com — lets experiments run in an isolated container', optional: true },
       { label: 'Semantic Scholar API key', code: 'S2_API_KEY=your-key-here   # in .env', note: 'Unlocks citation counts, venue rankings, and richer paper metadata', optional: true },
@@ -111,11 +111,11 @@ const WIZARD_STEPS: WizardStep[] = [
   {
     icon: '🧠',
     title: 'Activate Built-in Skills',
-    subtitle: 'Skills are proof strategies and writing rules that all agents share. Install them once.',
+    subtitle: 'Skills are research strategies and writing rules that all agents share. Install them once.',
     items: [
-      { label: 'Install seed skills (run this once)', code: 'eurekalab install-skills', note: 'Saves proof patterns to ~/.eurekalab/skills/ — these persist across all future sessions' },
+      { label: 'Install seed skills (run this once)', code: 'eurekalab install-skills', note: 'Saves research patterns to ~/.eurekalab/skills/ — these persist across all future sessions' },
       { label: 'See what skills are installed', code: 'eurekalab skills' },
-      { label: 'Theory skills included', note: 'Mathematical induction, proof by contradiction, compactness, concentration inequalities, UCB regret bounds' },
+      { label: 'Theory skills included', note: 'Systematic review, thematic analysis, hypothesis testing, concentration inequalities, UCB regret bounds' },
       { label: 'Survey & writing skills included', note: 'Literature gap analysis, theorem statement style, proof readability, reference formatting' },
       { label: 'Add your own skills anytime', code: '# Save any .md file into ~/.eurekalab/skills/', note: 'EurekaLab also distills new skills automatically after each successful proof', optional: true },
     ],

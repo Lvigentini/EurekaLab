@@ -12,7 +12,7 @@ interface WorkspaceTabsProps {
 
 const TABS = [
   { key: 'live', label: 'Live' },
-  { key: 'proof', label: 'Proof' },
+  { key: 'proof', label: 'Analysis' },
   { key: 'paper', label: 'Paper' },
   { key: 'logs', label: 'Logs' },
   { key: 'history', label: 'History' },
