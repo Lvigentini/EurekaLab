@@ -295,22 +295,176 @@ This is where the AI provides the most value. The review stage has **configurabl
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**The Four Reviewer Personas:**
+**Reviewer Persona System:**
+
+Reviewer personas are **pluggable files** — same architecture as the skills system. Built-in personas ship with EurekaLab; additional personas (journal-specific, expert reviewers) can be loaded from a registry, shared, or sold.
+
+### Built-In Personas (Free, ships with EurekaLab)
 
 | Persona | System Prompt Essence | Output Style |
 |---------|----------------------|-------------|
 | **Adversarial** (🔴) | "Your job is to find every weakness. Be the toughest reviewer this paper could face. If it survives you, it survives anyone. Attack assumptions, methodology, novelty, and claims." | Harsh but specific. Every critique has evidence. No softening. |
 | **Rigorous** (🟡) | "You are a thorough, fair peer reviewer. Evaluate methodology, clarity, novelty, and completeness. Classify issues as major/minor. Be honest but balanced." | Standard peer review format. Major/minor/suggestion. Balanced tone. |
 | **Constructive** (🟢) | "Your goal is to help the author improve. Start with strengths. For every weakness, suggest a specific improvement. Be encouraging but honest." | Strengths first. Every critique paired with actionable fix. Warm but rigorous. |
-| **Journal-Specific** (🔵) | "Review this paper as if you are reviewing for [venue]. Apply the specific standards, scope expectations, and formatting requirements of that venue." | Venue-aware. Scope fit, format compliance, audience appropriateness. |
+
+### Journal-Specific Personas (Loadable — Premium Potential)
+
+Each journal persona is a `.md` or `.json` file that encodes:
+- The journal's scope and aims
+- Typical reviewer expectations (novelty threshold, methodology standards)
+- Formatting requirements (word limits, section structure, citation style)
+- Common rejection reasons for that venue
+- Tone and depth expectations
+
+```yaml
+# Example: ~/.eurekalab/reviewers/neurips-2026.yaml
+name: "NeurIPS 2026"
+type: journal
+icon: "🔵"
+scope: "Machine learning, computational neuroscience, optimization, learning theory"
+standards:
+  novelty: "Must significantly advance the state of the art"
+  methodology: "Formal proofs or rigorous experiments required"
+  format: "9 pages + unlimited appendix, NeurIPS LaTeX template"
+  common_rejections:
+    - "Incremental improvement over existing work"
+    - "Missing comparison with concurrent work"
+    - "Experimental setup does not match claims"
+review_prompt: |
+  You are reviewing for NeurIPS 2026. This is a top-tier ML venue.
+  Evaluate: significance, novelty, correctness, clarity, related work.
+  Score 1-10 on each dimension. Provide overall recommendation:
+  Accept / Weak Accept / Borderline / Weak Reject / Reject.
+  Be calibrated to NeurIPS acceptance rate (~25%).
+```
+
+**Example journal personas:**
+- NeurIPS, ICML, ICLR (ML conferences)
+- Nature, Science (broad-scope journals)
+- JMLR, PAMI, TPDS (domain-specific journals)
+- PLOS ONE, Scientific Reports (open access)
+- ACL, EMNLP (NLP conferences)
+- CVPR, ECCV (computer vision)
+- CHI, CSCW (HCI)
+
+### Expert Reviewer Personas (Loadable — Premium Potential)
+
+Expert personas simulate a reviewer with specific disciplinary expertise. They catch things a general reviewer would miss:
+
+```yaml
+# Example: ~/.eurekalab/reviewers/statistician.yaml
+name: "Statistician"
+type: expert
+icon: "📊"
+expertise: "Statistical methodology, experimental design, causal inference"
+focus_areas:
+  - "Appropriate statistical test selection"
+  - "Sample size and power analysis"
+  - "Multiple comparison corrections"
+  - "Confidence interval interpretation"
+  - "Effect size reporting"
+  - "Assumption violations"
+review_prompt: |
+  You are a statistical methods expert reviewing this paper.
+  Focus specifically on:
+  - Are the statistical tests appropriate for the data?
+  - Is the sample size sufficient? Was power analysis conducted?
+  - Are assumptions (normality, independence, etc.) met or tested?
+  - Are confidence intervals reported alongside p-values?
+  - Are multiple comparisons properly corrected?
+  - Are effect sizes reported and interpreted?
+  Ignore: writing style, novelty, related work (other reviewers handle those).
+```
+
+**Example expert personas:**
+- **Statistician** — statistical methods, experimental design, causal inference
+- **Methodologist** — research design, validity threats, reproducibility
+- **Domain Expert** (configurable) — deep knowledge of a specific sub-field
+- **Ethics Reviewer** — ethical implications, bias, dual use, informed consent
+- **Reproducibility Checker** — code availability, data access, method detail, parameter reporting
+- **Writing Coach** — clarity, structure, academic English, readability scores
+- **Citation Auditor** — citation completeness, self-citation ratio, missing key references
+- **Accessibility Reviewer** — plain language, figure descriptions, colour-blind safety
+
+### Persona Registry Architecture
+
+```
+~/.eurekalab/
+  reviewers/                     # User's installed reviewer personas
+    adversarial.yaml             # Built-in (shipped with app)
+    rigorous.yaml                # Built-in
+    constructive.yaml            # Built-in
+    neurips-2026.yaml            # Installed from registry
+    jmlr.yaml                    # Installed from registry
+    statistician.yaml            # Installed from registry
+    my-custom-reviewer.yaml      # User-created
+```
+
+**Persona file format:**
+```yaml
+name: "Display Name"
+type: "builtin" | "journal" | "expert" | "custom"
+icon: "emoji"
+description: "One-line description shown in persona selector"
+author: "Creator name"
+version: "1.0"
+# For journal type:
+scope: "Journal scope description"
+standards: { ... }
+common_rejections: [...]
+# For expert type:
+expertise: "Area of expertise"
+focus_areas: [...]
+# For all types:
+review_prompt: |
+  The full system prompt for this reviewer persona.
+  Can use {venue}, {paper_type}, {domain} placeholders.
+# Optional:
+scoring_dimensions: ["novelty", "rigor", "clarity", "significance"]
+scoring_scale: "1-10"
+recommendation_options: ["Accept", "Weak Accept", "Borderline", "Weak Reject", "Reject"]
+```
+
+**Loading and discovery:**
+- Built-in personas ship in `eurekalab/reviewer_personas/` (package data)
+- User personas in `~/.eurekalab/reviewers/`
+- CLI: `eurekalab reviewer list`, `eurekalab reviewer install <name>`
+- API: `GET /api/reviewers` (lists all available personas)
+- Future: registry/marketplace for sharing and selling persona packs
+
+### Multi-Reviewer Stacking
+
+Users can run **multiple reviewers** on the same paper in sequence:
+
+```
+1. Run "Adversarial" → get worst-case critique
+2. Address major issues
+3. Run "NeurIPS 2026" → check venue fit
+4. Run "Statistician" → verify methods
+5. Run "Constructive" → final polish suggestions
+```
+
+Each reviewer's comments are tracked separately. The user sees a combined view with comments attributed to each reviewer persona.
+
+### Revenue Model (Open Core)
+
+| Tier | What's Included | Cost |
+|------|----------------|------|
+| **Free** (open source) | 3 built-in personas (adversarial, rigorous, constructive) + custom persona creation | Free |
+| **Journal Packs** | Curated journal personas (e.g. "Top ML Venues" pack: NeurIPS, ICML, ICLR, JMLR, PAMI) | Paid per pack |
+| **Expert Packs** | Expert reviewer personas (e.g. "Methods Pack": statistician, methodologist, reproducibility) | Paid per pack |
+| **Custom** | User creates their own personas from the YAML template | Free (tool is free, content is user's) |
+
+The app itself stays fully open source. The personas are text files — users can always create their own. The paid packs offer **curated, tested, calibrated** personas that have been validated against real journal standards.
 
 **Review interaction features:**
 - User marks each comment as **Addressed** or **Disagree** (with explanation)
-- AI tracks resolution progress
+- AI tracks resolution progress per reviewer persona
 - Re-run review after revisions — AI checks if previous issues are resolved
 - "Generate response to reviewers" — produces a structured rebuttal document
-- Multiple review rounds (user can run adversarial first, then constructive)
-- Custom instructions stack on top of persona: "Focus on statistical methods"
+- Multiple review rounds (user can run adversarial first, then constructive, then journal-specific)
+- Custom instructions stack on top of any persona: "Focus on statistical methods"
+- Review history preserved in version store — see how feedback evolved
 
 ---
 
@@ -337,7 +491,7 @@ The pipeline, agents, and version store all remain. What changes:
 |-----------|--------|
 | **GateController** | Enhanced to present richer input surfaces (paper curation, direction debate, outline approval) |
 | **MetaOrchestrator** | Reads what the user provided at each gate and adjusts agent behaviour accordingly |
-| **ReviewerAgent** (new) | Dedicated agent with 4 persona prompts + custom instruction support |
+| **ReviewerAgent** (new) | Dedicated agent with pluggable persona registry (built-in + journal + expert + custom) |
 | **WriterAgent** | Gains a "scaffold" mode (generates section drafts) and a "review" mode (critiques user text) |
 | **SurveyAgent** | Gains transparency output: search strategy, per-paper relevance explanation |
 | **InputSpec** | No new fields needed — the existing `additional_context`, `paper_ids`, `draft_content` etc. already capture user input |
@@ -353,40 +507,83 @@ The pipeline, agents, and version store all remain. What changes:
 | **Review** (new) | Reviewer persona selector, structured feedback, resolution tracking |
 | **History** | Unchanged — works even better in this model |
 
-### New Agent: ReviewerAgent
+### New Agent: ReviewerAgent with Persona Registry
 
 ```python
-class ReviewerAgent(BaseAgent):
-    """Critical reviewer with configurable personas."""
+class ReviewerPersona:
+    """A loadable reviewer persona — from YAML file."""
+    name: str
+    type: str           # builtin, journal, expert, custom
+    icon: str
+    description: str
+    review_prompt: str
+    scoring_dimensions: list[str]
+    # ... loaded from YAML
 
-    PERSONAS = {
-        "adversarial": "You are the toughest reviewer...",
-        "rigorous": "You are a thorough, fair peer reviewer...",
-        "constructive": "Your goal is to help the author improve...",
-        "journal": "Review as if for {venue}...",
-    }
+class ReviewerAgent(BaseAgent):
+    """Critical reviewer with pluggable persona registry."""
+
+    def __init__(self, ...):
+        super().__init__(...)
+        self._personas = self._load_personas()  # built-in + ~/.eurekalab/reviewers/
+
+    def _load_personas(self) -> dict[str, ReviewerPersona]:
+        """Load all personas: built-in package data + user directory."""
+        ...
 
     async def review(
         self,
         paper_text: str,
-        persona: str = "rigorous",
+        persona_name: str = "rigorous",
         custom_instructions: str = "",
-        venue: str = "",
         previous_comments: list[dict] | None = None,
     ) -> ReviewResult:
+        persona = self._personas[persona_name]
+        system = persona.review_prompt
+        if custom_instructions:
+            system += f"\n\nAdditional focus: {custom_instructions}"
+        if previous_comments:
+            system += f"\n\nPrevious review had {len(previous_comments)} comments. Check if addressed."
         ...
+
+    def list_personas(self) -> list[ReviewerPersona]:
+        """Return all available personas for the UI selector."""
+        ...
+```
+
+```
+eurekalab/
+  reviewer_personas/              # Built-in (shipped with package)
+    adversarial.yaml
+    rigorous.yaml
+    constructive.yaml
+  agents/reviewer/
+    agent.py                      # ReviewerAgent
+    persona.py                    # ReviewerPersona loader
+    registry.py                   # Discover + load from both dirs
 ```
 
 ---
 
 ## 6. Implementation Phases
 
-### Phase 1: ReviewerAgent + Review UI
+### Phase 1: ReviewerAgent + Persona Registry + Review UI
 **Highest value, most differentiated feature.** Build first.
-- Create ReviewerAgent with 4 personas
-- Review API endpoint: `POST /api/runs/<id>/review`
-- Review panel in workspace with persona selector and comment tracking
+- ReviewerPersona loader (YAML-based, same pattern as skills)
+- 3 built-in personas (adversarial, rigorous, constructive) shipped as package data
+- ReviewerAgent with persona selection + custom instruction stacking
+- Persona directory: `~/.eurekalab/reviewers/` for user-installed personas
+- Review API endpoints: `GET /api/reviewers` (list), `POST /api/runs/<id>/review`
+- Review panel in workspace with persona selector card grid and comment tracking
+- Multi-reviewer stacking (run multiple, combined view with attribution)
+- Comment resolution tracking (addressed / disagree with explanation)
 - Works on any text — user can paste a paper and get a review immediately
+
+### Phase 1b: Journal + Expert Persona Packs
+- Create 5 journal personas (NeurIPS, ICML, Nature, JMLR, PLOS ONE) with calibrated prompts
+- Create 4 expert personas (Statistician, Methodologist, Ethics, Writing Coach)
+- CLI: `eurekalab reviewer list`, `eurekalab reviewer install <name>`
+- Persona install from URL or local file
 
 ### Phase 2: Enhanced Literature Gate
 - Paper curation panel after survey (accept/reject per paper, relevance explanations)
