@@ -4,6 +4,37 @@ Summary of all updates from `UPDATES.md`.
 
 ---
 
+## v0.6.3 — 2026-03-29 (Reviewer System)
+
+### Pluggable Reviewer Personas
+- 3 built-in personas: Adversarial, Rigorous, Constructive (YAML files in package)
+- ReviewerRegistry loads from built-in + `~/.eurekalab/reviewers/`
+- User personas override built-ins by filename
+- Journal-specific and expert personas can be installed separately
+
+### ReviewerAgent
+- Persona-driven LLM review with structured JSON output
+- ReviewResult: summary, strengths, comments (major/minor/suggestion), scores, recommendation
+- Custom instructions stack on persona prompts
+- Re-review mode detects previously unresolved comments
+- Multi-reviewer stacking (run multiple personas sequentially)
+
+### Review Panel (UI)
+- 6th workspace tab: persona card selector, custom instructions, run review
+- Structured results: strengths, issues by severity with color-coded borders, score bars
+- Multi-round tabs for stacked reviews
+
+### CLI + API
+- `eurekalab reviewer list` / `reviewer install`
+- `eurekalab review <file> --persona adversarial --instructions "focus on methods"`
+- `GET /api/reviewers`, `POST /api/runs/<id>/review`
+
+### Stats
+- 30 new tests (persona registry + reviewer agent)
+- 331 total tests passing
+
+---
+
 ## v0.6.1 — 2026-03-28
 
 - Merged library-auth feature branch (DOI field, CrossRef/Unpaywall, PdfDownloader, university proxy auth, Zotero PDF sync, OpenAlex search)

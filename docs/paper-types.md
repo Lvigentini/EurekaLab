@@ -128,3 +128,23 @@ Paper type (`--paper-type`) and entry mode (the command) are orthogonal:
 | **review** | Unusual | Works | Works | Natural fit | Works | Natural fit |
 | **experimental** | Unusual | Works | Works | Works | Works | Works |
 | **discussion** | Unusual | Works | Works | Works | Natural fit | Works |
+
+## Reviewing Your Paper
+
+After writing (or at any stage), use the **Review** tab to get structured feedback:
+
+```bash
+# From the terminal
+eurekalab review paper.tex --persona adversarial
+eurekalab review paper.tex --persona constructive --instructions "focus on the methodology"
+
+# From the UI
+# Click the Review tab → select a persona → Run Review
+```
+
+Three built-in reviewer personas:
+- **Adversarial** — finds every weakness, toughest possible review
+- **Rigorous** — balanced peer review with major/minor classification
+- **Constructive** — strengths first, every critique paired with actionable fix
+
+Additional personas (journal-specific, expert reviewers) can be installed from YAML files.

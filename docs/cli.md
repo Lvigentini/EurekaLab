@@ -679,6 +679,63 @@ eurekalab library-auth test "10.1109/TIT.2023.1234567"
 
 ---
 
+### `reviewer list` — List available reviewer personas
+
+```bash
+eurekalab reviewer list
+```
+
+Prints a Rich table of all available reviewer personas (built-in and user-installed), showing persona name, style description, and source (`built-in` or the path to the installed YAML file).
+
+---
+
+### `reviewer install` — Install a reviewer persona from YAML
+
+```bash
+eurekalab reviewer install <persona_file>
+```
+
+**Arguments:**
+- `persona_file` — Path to a YAML persona definition file (must exist)
+
+Installs the persona to `~/.eurekalab/reviewers/`. User-installed personas override built-ins with the same filename.
+
+**Example:**
+```bash
+eurekalab reviewer install ./neurips-reviewer.yaml
+eurekalab reviewer install ~/personas/adversarial-cv.yaml
+```
+
+---
+
+### `review` — Review a paper with an AI reviewer persona
+
+```bash
+eurekalab review <file_path> [OPTIONS]
+```
+
+**Arguments:**
+- `file_path` — Path to the paper to review (`.tex`, `.md`, or `.pdf`; must exist)
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `--persona`, `-p` | `rigorous` | Reviewer persona to use: `adversarial`, `rigorous`, `constructive`, or any installed persona name |
+| `--instructions`, `-i` | `""` | Custom instructions stacked on top of the persona prompt (e.g. `"focus on the methodology"`) |
+
+Runs the ReviewerAgent with the selected persona and produces a structured review: summary, strengths, major/minor comments, suggestions, scores, and recommendation. Custom instructions narrow the review focus without replacing the persona's base behavior.
+
+**Example:**
+```bash
+eurekalab review paper.tex
+eurekalab review paper.tex --persona adversarial
+eurekalab review paper.tex --persona constructive --instructions "focus on the methodology"
+eurekalab review paper.pdf --persona rigorous --instructions "check all theorem citations"
+```
+
+---
+
 ## Output Artifacts
 
 All three research commands (`prove`, `explore`, `from-papers`) write artifacts to `<output>/<session_id>/`:

@@ -4,10 +4,10 @@ Multi-agent system for theoretical research — proof-heavy, formalism-rich, mat
 
 ## Quick Reference
 
-- **Version:** 0.6.1
+- **Version:** 0.6.3
 - **Python:** 3.11+
 - **Entry:** `eurekalab/cli.py` (Click CLI), `eurekalab/main.py` (EurekaSession)
-- **Tests:** `pytest tests/ -v` (311 tests, ~6s)
+- **Tests:** `pytest tests/ -v` (331 tests, ~6s)
 - **Database:** `~/.eurekalab/eurekalab.db` (SQLite — session metadata + version history)
 - **Package:** `pip install -e "."` (or `pip install -e ".[all]"` for all extras — includes zotero, pdf)
 
@@ -31,6 +31,7 @@ Pipeline is defined in `eurekalab/orchestrator/pipelines/default_pipeline.yaml` 
 | GateController | `eurekalab/orchestrator/gate.py` | Human/auto gates, content status |
 | Config | `eurekalab/config.py` | Pydantic Settings, all env vars |
 | AnalystAgent | `eurekalab/agents/analyst/agent.py` | Flexible agent for non-proof core work |
+| ReviewerAgent | `eurekalab/agents/reviewer/agent.py` | Pluggable persona-driven paper review |
 
 ### Data Models
 All in `eurekalab/types/artifacts.py` and `eurekalab/types/tasks.py`:
@@ -57,6 +58,8 @@ All in `eurekalab/types/artifacts.py` and `eurekalab/types/tasks.py`:
 | `housekeep` | Global maintenance (push papers to Zotero) |
 | `push-to-zotero` | Sync session results back to Zotero |
 | `library-auth` | Institutional library access |
+| `review` | Review a paper with AI reviewer persona |
+| `reviewer list/install` | Manage reviewer personas |
 
 ## Paper Types
 
